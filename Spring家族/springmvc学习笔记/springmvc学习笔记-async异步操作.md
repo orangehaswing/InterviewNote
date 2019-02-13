@@ -222,5 +222,16 @@ Callable和Deferredresult做的是同样的事情——释放容器线程，在�
 				this.mavQueue.remove(result);
 			}
 		}
+通过任务执行器（TaskExecutor）来实现多线程和并发
+
+1. 利用@EnableAsync注解开启异步任务支持
+2. 通过在实际执行的Bean方法中使用@Async注解来声明其实一个异步任务
+
+通过Scheduled支持多种类型的计划任务
+
+- cron：按照指定时间执行，cron是UNIX和类UNIX(Linux)系统下的定时任务
+- fixDelay：固定等待时间
+- fixRate：每隔固定时间执行
+
 @Scheduled定时任务，设定时间2000ms。将ConcurrentLinkedQueue设定响应结果。
 

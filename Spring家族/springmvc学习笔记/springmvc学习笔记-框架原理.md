@@ -1,5 +1,9 @@
 # springmvc学习笔记(1)_框架原理
 
+## Bean定义
+
+每一个被Spring管理的Java对象都称之为Bean；而Spring提供了一个IOC容器用来初始化对象，解决对象间的依赖管理和对象的使用
+
 ## springmvc框架原理
 
 组件及其作用

@@ -1,18 +1,19 @@
 # springboot学习笔记-执行流程
 
-# 简介
+## 简介
 
 springboot是基于spring+java+web容器，微服务框架的杰出代表。微服务其实就是将服务粒度做小，使之可以独立承担对外服务的的职责。
 
-# 特征
+## 特征
 
+- ​
 - 遵循“约定胜于配置”的原则，使用spring boot只需要很少的配置，大部分时候可以使用默认配置
 - 项目快速搭建，可以配置整合第三方框架
 - 可完全不使用xml配置，借助java config
 - 内嵌Servlet（如 Tomcat）容器，可以jar包运行
 - 运行中的应用状态监控
 
-# 微服务优势：
+## 微服务优势：
 
 - 独立性。每个微服务都是一个独立的项目。可以独立对外提供服务，可以将研发人力资源很好的分摊，避免人力资源密集带来的沟通、协作成本。（低耦合原则）
 - 稳定性。任何一个微服务的失败都将只影响自己或少量其他微服务，不会影响整个服务运行体系。
@@ -33,7 +34,7 @@ public static void main(String[] args) {
 
 ```
 
-# 执行流程：
+## 执行流程：
 
 1.如果我们使用的是SpringApplication的静态run方法，首先需要创建一个SpringApplication对象实例。
 
@@ -123,6 +124,14 @@ spring boot提供了很多“开箱即用”的依赖模块，以"spring-boot-st
     <artifactId>spring-boot-starter-actuator</artifactId>
 </dependency>
 ```
+
+
+
+
+
+
+
+
 
 
 

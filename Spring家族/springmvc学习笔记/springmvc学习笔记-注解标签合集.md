@@ -168,7 +168,16 @@ public class ResponseController {
 }
 ```
 
-## Resource,Autowired,Inject
+## 声明Bean
+
+- @Component组件，没有明确的角色
+- @Service在业务逻辑层（service层）使用
+- @Repository在数据访问层（dao层）使用
+- @Controller在展现层（MVC -> Spring MVC）使用
+
+## 注入Bean注解
+
+**Resource,Autowired,Inject**
 
 | ANNOTATION |             PACKAGE              |    SOURCE    |
 | :--------: | :------------------------------: | :----------: |
