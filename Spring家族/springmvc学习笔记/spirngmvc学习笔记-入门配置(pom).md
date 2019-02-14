@@ -4,8 +4,8 @@
 
 spring配置发展的过程
 
-- xml配置：吧xml文件分放到不同的配置文件里
-- 注解配置：申明Bean的注解（@Component,@Service）。应用的基本配置（如数据库配置）用xml，业务配置用注解
+- xml配置：把xml文件分放到不同的配置文件里
+- 注解配置：声明Bean的注解（@Component,@Service）。应用的基本配置（如数据库配置）用xml，业务配置用注解
 - Java配置：SpringBoot推荐使用Java配置，可以更好理解配置的Bean
 
 ## pom.xml配置

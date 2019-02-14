@@ -135,7 +135,11 @@ downpour 写道**结论** DispatcherServlet的继承体系架起了DispatcherSe
 
 DispatcherServlet的数据结构：
 
+
+
 ![数据结构](http://dl.iteye.com/upload/attachment/0062/6933/6ea52d3d-fe87-3579-976e-d6edd1f0deb3.png)
+
+
 
 我们可以把在上面这张图中所构成DispatcherServlet的数据结构主要分为两类（我们在这里用一根分割线将其分割开来）：
 

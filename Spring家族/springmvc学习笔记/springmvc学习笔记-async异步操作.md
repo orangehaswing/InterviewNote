@@ -3,7 +3,9 @@
 按照原来的web.xml配置，运行异步，会出现报错：
 
 ```
-Handled exception :Async support must be enabled on a servlet and for all filters involved in async request processing. This is done in Java code using the Servlet API or by adding "true" to servlet and filter declarations in web.xml.
+Handled exception :Async support must be enabled on a servlet and for all filters involved in
+async request processing. This is done in Java code using the Servlet API or by adding "true"
+to servlet and filter declarations in web.xml.
 ```
 
 提示很清楚，不支持异步，需要在web.xml文件中设置 async 为 true。配置web.xml如下：

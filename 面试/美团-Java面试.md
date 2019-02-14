@@ -1,7 +1,5 @@
 # 面试
 
-
-
 [美团面试](https://github.com/Snailclimb/JavaGuide/tree/master/%E9%9D%A2%E8%AF%95%E5%BF%85%E5%A4%87)
 
  Java 面试问题列表包含的主题：
@@ -77,13 +75,204 @@ obj.wait(); // (Releases lock, and reacquires on wakeup)
 
 ## 有经验程序员的 Java 面试题
 
-12）用 wait-notify 写一段代码来解决生产者-消费者问题？**
+12）用 wait-notify 写一段代码来解决生产者-消费者问题？
 
 请参考答案中的示例代码。只要记住在同步块中调用 wait() 和 notify()方法，如果阻塞，通过循环来测试等待条件。
 
+```
+static class Producer implements Runnable{
+        private Clerk clerk;
+        public Producer(Clerk clerk)
+        {
+            this.clerk=clerk;
+        }
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            System.out.println("生产者开始生产产品");
+            while(true)
+            {
+                try {
+                  Thread.sleep(1000);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
+                clerk.addProduct();
+            }
+
+        }
+    }
+
+static class Consumer implements Runnable{
+        private Clerk clerk;
+        public Consumer(Clerk clerk)
+        {
+            this.clerk=clerk;
+        }
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            System.out.println("消费者开始消费产品");
+            while(true)
+            {
+                try {
+                  Thread.sleep(1000);
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
+                clerk.getProduct();
+            }
+
+        }
+```
+
+```
+ public static void main(String[] args)   
+    {  
+        Clerk clerk = new Clerk();  
+        Thread producerThread = new Thread(new Producer(clerk));  
+        Thread consumerThread = new Thread(new Consumer(clerk));  
+
+        producerThread.start();  
+        consumerThread.start();  
+    }  
+    static class Clerk {
+        private static final int MAX_PRODUCT = 20;
+        private static final int MIN_PRODUCT = 0;
+
+        private int PRODUCT = 0;
+
+        public synchronized void addProduct() {
+            if (this.PRODUCT >= MAX_PRODUCT) {
+                try {
+                    wait();
+                    System.out.println("产品已满,请稍候再生产");
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                return;
+            }
+            this.PRODUCT++;
+            System.out.println("生产者生产了第"+this.PRODUCT+"个产品");
+            notifyAll();
+        }
+
+        public synchronized void getProduct() {
+            if(this.PRODUCT <= MIN_PRODUCT) {
+                try {
+                    wait();
+                    System.out.println("产品处于缺货状态");
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                return;
+            }
+            System.out.println("消费者消费了第" + this.PRODUCT + "个产品");  
+            this.PRODUCT--;
+            notifyAll();
+        }
+    }
+```
+
+使用 BlockingQueue 实现生产者消费者问题**
+
+```
+public class ProducerConsumer {
+
+    private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(5);
+
+    private static class Producer extends Thread {
+        @Override
+        public void run() {
+            try {
+                queue.put("product");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.print("produce..");
+        }
+    }
+
+    private static class Consumer extends Thread {
+
+        @Override
+        public void run() {
+            try {
+                String product = queue.take();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.print("consume..");
+        }
+    }
+}
+
+public static void main(String[] args) {
+    for (int i = 0; i < 2; i++) {
+        Producer producer = new Producer();
+        producer.start();
+    }
+    for (int i = 0; i < 5; i++) {
+        Consumer consumer = new Consumer();
+        consumer.start();
+    }
+    for (int i = 0; i < 3; i++) {
+        Producer producer = new Producer();
+        producer.start();
+    }
+}
+```
+
 **13) 用 Java 写一个线程安全的单例模式（Singleton）？**
 
-请参考答案中的示例代码，这里面一步一步教你创建一个线程安全的 Java 单例类。当我们说线程安全时，意思是即使初始化是在多线程环境中，仍然能保证单个实例。Java 中，使用枚举作为单例类是最简单的方式来创建线程安全单例模式的方式。
+当我们说线程安全时，意思是即使初始化是在多线程环境中，仍然能保证单个实例。Java 中，使用枚举作为单例类是最简单的方式来创建线程安全单例模式的方式。
+
+不使用同步锁
+
+```
+public class Singleton {
+    private static Singleton sin=new Singleton();    ///直接初始化一个实例对象
+    private Singleton(){    ///private类型的构造函数，保证其他类对象不能直接new一个该对象的实例
+    }
+    public static Singleton getSin(){    ///该类唯一的一个public方法    
+        return sin;
+    }
+}
+```
+
+使用同步锁
+
+```
+public class Singleton {
+    private static Singleton sin=new Singleton();    ///直接初始化一个实例对象
+    private Singleton(){    ///private类型的构造函数，保证其他类对象不能直接new一个该对象的实例
+    }
+    public static Singleton getSin(){    ///该类唯一的一个public方法    
+        return sin;
+    }
+}
+```
+
+使用双重同步锁
+
+```
+public class Singleton {  
+     private static Singleton instance;  
+     private Singleton (){
+     }   
+     public static Singleton getInstance(){    //对获取实例的方法进行同步
+       if (instance == null){
+           synchronized(Singleton.class){
+               if (instance == null)
+                   instance = new Singleton(); 
+           }
+       }
+       return instance;
+     }
+ }
+```
 
 **14）Java 中 sleep 方法和 wait 方法的区别？**
 
@@ -91,7 +280,7 @@ obj.wait(); // (Releases lock, and reacquires on wakeup)
 
 **15）什么是不可变对象（immutable object）？Java 中怎么创建一个不可变对象？**
 
-不可变对象指对象一旦被创建，状态就不能再改变。任何修改都会创建一个新的对象，如 String、Integer及其它包装类。详情参见答案，一步一步指导你在 Java 中创建一个不可变的类。
+不可变对象指对象一旦被创建，状态就不能再改变。任何修改都会创建一个新的对象，如 String、Integer及其它包装类。
 
 **16）我们能创建一个包含可变对象的不可变对象吗？**
 
@@ -155,7 +344,7 @@ Integer 对象会占用更多的内存。Integer 是一个对象，需要存储�
 
 **28）为什么 Java 中的 String 是不可变的（Immutable）？**
 
-Java 中的 String 不可变是因为 Java 的设计者认为字符串使用非常频繁，将字符串设置为不可变可以允许多个客户端之间共享相同的字符串。更详细的内容参见答案。
+Java 中的 String 不可变是因为 Java 的设计者认为字符串使用非常频繁，将字符串设置为不可变可以允许多个客户端之间共享相同的字符串。
 
 **29）我们能在 Switch 中使用 String 吗？**
 
@@ -267,7 +456,7 @@ poll() 和 remove() 都是从队列中取出一个元素，但是 poll() 在获�
 
 PriorityQueue 保证最高或者最低优先级的的元素总是在队列头部，但是 LinkedHashMap 维持的顺序是元素插入的顺序。当遍历一个 PriorityQueue 时，没有任何顺序保证，但是 LinkedHashMap 课保证遍历顺序是元素插入的顺序。
 
-**51）ArrayList 与 LinkedList 的不区别？(答案)**
+**51）ArrayList 与 LinkedList 的区别？(答案)**
 
 最明显的区别是 ArrrayList 底层的数据结构是数组，支持随机访问，而 LinkedList 的底层数据结构书链表，不支持随机访问。使用下标访问一个元素，ArrayList 的时间复杂度是 O(1)，而 LinkedList 是 O(n)。更多细节的讨论参见答案。
 
@@ -275,7 +464,7 @@ PriorityQueue 保证最高或者最低优先级的的元素总是在队列头部
 
 你可以使用有序集合，如 TreeSet 或 TreeMap，你也可以使用有顺序的的集合，如 list，然后通过 Collections.sort() 来排序。
 
-**53）Java 中怎么打印数组？(answer答案)**
+**53）Java 中怎么打印数组？(答案)**
 
 你可以使用 Arrays.toString() 和 Arrays.deepToString() 方法来打印数组。由于数组没有实现 toString() 方法，所以如果将数组传递给 System.out.println() 方法，将无法打印出数组的内容，但是 Arrays.toString() 可以打印每个元素。
 
@@ -289,9 +478,15 @@ Java 中的 TreeMap 是使用红黑树实现的。
 
 **56) Hashtable 与 HashMap 有什么不同之处？(答案)**
 
-这两个类有许多不同的地方，下面列出了一部分： a) Hashtable 是 JDK 1 遗留下来的类，而 HashMap 是后来增加的。 b）Hashtable 是同步的，比较慢，但 HashMap 没有同步策略，所以会更快。 c）Hashtable 不允许有个空的 key，但是 HashMap 允许出现一个 null key。 更多的不同之处参见答案。
+这两个类有许多不同的地方，下面列出了一部分：
 
-**57）Java 中的 HashSet，内部是如何工作的？(answer答案)**
+ a) Hashtable 是 JDK 1 遗留下来的类，而 HashMap 是后来增加的。
+
+ b）Hashtable 是同步的，比较慢，但 HashMap 没有同步策略，所以会更快。 
+
+c）Hashtable 不允许有个空的 key，但是 HashMap 允许出现一个 null key。 
+
+**57）Java 中的 HashSet，内部是如何工作的？(答案)**
 
 HashSet 的内部采用 HashMap来实现。由于 Map 需要 key 和 value，所以所有 key 的都有一个默认 value。类似于 HashMap，HashSet 不允许重复的 key，只允许有一个null key，意思就是 HashSet 中只允许存储一个 null 对象。
 
@@ -299,7 +494,7 @@ HashSet 的内部采用 HashMap来实现。由于 Map 需要 key 和 value，所
 
 该问题的关键在于面试者使用的是 ArrayList 的 remove() 还是 Iterator 的 remove()方法。这有一段示例代码，是使用正确的方式来实现在遍历的过程中移除元素，而不会出现 ConcurrentModificationException 异常的示例代码。
 
-**59）我们能自己写一个容器类，然后使用 for-each 循环吗？**
+**59）我们能自己写一个容器类，然后使用 foreach 循环吗？**
 
 可以，你可以写一个自己的容器类。如果你想使用 Java 中增强的循环来遍历，你只需要实现 Iterable 接口。如果你实现 Collection 接口，默认就具有该属性。
 
@@ -366,11 +561,31 @@ IO 是 Java 面试中一个非常重要的点。你应该很好掌握 Java IO，
 
 **76）Java 中，编写多线程程序的时候你会遵循哪些最佳实践？(答案)**
 
-这是我在写Java 并发程序的时候遵循的一些最佳实践： a）给线程命名，这样可以帮助调试。 b）最小化同步的范围，而不是将整个方法同步，只对关键部分做同步。 c）如果可以，更偏向于使用 volatile 而不是 synchronized。 d）使用更高层次的并发工具，而不是使用 wait() 和 notify() 来实现线程间通信，如 BlockingQueue，CountDownLatch 及 Semeaphore。 e）优先使用并发集合，而不是对集合进行同步。并发集合提供更好的可扩展性。
+这是我在写Java 并发程序的时候遵循的一些最佳实践：
+
+ a）给线程命名，这样可以帮助调试。 
+
+b）最小化同步的范围，而不是将整个方法同步，只对关键部分做同步。 
+
+c）如果可以，更偏向于使用 volatile 而不是 synchronized。
+
+ d）使用更高层次的并发工具，而不是使用 wait() 和 notify() 来实现线程间通信，如 BlockingQueue，CountDownLatch 及 Semeaphore。
+
+ e）优先使用并发集合，而不是对集合进行同步。并发集合提供更好的可扩展性。
 
 **77）说出几点 Java 中使用 Collections 的最佳实践(答案)**
 
-这是我在使用 Java 中 Collectionc 类的一些最佳实践： a）使用正确的集合类，例如，如果不需要同步列表，使用 ArrayList 而不是 Vector。 b）优先使用并发集合，而不是对集合进行同步。并发集合提供更好的可扩展性。 c）使用接口代表和访问集合，如使用List存储 ArrayList，使用 Map 存储 HashMap 等等。 d）使用迭代器来循环集合。 e）使用集合的时候使用泛型。
+这是我在使用 Java 中 Collectionc 类的一些最佳实践：
+
+ a）使用正确的集合类，例如，如果不需要同步列表，使用 ArrayList 而不是 Vector。
+
+ b）优先使用并发集合，而不是对集合进行同步。并发集合提供更好的可扩展性。
+
+ c）使用接口代表和访问集合，如使用List存储 ArrayList，使用 Map 存储 HashMap 等等。
+
+ d）使用迭代器来循环集合。
+
+ e）使用集合的时候使用泛型。
 
 **78）说出至少 5 点在 Java 中使用线程的最佳实践。(答案)**
 

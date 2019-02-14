@@ -1,8 +1,16 @@
 # springboot学习笔记-启动类SpringApplication解析
 
-SpringBoot提供了内嵌Servlet容器并且提供了非常简单的应用启动方式-SpringApplication#run()
+## SpringBootApplication
 
-在任意的main方法中使用SpringApplication#run()即可完成应用的引导和启动.
+@SpringBootApplication注解主要组合了
+
+- @Configuration
+- @EnableAutoConfiguration:让Spring Boot根据类路径中的jar包依赖为当前项目进行自动配置
+- @ComponentScan
+
+SpringBoot提供了内嵌Servlet容器并且提供了非常简单的应用启动方式：SpringApplication.run()
+
+在任意的main方法中使用SpringApplication.run()即可完成应用的引导和启动.
 那么接下来为大家介绍一下它是如何启动的、它都做了些什么.
 
 默认情况下引导和启动应用的步骤如下:
@@ -21,8 +29,8 @@ public static void main(String[] args) throws Exception {
 
 ```
 
-> 你还可以创建SpringApplication实例,并调用run方法.
-> 你还可以直接使用SpringApplication中的main方法启动
+- 创建SpringApplication实例,并调用run方法.
+- 直接使用SpringApplication中的main方法启动
 
 通过SpringApplication的静态run方法,那我们接着来看下这个静态方法做了什么
 
@@ -33,7 +41,7 @@ public static ConfigurableApplicationContext run(Class<?>[] primarySources,S
 
 ```
 
-没错~它创建了一个SpringApplication实例并调用了实例中的公有run方法,并将main方法的参数传递过去(这些参数将会用来运行CommandLineRunner beans)
+它创建了一个SpringApplication实例并调用了实例中的公有run方法,并将main方法的参数传递过去(这些参数将会用来运行CommandLineRunner beans)
 我们进去实例方法中看一下做了什么
 
 ```
@@ -104,8 +112,6 @@ org.springframework.boot.liquibase.LiquibaseServiceLocatorApplicationListener
 
 我们在回到SpringApplication的重载函数观察第8行,它从stack trace中推断main方法所在的类并加载返回,至此SpringApplication构造器已经完成它的工作,在前面提到的SpringApplication静态run方法中已经完成了构造,紧接着就是调用了公用run方法
 
-> 方法中多次调用类中他处方法,所以没法通过添加注释说明,导致篇幅可能会有点长或者需要来回滚动,不过主要方法处设置了锚链接,你可以点击跳转.在非run方法中以注释说明,防止结构复杂
-
 ```
 public ConfigurableApplicationContext run(String... args) {
     StopWatch stopWatch = new StopWatch();//用来计时的
@@ -121,7 +127,9 @@ public ConfigurableApplicationContext run(String... args) {
         configureIgnoreBeanInfo(environment);
         Banner printedBanner = printBanner(environment);//  打印Banner用的对象
         context = createApplicationContext();
-        exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,new Class[] { ConfigurableApplicationContext.class }, context);// 从spring.facroties加载了 Error Reporters
+        // 从spring.facroties加载了 Error Reporters
+        exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class,
+        					new Class[] { ConfigurableApplicationContext.class }, context);
         prepareContext(context, environment, listeners, applicationArguments,printedBanner);
         refreshContext(context);
         afterRefresh(context, applicationArguments);
@@ -147,7 +155,6 @@ public ConfigurableApplicationContext run(String... args) {
     }
     return context;
 }
-
 ```
 
 首先在第4行创建了用来返回的可配置应用上下文对象 ConfigurableApplicationContext
@@ -160,7 +167,7 @@ org.springframework.boot.context.event.EventPublishingRunListener
 
 ```
 
-只有一个,从名字可以看出来它是干嘛用的,没错,用来发布事件用的,继承了SpringRunApplicationListener,内部有类 SimpleApplicationEventMulticaster 用来多路广播事件,事件如下:
+内部有类 SimpleApplicationEventMulticaster 用来发布事件用的,继承了SpringRunApplicationListener。用来多路广播事件,事件如下:
 
 - starting 首次调用run方法启动时立即调用
 - enviromentPrepared 环境已经准备完毕时调用,ApplicationContext被创建之前
@@ -170,7 +177,7 @@ org.springframework.boot.context.event.EventPublishingRunListener
 - running 在run方法结束前立即调用,此时应用上下文已被刷新,且CommandLineRunners和ApplicationRunners已被调用
 - failed 顾名思义,当启动应用出错时调用
 
-> 请注意此处的广播事件排序,在run方法启动时会以此顺序发布事件,当然除了fail以外,接下来的分析中将会贯穿这个流程
+请注意此处的广播事件排序,在run方法启动时会以此顺序发布事件,(除了fail以外)。
 
 接着分析run方法
 刚看完SpringApplicationRunListeners,紧接着run方法第8行我们就发现立刻调用了starting()方法发布了 ApplicationStartingEvent ,这就对应了我们刚刚说到的starting调用时机,Called immediately when the run method has first started. Can be used for very early initialization.
@@ -243,48 +250,50 @@ run方法第16行调用了 prepareContext() 方法,如下:
 private void prepareContext(ConfigurableApplicationContext context,
             ConfigurableEnvironment environment, SpringApplicationRunListeners listeners,
             ApplicationArguments applicationArguments, Banner printedBanner) {
-    context.setEnvironment(environment);//  填充应用环境到上下文
-    postProcessApplicationContext(context);//   应用上下文后处理
-    applyInitializers(context);//   运行所有实现了ApplicationContextInitializer的bean(在构造函数中从spring.factories中加载过,也可添加自己的,通过addInitializers方法)
-    listeners.contextPrepared(context);//   发布contextPrepared事件,对应事件顺序3
+    context.setEnvironment(environment);	// 填充应用环境到上下文
+    postProcessApplicationContext(context);	// 应用上下文后处理
+   	// 运行所有实现了ApplicationContextInitializer的bean
+   	//(在构造函数中从spring.factories中加载过,也可添加自己的,通过addInitializers方法)
+   	applyInitializers(context);
+    listeners.contextPrepared(context);	// 发布contextPrepared事件,对应事件顺序3
     if (this.logStartupInfo) {
         logStartupInfo(context.getParent() == null);
         logStartupProfileInfo(context);
     }
 
     // Add boot specific singleton beans
-    //  注册在run方法中创建了的 ApplicationArguments 的单例
+    // 注册在run方法中创建了的 ApplicationArguments 的单例
     context.getBeanFactory().registerSingleton("springApplicationArguments",applicationArguments);
     if (printedBanner != null) {
-        //  注册 Bannner 的单例
+        // 注册 Bannner 的单例
         context.getBeanFactory().registerSingleton("springBootBanner", printedBanner);
     }
 
     // Load the sources
-    Set<Object> sources = getAllSources();// getAllSource方法返回primarySources(比如静态run方法的入参一)以及sources(应用环境Enviroment中的PropertySource)
+    // getAllSource方法返回primarySources
+    // (比如静态run方法的入参一)以及sources(应用环境Enviroment中的PropertySource)
+    Set<Object> sources = getAllSources();
     Assert.notEmpty(sources, "Sources must not be empty");
     load(context, sources.toArray(new Object[0]));
     listeners.contextLoaded(context);// 发布contextLoaded事件,对应事件顺序4
 }
-
 ```
 
 run方法第17行调用了 refreshContext() 方法,如下:
 
 ```
 private void refreshContext(ConfigurableApplicationContext context) {
-    refresh(context);// 其实调用了应用上下文对象的refresh方法,里面做了很多事情
+    refresh(context);	// 其实调用了应用上下文对象的refresh方法,里面做了很多事情
     //如发布上下文更新事件
     if (this.registerShutdownHook) {
         try {
-            context.registerShutdownHook();// 注册应用关闭钩子,用于清理资源,调用AbstractApplicationContext#doClose()
+            context.registerShutdownHook();	// 注册应用关闭钩子,用于清理资源,调用AbstractApplicationContext#doClose()
         }
         catch (AccessControlException ex) {
             // Not allowed in some environments.
         }
     }
 }
-
 ```
 
 run方法第18行调用了 afterRefresh() 方法,如下:

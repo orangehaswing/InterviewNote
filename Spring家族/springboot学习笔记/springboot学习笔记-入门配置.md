@@ -33,10 +33,6 @@ Spring Boot使用“习惯优于配置”（项目中存在大量的配置，此
 </dependency>
 ```
 
-## 启动
-
-
-
 ## HelloWorld服务
 
 - 创建package：在com.orangehaswing.springboot下创建web包
@@ -58,12 +54,11 @@ public class HelloController {
 
 SpringBoot中默认的从application.properties文件中加载参数。也可以使用yml类型的配置文件代替properties文件。
 
-1. 应用配置文件(.properties或.yml):
-
-- 当前目录下的/config子目录，
-- 当前目录。
-- 一个classpath下的/config包
-- classpath根路径（root）
+1. 应用配置文件(.properties或.yml)
+2. 当前目录下的/config子目录
+3. 当前目录
+4. 一个classpath下的/config包
+5. classpath根路径（root）
 
 按优先级排序，位置高的将覆盖位置低的
 
@@ -124,15 +119,6 @@ public static void main(String[] args) {
     app.run(args);
 }
 ```
-
-## SpringBootApplication
-
-@SpringBootApplication注解主要组合了
-
-- @Configuration
-- @EnableAutoConfiguration:让Spring Boot根据类路径中的jar包依赖为当前项目进行自动配置
-- @ComponentScan;
-
 
 
 
