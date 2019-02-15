@@ -55,7 +55,9 @@ _start———–>reset————–>关闭中断
 ………………………………| 
 ………………………………———->cpu_init_crit————->lowlevel_init————->平台级和板级的初始化 
 ………………………………| 
-………………………………———->_main————–>board_init_f_alloc_reserve & board_init_f_init_reserve & board_init_f———->加载BL2,跳转到BL2 
+………………………………———->_main————–>board_init_f_alloc_reserve & board_init_f_init_reserve & board_init_f
+
+​					     ———->加载BL2,跳转到BL2 
 board_init_f执行时已经是C语言环境了。在这里需要结束掉SPL的工作，跳转到BL2中。
 
 ## 2、_start
@@ -177,7 +179,9 @@ b   lowlevel_init       @ go setup pll,mux,memory
 ENDPROC(cpu_init_crit)
 ```
 
-所以说lowlevel_init就是这个函数的核心。 lowlevel_init一般是由板级代码自己实现的。但是对于某些平台来说，也可以使用通用的lowlevel_init，其定义在arch/arm/cpu/lowlevel_init.S中 
+所以说lowlevel_init就是这个函数的核心。
+
+ lowlevel_init一般是由板级代码自己实现的。但是对于某些平台来说，也可以使用通用的lowlevel_init，其定义在arch/arm/cpu/lowlevel_init.S中 
 
 以tiny210为例，在移植tiny210的过程中，就需要在board/samsung/tiny210下，也就是板级目录下面创建lowlevel_init.S，在内部实现lowlevel_init。（其实只要实现了lowlevel_init了就好，没必要说在哪里是实现，但是通常规范都是创建了lowlevel_init.S来专门实现lowlevel_init函数）。
 
@@ -324,7 +328,7 @@ ENDPROC(_main)
 #define CONFIG_SPL_STACK    0xD0037FFF
 ```
 
-注意：上述还不是最终的堆栈地址，只是暂时的堆栈地址！！！
+注意：上述还不是最终的堆栈地址，只是暂时的堆栈地址！
 
 （2）为GD分配空间
 
@@ -373,7 +377,7 @@ ulong board_init_f_alloc_reserve(ulong top)
 
 board_init_f_init_reserve实现如下 
 `common/init/board_init.c `
-编译SPL的时候_USE_MEMCPY宏没有打开，所以我们去掉了_USE_MEMCPY的无关部分。
+编译SPL的时候  USE_MEMCPY 宏没有打开，所以我们去掉了_USE_MEMCPY的无关部分。
 
 ```
 void board_init_f_init_reserve(ulong base)
@@ -394,7 +398,46 @@ void board_init_f_init_reserve(ulong base)
 }
 ```
 
+（4）跳转到板级前期的初始化函数中，如下代码
 
+```
+    bl  board_init_f
+```
 
+board_init_f需要由板级代码自己实现。 
+在这个函数中，tiny210主要是实现了从SD卡上加载了BL2到ddr上，然后跳转到BL2的相应位置上 
+tiny210的实现如下： 
+board/samsung/tiny210/board.c
 
+```
+#ifdef CONFIG_SPL_BUILD
+void board_init_f(ulong bootflag)
+{
+    __attribute__((noreturn)) void (*uboot)(void);
+    int val;
+#define DDR_TEST_ADDR 0x30000000
+#define DDR_TEST_CODE 0xaa
+    tiny210_early_debug(0x1);
+    writel(DDR_TEST_CODE, DDR_TEST_ADDR);
+    val = readl(DDR_TEST_ADDR);
+    if(val == DDR_TEST_CODE)
+        tiny210_early_debug(0x3);
+    else
+    {
+        tiny210_early_debug(0x2);
+        while(1);
+    }
+// 先测试DDR是否完成
 
+    copy_bl2_to_ddr();
+// 加载BL2的代码到ddr上
+
+    uboot = (void *)CONFIG_SYS_TEXT_BASE;
+// uboot函数设置为BL2的加载地址上
+    (*uboot)();
+// 调用uboot函数，也就跳转到BL2的代码中
+}
+#endif
+```
+
+**到此，SPL的任务就完成了，也已经跳到了BL2也就是uboot里面去了。**

@@ -1,6 +1,6 @@
-# uboot流程-启动Kernel(三)
+# uboot流程 - 启动Kernel(三)
 
-# 一、说明
+# 一. 说明
 
 bootm的过程中，从uImage解析出kernel信息主要是在bootm_find_os中实现的。 
 
@@ -8,9 +8,9 @@ bootm的过程中，从uImage解析出kernel信息主要是在bootm_find_os中�
 
 后面会分别介绍这两种类型的解析流程。
 
-# 二、kernel信息的存放位置
+# 二. kernel信息的存放位置
 
-## 1、存放位置
+## 1. 存放位置
 
 kernel信息主要包括两方面内容：
 
@@ -30,7 +30,7 @@ typedef struct bootm_headers {
 
 因此，bootm_find_os的主要目的是实现bootm_headers_t images中的image_info_t os和ulong ep的成员。
 
-## 2、image_info_t
+## 2. image_info_t
 
 image_info_t用来描述kernel的镜像信息。包括头部信息、加载地址、kernel镜像地址和长度等等。 
 
@@ -52,11 +52,11 @@ type对应于“kennel”，os对应于“linux”。
 
 综上，后续我们解析uImage的时候的主要目的是填充image_info_t os和ulong ep，这句话多强调几遍。
 
-# 三、Legacy-uImage中kernel信息的解析
+# 三. Legacy-uImage中kernel信息的解析
 
 Legacy-uImage中kernel信息的解析相对较为简单。
 
-## 1、Legacy-uImage的生成
+## 1. Legacy-uImage的生成
 
 首先要知道Legacy-uImage是怎么生成的。 如下：
 
@@ -93,7 +93,7 @@ hlos@node4:boot$ od -tx1 -tc -Ax -N64 uImage
 
 所以，uboot解析Legacy-uImage主要就是解析这64Byte的头部的内容。
 
-## 2、Legacy-uImage头部数据结构
+## 2. Legacy-uImage头部数据结构
 
 uboot使用了struct image_header来对应这uImage的64Byte的头部。
 
@@ -129,7 +129,7 @@ typedef struct bootm_headers {
     ulong       legacy_hdr_valid; // 用于表示Legacy-uImage的头部指针是否可用，也就是这是否是一个Legacy-uImage。
 ```
 
-## 3、解析Legacy-uImage中kernel信息的代码流程
+## 3. 解析Legacy-uImage中kernel信息的代码流程
 
 从bootm_find_os入口开始说明。 
 
@@ -177,7 +177,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 
 通过上述代码就完成了bootm_headers_t images中的image_info_t os和ulong ep的成员的实现。 而这里的代码的核心是boot_get_kernel，会实现uImage的类型的判断、和Legacy-uImage的头部image_header的设置，并且将image_header和bootm_headers进行关联。
 
-## 4、boot_get_kernel
+## 4. boot_get_kernel
 
 解析uImage的头部的核心函数。 
 
@@ -246,15 +246,16 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 ```
 
-# 四、FIT-uImage中kernel信息的解析
+# 四. FIT-uImage中kernel信息的解析
 
-## 1、原理简单介绍
+## 1. 原理简单介绍
 
 flattened image tree，类似于FDT(flattened device tree)的一种实现机制。其通过一定语法和格式将一些需要使用到的镜像（例如kernel、dtb以及文件系统）组合到一起生成一个image文件。 
 而kernel镜像也是作为FIT的configure中的一个节点，其信息则是以节点中的属性来进行描述的。 
+
 而uboot的工作，就是要从FIT中提取相应的kernel节点，在节点中获取相应的属性，从而得到kernel的信息。其方式和FDT相当类似。 得到的kernel的信息之后填入bootm_headers_t images中的image_info_t os和ulong ep中即可。
 
-2、生成说明
+2. 生成说明
 --------------------- 
 kernel信息则是在its中进行说明，简单例子如下：
 
@@ -289,7 +290,7 @@ kernel信息则是在its中进行说明，简单例子如下：
 - 从kernel的节点中获取各种属性，这些属性就是kernel的信息。
 - 包括kernel的镜像也是在data属性中的。
 
-## 3、数据结构说明
+## 3. 数据结构说明
 
 与struct bootm_headers之间的关系 。FIT-uImage中kernel是以节点的方式进行描述的，其节点也有自己的头部。 
 
@@ -306,7 +307,7 @@ typedef struct bootm_headers {
 } bootm_headers_t;
 ```
 
-## 4、解析FIT-uImage中kernel信息的代码流程
+## 4. 解析FIT-uImage中kernel信息的代码流程
 
 从bootm_find_os入口开始说明。 代码如下，过滤掉无关部分： 
 common/bootm.c
@@ -395,7 +396,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 
 而这里的代码的核心是boot_get_kernel，会实现uImage的类型的判断、和FIT-uImage的头部节点信息的设置，并且将FIT-uImage的kernel的节点信息和bootm_headers进行关联。
 
-## 4、boot_get_kernel
+## 5. boot_get_kernel
 
 解析uImage的头部的核心函数。 代码如下，过滤掉无关部分： 
 
@@ -456,22 +457,3 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 ```
 
 通过上述代码，就得到了itb的地址和itb（FIT-uImage）中kernel的节点偏移，类似于fdt的操作，后续就可以通过这两个itb的地址和itb（FIT-uImage）中kernel的节点偏移来获得kernel节点的属性。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

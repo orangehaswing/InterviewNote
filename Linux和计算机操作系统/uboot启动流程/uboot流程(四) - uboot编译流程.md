@@ -1,8 +1,8 @@
-# uboot流程(四)-uboot编译流程
+# uboot流程(四) - uboot编译流程
 
-# 一、uboot编译和生成文件
+# 一. uboot编译和生成文件
 
-## 0、说明
+## 0. 说明
 
 现在的uboot已经做得和kernel很像，最主要的一点是，uboot也使用了dtb的方法，将设备树和代码分离开来（当然可以通过宏来控制）。 
 `project-x/u-boot/configs/tiny210_defconfig`
@@ -17,7 +17,7 @@ CONFIG_OF_SEPARATE=y
 
 所以在uboot的编译中，和spl的最大区别是还要编译dtb。
 
-## 1、编译方法
+## 1. 编译方法
 
 在project X项目中，所有镜像，包括uboot、kernel、rootfs都是放在build目录下进行编译的。具体去参考该项目build的Makefile的实现。 假设config已经配置完成，在build编译命令如下：
 
@@ -44,14 +44,12 @@ uboot:
 
 最终，相当于进入了uboot目录执行了make动作。
 
-## 2、生成文件
+## 2. 生成文件
 
 最终编译完成之后，会在project-x/build/out/u-boot下生成如下文件：
 
 ```
-arch   common   dts       include   net         tools       u-boot.cfg      u-boot.lds        u-boot.srec
-board  disk     examples  lib       scripts  System.map  u-boot      u-boot.dtb      u-boot.map        u-boot.sym
-cmd    drivers  fs        Makefile  source   test        u-boot.bin  u-boot-dtb.bin  u-boot-nodtb.bin
+arch   common   dts       include   net         tools       u-boot.cfg      u-boot.lds        u-boot.srec	board  disk     examples  lib       scripts  System.map  u-boot      u-boot.dtb     u-boot.map        u-boot.sym	cmd    drivers  fs      Makefile  source   test        u-boot.bin  u-boot-dtb.bin  u-boot-nodtb.bin
 ```
 
 其中，arch、common、dts、include、board、drivers、fs等等目录是对应代码的编译目录，各个目录下都会生成相应的built.o，是由同目录下的目标文件连接而成。
@@ -68,11 +66,11 @@ cmd    drivers  fs        Makefile  source   test        u-boot.bin  u-boot-dtb.
 |    System.map    |                连接之后的符号表文件                |
 |    u-boot.cfg    |              由uboot配置生成的文件               |
 
-# 二、uboot编译流程
+# 二. uboot编译流程
 
-## 1、编译整体流程
+## 1. 编译整体流程
 
-根据一、2生成的文件说明可知简单流程如下： 
+流程如下： 
 （1）各目录下built-in.o的生成
 
 源文件、代码文件	-->	编译、汇编	-->	目标文件	-->	同目录目标文连接	-->	built-in目标文件
@@ -91,13 +89,13 @@ dts文件	-->	dtc编译、打包	-->	dtb文件u-boot.dtb
 
 （5）由u-boot-nodtb.bin和u-boot.dtb生成u-boot-dtb.bin
 
-u-boot-nodtb.bin和u-boot.dtb	-->	追加整合两个文件	-->	u-boot-dtb.bin
+u-boot-nodtb.bin和u-boot.dtb		-->	追加整合两个文件	-->	u-boot-dtb.bin
 
 （6）由u-boot-dtb.bin复制生成u-boot.bin
 
-u-boot-dtb.bin	-->	复制		-->	u-boot.bin
+u-boot-dtb.bin	-->	复制	-->	u-boot.bin
 
-## 2、具体编译流程分析
+## 2. 具体编译流程分析
 
 我们直接从make uboot命令分析，也就是从uboot下的Makefile的依赖关系来分析整个编译流程。 
 注意，这个分析顺序和上述的整体编译流程的顺序是反着的。
@@ -138,7 +136,14 @@ u-boot.bin: u-boot-nodtb.bin FORCE
 endif
 ```
 
-对应于上述二、1（5）流程和上述二、1（6）流程。 后续有两个依赖关系要分析，分别是`u-boot-nodtb.bin和dts/dt.dtb`。 `u-boot-nodtb.bin`依赖关系参考下述二、2（3）-2（6）`dts/dt.dtb`依赖关系参考下述二、2（7） 
+对应于上述二、1（5）流程和上述二、1（6）流程。
+
+ 后续有两个依赖关系要分析，分别是`u-boot-nodtb.bin和dts/dt.dtb`。
+
+ `u-boot-nodtb.bin`依赖关系参考下述二、2（3）-2（6）
+
+`dts/dt.dtb`依赖关系参考下述二、2（7） 
+
 其中`u-boot-nodtb.bin`的依赖关系和SPL的相当类似，
 
 （3）u-boot-nodtb.bin的依赖关系 
@@ -155,7 +160,7 @@ u-boot-nodtb.bin: u-boot FORCE
 ```
 
 如上述Makefile代码u-boot-nodtb.bin依赖于u-boot，并且由u-boot经过objcopy操作之后得到。 
-对应于上述二、1（3）流程.
+对应于上述二、1（3）流程。
 
 （4）u-boot的依赖关系
 
@@ -225,7 +230,9 @@ endif
 ## 对应于上述二、1（2）流程。
 ```
 
-对应于上述二、1（2）流程。 关于u-boot依赖的说明在（5）、（6）中继续介绍
+对应于上述二、1（2）流程。 
+
+关于u-boot依赖的说明在（5）、（6）中继续介绍
 
 （5）u-boot-init & u-boot-main依赖关系（代码是如何被编译的）
 
@@ -236,7 +243,9 @@ u-boot-init=arch/arm/cpu/armv7/start.o
 u-boot-main= arch/arm/cpu/built-in.o arch/arm/cpu/armv7/built-in.o arch/arm/lib/built-in.o arch/arm/mach-s5pc1xx/built-in.o board/samsung/common/built-in.o board/samsung/tiny210/built-in.o cmd/built-in.o common/built-in.o disk/built-in.o drivers/built-in.o drivers/dma/built-in.o drivers/gpio/built-in.o drivers/i2c/built-in.o drivers/mmc/built-in.o drivers/mtd/built-in.o drivers/mtd/onenand/built-in.o drivers/mtd/spi/built-in.o drivers/net/built-in.o drivers/net/phy/built-in.o drivers/pci/built-in.o drivers/power/built-in.o drivers/power/battery/built-in.o drivers/power/fuel_gauge/built-in.o drivers/power/mfd/built-in.o drivers/power/pmic/built-in.o drivers/power/regulator/built-in.o drivers/serial/built-in.o drivers/spi/built-in.o drivers/usb/common/built-in.o drivers/usb/dwc3/built-in.o drivers/usb/emul/built-in.o drivers/usb/eth/built-in.o drivers/usb/gadget/built-in.o drivers/usb/gadget/udc/built-in.o drivers/usb/host/built-in.o drivers/usb/musb-new/built-in.o drivers/usb/musb/built-in.o drivers/usb/phy/built-in.o drivers/usb/ulpi/built-in.o fs/built-in.o lib/built-in.o net/built-in.o test/built-in.o test/dm/built-in.o
 ```
 
-可以观察到是一堆目标文件的路径。这些目标文件最终都要被连接到`u-boot`中。 `u-boot-init & u-boot-main`的定义如下代码： 
+可以观察到是一堆目标文件的路径。这些目标文件最终都要被连接到`u-boot`中。
+
+ `u-boot-init & u-boot-main`的定义如下代码： 
 `project-x/u-boot/Makefile`
 
 ```
@@ -297,6 +306,7 @@ build := -f $(srctree)/scripts/Makefile.build obj
 ```
 
 以`arch/arm/mach-s5pc1xx`为例,`“$(MAKE) $(build)=$@”`展开后格式如下 
+
 `make -f project-x/u-boot/scripts/Makefile.build obj=arch/arm/mach-s5pc1xx。`
 
 `Makefile.build`定义`built-in.o`、`.lib`以及目标文件.o的生成规则。这个Makefile文件生成了子目录的.lib、built-in.o以及目标文件.o。 
@@ -335,6 +345,7 @@ include $(kbuild-file)
 ```
 
 后面来看目标文件的编译流程 
+
 `./scripts/Makefile.build/scripts/Makefile.build`
 
 ```
@@ -454,9 +465,10 @@ $(obj)/%.dtb: $(src)/%.dts FORCE
 
 对应于上述二、1（4）流程。
 
-# 三、一些重点定义
+# 三. 一些重点定义
 
-1、连接标志
+## 1. 连接标志
+
 在二、2（4）中说明。 连接命令在`cmd_u-boot__`中，如下
 
 ```
@@ -486,7 +498,7 @@ endif
 
 ‘-o’指定了输出文件是u-boot，’-T’是指定了连接脚本是当前目录下的u-boot.lds, -Ttext指定了连接地址是`CONFIG_SYS_TEXT_BASE`。
 
-2、连接地址
+## 2. 连接地址
 
 在二、2（4）中说明。 `CONFIG_SYS_TEXT_BASE`指定了`u-boot.bin`的连接地址。这个地址也就是uboot的起始运行地址。 
 对于tiny210，其定义如下（可以进行修改） 
@@ -497,7 +509,7 @@ endif
 #define CONFIG_SYS_TEXT_BASE            0x23E00000
 ```
 
-3、连接脚本
+## 3. 连接脚本
 
 在二、2（6）中说明。
 
@@ -521,9 +533,9 @@ endif
 
 综上，最终指定了`project-X/u-boot/arch/arm/cpu/u-boot.lds`作为连接脚本。
 
-# 四、uboot链接脚本说明
+# 四. uboot链接脚本说明
 
-## 1、连接脚本整体分析
+## 1. 连接脚本整体分析
 
 相对比较简单，直接看连接脚本的内容`project-x/u-boot/arch/arm/cpu/u-boot.lds `
 
@@ -619,9 +631,9 @@ ENTRY(_start)
 ｝
 ```
 
-## 2、以下以.vectors段做说明，
+## 2. 以下以.vectors段做说明
 
-`.vectors是uboo`t链接脚本第一个链接的段，也就是_start被链接进来的部分，也负责链接异常中断向量表 
+`.vectors是uboot`链接脚本第一个链接的段，也就是_start被链接进来的部分，也负责链接异常中断向量表 
 
 先看一下代码`project-x/u-boot/arch/arm/lib/vectors.S`
 
@@ -690,7 +702,7 @@ _start:
 23e0003c:   deadbeef    cdple   14, 10, cr11, cr13, cr15, {7}
 ```
 
-## 3、符号表中需要注意的符号
+## 3. 符号表中需要注意的符号
 
 前面我们说过了在tiny210中把连接地址设置为0x23e00000。 
 
@@ -733,15 +745,20 @@ Address of section .text set to 0x23e00000
                 0x23e6b514                __bss_end
 ```
 
-重点关注 
+重点关注
 
-_image_copy_start & __image_copy_end 
-界定了代码空间的位置，用于重定向代码的时候使用，在uboot relocate的过程中，需要把这部分拷贝到uboot的新的地址空间中，后续在新地址空间中运行。 
+- _image_copy_start & __image_copy_end 
 
-_start 
-在u-boot-spl.lds中ENTRY(_start)，也就规定了代码的入口函数是_start。所以后续分析代码的时候就是从这里开始分析。 
+  界定了代码空间的位置，用于重定向代码的时候使用，在uboot relocate的过程中，需要把这部分拷贝到uboot的新的地址空间中，后续在新地址空间中运行。 
 
-_rel_dyn_start & __rel_dyn_end 
-由链接器生成，存放了绝对地址符号的label的地址，用于修改uboot relocate过程中修改绝对地址符号的label的值。 
+- _start_
 
-_image_binary_end
+  _在u-boot-spl.lds中ENTRY(_start)，也就规定了代码的入口函数是_start。所以后续分析代码的时候就是从这里开始分析。 
+
+- _rel_dyn_start & __rel_dyn_end 
+
+  由链接器生成，存放了绝对地址符号的label的地址，用于修改uboot relocate过程中修改绝对地址符号的label的值。 
+
+- _image_binary_end
+
+**综上，u-boot的编译就完成了。**

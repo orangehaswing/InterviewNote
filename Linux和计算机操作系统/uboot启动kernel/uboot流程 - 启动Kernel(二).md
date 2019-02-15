@@ -1,8 +1,12 @@
-# uboot流程-启动Kernel(二)
+# uboot流程 - 启动Kernel(二)
 
-# 一、bootm说明
+# 一. bootm说明
 
-bootm这个命令用于启动一个操作系统映像。它会从映像文件的头部取得一些信息，这些信息包括：映像文件的基于的cpu架构、其操作系统类型、映像的类型、压缩方式、映像文件在内存中的加载地址、映像文件运行的入口地址、映像文件名等。 紧接着bootm将映像加载到指定的地址，如果需要的话，还会解压映像并传递必要有参数给内核，最后跳到入口地址进入内核。 
+bootm这个命令用于启动一个操作系统映像。它会从映像文件的头部取得一些信息，这些信息包括：映像文件的基于的cpu架构、其操作系统类型、映像的类型、压缩方式、映像文件在内存中的加载地址、映像文件运行的入口地址、映像文件名等。
+
+ 紧接着bootm将映像加载到指定的地址，如果需要的话，还会解压映像并传递必要有参数给内核，最后跳到入口地址进入内核。 
+
+[这里的描述参考](http://blog.chinaunix.net/uid-20799298-id-99666.html)
 
 需要打开的宏
 
@@ -11,7 +15,7 @@ CONFIG_BOOTM_LINUX=y
 CONFIG_CMD_BOOTM=y
 ```
 
-# 二、bootm使用方式
+# 二. bootm使用方式
 
 uImage有两种格式。
 
@@ -44,7 +48,7 @@ bootm 0x20008000 0x21000000 0x22000000
 bootm 0x30000000
 ```
 
-# 三、bootm执行流程
+# 三. bootm执行流程
 
 - 对应U_BOOT_CMD 我们找到bootm命令对应的U_BOOT_CMD如下： 
   cmd/bootm.c
@@ -118,9 +122,9 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 所以bootm的核心是do_bootm_states，以全局变量bootm_headers_t images作为do_bootm_states的参数。 
 
-# 四、do_bootm_states软件流程
+# 四. do_bootm_states软件流程
 
-## 1、数据结构说明
+## 1. 数据结构说明
 
 - bootm_headers_t 
 
@@ -179,7 +183,7 @@ typedef struct bootm_headers {
 } bootm_headers_t;
 ```
 
-## 2、状态说明
+## 2. 状态说明
 
 - BOOTM_STATE_START 
 
@@ -245,7 +249,7 @@ typedef struct bootm_headers {
 
   跳转到kernel中去
 
-## 3、软件流程说明
+## 3. 软件流程说明
 
 do_bootm_states根据states来判断要执行的操作。
 
@@ -431,7 +435,7 @@ err:
 - boot_selected_os
 - boot_selected_os(argc, argv, BOOTM_STATE_OS_GO,images, boot_fn);
 
-## 4、bootm_start & bootm_find_os & bootm_find_other
+## 4. bootm_start & bootm_find_os & bootm_find_other
 
 主要负责解析环境变量、参数、uImage，来填充bootm_headers_t images这个数据结构。 最终目的是实现bootm_headers_t images中的这几个成员：
 
@@ -463,16 +467,16 @@ typedef struct bootm_headers {
 
 - bootm_find_os 
 
-  实现os和ep。 也就是说，不管是Legacy-uImage还是FIT-uImage，最终解析出来要得到的都是这两个成员。 
+  实现os和ep。也就是说，不管是Legacy-uImage还是FIT-uImage，最终解析出来要得到的都是这两个成员。 
 
 
 - bootm_find_other 
 
   实现rd_start, rd_end，ft_addr和initrd_end。 也就是说，不管是Legacy-uImage还是FIT-uImage，最终解析出来要得到的都是这两个成员。 
 
-## 5、bootm_load_os
+## 5. bootm_load_os
 
-简单说明一下，在bootm_load_os中，会对kernel镜像进行load到对应的位置上，并且如果kernel镜像是被mkimage压缩过的，那么会先经过解压之后再进行load。（这里要注意，这里的压缩和Image压缩成zImage并不是同一个，而是uboot在Image或者zImage的基础上进行的压缩！！！）
+简单说明一下，在bootm_load_os中，会对kernel镜像进行load到对应的位置上，并且如果kernel镜像是被mkimage压缩过的，那么会先经过解压之后再进行load。（这里要注意，这里的压缩和Image压缩成zImage并不是同一个，而是uboot在Image或者zImage的基础上进行的压缩）
 
 ```
 static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
@@ -499,7 +503,7 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 
 结果上述步骤之后，kernel镜像就被load到对应位置上了。
 
-## 6、bootm_os_get_boot_func
+## 6. bootm_os_get_boot_func
 
 bootm_os_get_boot_func用于获取到对应操作系统的启动函数，被存储到boot_fn 中。 如下：
 
@@ -528,7 +532,7 @@ static boot_os_fn *boot_os[] = {
 
 可以看出最终启动linux的核心函数是do_bootm_linux。 另外几个函数最终也是调用到boot_fn，对应linux也就是do_bootm_linux，所以这里不在说明了。 
 
-# 五、do_bootm_linux
+# 五. do_bootm_linux
 
 arch/arm/lib/bootm.c
 
@@ -622,28 +626,3 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
     }
 }
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

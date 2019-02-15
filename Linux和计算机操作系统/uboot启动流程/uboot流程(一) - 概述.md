@@ -1,12 +1,12 @@
-# uboot流程(一)-概述
+# uboot流程(一) - 概述
 
-# 一、bootloader& uboot
+# 一. bootloader& uboot
 
-## 1、bootloader的概念
+## 1. bootloader的概念
 
 ​	Bootloader是在操作系统运行之前执行的一段小程序。而这段小程序的最终目的，正确地设置好软硬件环境，使之能够成功地引导操作系统。
 
-## 2、bootloader的核心功能
+## 2. bootloader的核心功能
 
 bootloader的核心功能就是引导操作系统，部分工作如下
 
@@ -16,7 +16,7 @@ bootloader的核心功能就是引导操作系统，部分工作如下
 - 根据操作系统启动要求正确配置好一些硬件
 - 启动操作系统
 
-## 3、bootloader的monitor功能
+## 3. bootloader的monitor功能
 
 bootloader的核心功能，也就是引导操作系统的功能。 但是部分bootloader还支持monitor功能，提供了更多的命令行接口，具体部分功能如下：
 
@@ -26,11 +26,11 @@ bootloader的核心功能，也就是引导操作系统的功能。 但是部分
 - 配置环境变量
 - 命令引导操作系统
 
-# 二、uboot-spl & uboot
+# 二. uboot-spl & uboot
 
-## 1、uboot-spl
+## 1. uboot-spl
 
-由uboot编译生成，对应于BL1阶段，也就是BL1的镜像，uboot-spl.bin。 根据《[project X] tiny210(s5pv210)上电启动流程（BL0-BL2）》，其代码运行于IRAM中
+由uboot编译生成，对应于BL1阶段，也就是BL1的镜像，uboot-spl.bin。其代码运行于IRAM中
 
 主要工作有： 
 
@@ -40,9 +40,9 @@ bootloader的核心功能，也就是引导操作系统的功能。 但是部分
 - 验证BL2镜像的合法性
 - 跳转到BL2镜像所在的地址上
 
-## 2、uboot
+## 2. uboot
 
-由uboot编译生成，对应于BL2阶段，也就是BL2的镜像,uboot.bin。 根据《[project X] tiny210(s5pv210)上电启动流程（BL0-BL2）》，其代码运行于SDRAM中.
+由uboot编译生成，对应于BL2阶段，也就是BL2的镜像 uboot.bin。其代码运行于SDRAM中.
 
 主要工作有： 
 

@@ -1,8 +1,10 @@
-# uboot流程-启动Kernel(一)
+# uboot流程 - 启动Kernel(一)
 
-# 一、uImage
+# 一. uImage
 
 编译kernel之后，会生成Image或者压缩过的zImage。但是这两种镜像的格式并没有办法提供给uboot的足够的信息来进行load、jump或者验证操作等等。因此，uboot提供了mkimage工具，来将kernel制作为uboot可以识别的格式，将生成的文件称之为uImage。 
+
+
 uboot支持两种类型的uImage。
 
 ## Legacy-uImage 
@@ -15,9 +17,9 @@ uboot支持两种类型的uImage。
 
 Legacy-uImage实现较为简单，并且长度较小。但是实际上使用较为麻烦，需要在启动kernel的命令中额外添加fdt、ramdisk的加载信息。 而FIT-uImage实现较为复杂，但是使用起来较为简单，兼容性较好,（可以兼容多种配置）。但是需要的额外信息也较长。
 
-# 二、Legacy-uImage
+# 二. Legacy-uImage
 
-## 1、使能需要打开的宏
+## 1. 使能需要打开的宏
 
 ```
 CONFIG_IMAGE_FORMAT_LEGACY=y
@@ -25,7 +27,7 @@ CONFIG_IMAGE_FORMAT_LEGACY=y
 
 注意，这个宏在自动生成的autoconf.mk中会自动配置，不需要额外配置。
 
-## 2、如何制作 & 使用
+## 2. 如何制作 & 使用
 
 （1）工具mkimage 
 
@@ -63,7 +65,7 @@ Usage: mkimage -l image
 bootm Legacy-uImage加载地址 ramdisk加载地址 dtb加载地址
 ```
 
-## 3、和zImage的区别
+## 3. 和zImage的区别
 
 ```
 -rw-rw-rw-  1 hlos hlos 1560120 Dec  5 14:46 uImage
@@ -88,7 +90,7 @@ hlos@node4:boot$ od -tx1 -tc -Ax -N64 uImage
 
 Legacy-uImage是在zImage的基础上加上64Byte的头部。 下面通过Legacy-uImage的头部数据结构来解析这串数据。
 
-## 4、格式头说明
+## 4. 格式头说明
 
 uboot用image_header来表示Legacy-uImage的头部
 
@@ -137,9 +139,9 @@ typedef struct image_header {
   入口地址，也就是0x20008040， 和我们执行mkimage使用的参数一致。
 
 
-# 三、FIT-uImage
+# 三. FIT-uImage
 
-## 0、原理说明
+## 0. 原理说明
 
 flattened image tree，类似于FDT(flattened device tree)的一种实现机制。其通过一定语法和格式将一些需要使用到的镜像（例如kernel、dtb以及文件系统）组合到一起生成一个image文件。其主要使用四个组件。
 
@@ -161,13 +163,13 @@ flattened image tree，类似于FDT(flattened device tree)的一种实现机制�
 
 mkimage将its文件以及对应的image data file，打包成一个itb文件，也就是uboot可以识别的image file（FIT-uImage）。我们将这个文件下载到么memory中，使用bootm命令就可以执行了。
 
-## 1、使能需要打开的宏
+## 1. 使能需要打开的宏
 
 ```
 CONFIG_FIT=y
 ```
 
-2、如何制作 & 使用
+## 2. 如何制作 & 使用
 
 （1）its文件制作 
 
@@ -242,7 +244,7 @@ ${UBOOT_OUT_DIR}/tools/mkimage -f ${UIMAGE_ITS_FILE} ${UIMAGE_ITB_FILE}
 （3）使用 
 将生成的FIT-uImage下载到参数中指定的load address中，使用bootm ‘实际load address’命令跳转到kernel中。 uboot会自动解析出FIT-uImage中，kernel、ramdisk、dtb的信息，使用起来相当方便。
 
-## 3、简单说明
+## 3. 简单说明
 
 FIT-uImage的格式类似于DTB。uboot会去解析出FIT-uImage中的configurations节点，根据节点选择出需要的kernel、dtb、rootfs。因此，在节点的基础上，添加很多节点信息，提供uboot使用。
 

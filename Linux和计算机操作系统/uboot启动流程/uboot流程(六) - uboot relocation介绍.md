@@ -1,12 +1,12 @@
-# u-boot流程(六)-uboot relocation介绍
+# u-boot流程(六) - uboot relocation介绍
 
-# 一、relocate介绍
+# 一. relocate介绍
 
-## 1、uboot的relocate
+## 1. uboot的relocate
 
 uboot的relocate动作就是指uboot的重定向动作，也就是将uboot自身镜像拷贝到ddr上的另外一个位置的动作。
 
-## 2、uboot为什么要进行relocate
+## 2. uboot为什么要进行relocate
 
 考虑以下问题 
 
@@ -15,17 +15,17 @@ uboot的relocate动作就是指uboot的重定向动作，也就是将uboot自身
 
 考虑到以上情况，uboot的relocation动作会把自己本身relocate到ddr上（前提是在SPL的过程中或者在dram_init中已经对ddr进行初始化了），并且会relocate到ddr的顶端地址使之不会和kernel的冲突。
 
-## 3、uboot的一些注意事项
+## 3. uboot的一些注意事项
 
 既然uboot会把自身relocate到ddr的其他位置上，那么相当于执行地址也会发生变化。也就是要求uboot既要能在relocate正常执行，也要能在relocate之后正常执行。这就涉及到uboot需要使用“位置无关代码”技术，也就是Position independent code技术。
 
-# 二、“位置无关代码”介绍及其原理
+# 二. “位置无关代码”介绍及其原理
 
-## 1、什么是“位置无关代码”
+## 1. 什么是“位置无关代码”
 
 “位置无关代码”是指无论代码加载到内存上的什么地址上，都可以被正常运行。也就是当加载地址和连接地址不一样时，CPU也可以通过相对寻址获得到正确的指令地址。
 
-## 2、如何生成“位置无关代码”
+## 2. 如何生成“位置无关代码”
 
 （1）生成位置无关代码分成两部分 
 
@@ -35,7 +35,7 @@ uboot的relocate动作就是指uboot的重定向动作，也就是将uboot自身
 （2）ARM在如何生成“位置无关代码” 
 
 - 编译PIC代码 
-  在《[uboot] （第四章）uboot流程——uboot编译流程》中，我们知道gcc的编译选项如下：
+  在uboot流程(四) — uboot编译流程中，我们知道gcc的编译选项如下：
 
 ```
 c_flags=-Wp,-MD,arch/arm/mach-s5pc1xx/.clock.o.d -nostdinc -isystem /home/disk3/xys/temp/project-x/build/arm-none-linux-gnueabi-4.8/bin/../lib/gcc/arm-none-linux-gnueabi/4.8.3/include -Iinclude -I/home/disk3/xys/temp/project-x/u-boot/include -I/home/disk3/xys/temp/project-x/u-boot/arch/arm/include -include /home/disk3/xys/temp/project-x/u-boot/include/linux/kconfig.h -I/home/disk3/xys/temp/project-x/u-boot/arch/arm/mach-s5pc1xx -Iarch/arm/mach-s5pc1xx -D__KERNEL__ -D__UBOOT__ -Wall -Wstrict-prototypes -Wno-format-security -fno-builtin -ffreestanding -Os -fno-stack-protector -fno-delete-null-pointer-checks -g -fstack-usage -Wno-format-nonliteral -D__ARM__ -marm -mno-thumb-interwork -mabi=aapcs-linux -mword-relocations -fno-pic -mno-unaligned-access -ffunction-sections -fdata-sections -fno-common -ffixed-r9 -msoft-float -pipe -march=armv7-a -I/home/disk3/xys/temp/project-x/u-boot/arch/arm/mach-s5pc1xx/include -DKBUILD_STR(s)=#s -DKBUILD_BASENAME=KBUILD_STR(clock) -DKBUILD_MODNAME=KBUILD_STR(clock)
@@ -54,7 +54,7 @@ PLATFORM_CPPFLAGS += $(call cc-option, -fno-pic)
 ```
 
 - 生成PIE可执行文件 
-  在《[uboot] （第四章）uboot流程——uboot编译流程》中，我们知道ld的连接选项如下：
+  在 uboot流程(四) — uboot编译流程中，我们知道ld的连接选项如下：
 
 ```
 LDFLAGS_u-boot=-pie --gc-sections -Bstatic -Ttext 0x23E00000
@@ -62,11 +62,11 @@ LDFLAGS_u-boot=-pie --gc-sections -Bstatic -Ttext 0x23E00000
 
 -pie选项用于生成PIE位置无关可执行文件。
 
-## 3、“位置无关代码”原理
+## 3. “位置无关代码”原理
 
 “位置无关代码”主要是通过使用一些只会使用相对地址的指令实现，比如“b”、“bl”、“ldr”、“adr”等等。 对于一些绝对地址符号（例如已经初始化的全局变量），会将其以label的形式放在每个函数的代码实现的末端。 同时，在链接的过程中，会把这些label的地址统一维护在.rel.dyn段中，当relocation的时候，方便对这些地址的fix。
 
-## 4、.rel.dyn段介绍和使用
+## 4. .rel.dyn段介绍和使用
 
 前面也说了： 对于一些绝对地址符号（例如已经初始化的全局变量），会将其以label的形式放在每个函数的代码实现的末端。 同时，在链接的过程中，会把这些label的地址统一维护在.rel.dyn段中，当relocation的时候，方便对这些地址的fix。 
 这边简单的给个例子： 
@@ -128,9 +128,9 @@ Disassembly of section .rel.dyn:
 
 综上，当uboot对自身进行relocate之后，此时全局变量的绝对地址已经发生变化，如果函数按照原来的label去获取全局变量的地址的时候，这个地址其实是relocate之前的地址。因此，在relocate的过程中需要对全局变量的label中的地址值进行修改，所以uboot将这些label的地址全部维护在.rel.dyn段中，然后再统一对.rel.dyn段指向的label进行修改。后续代码可以看出来。
 
-# 三、uboot relocate代码介绍
+# 三. uboot relocate代码介绍
 
-## 1、uboot relocate地址和布局。
+## 1. uboot relocate地址和布局。
 
 前面已经说明，uboot的relocation动作会把自己本身relocate到ddr上（前提是在SPL的过程中或者在dram_init中已经对ddr进行初始化了），并且会relocate到ddr的顶端地址使之不会和kernel的冲突。 但是relocate过程中，并不是直接把uboot直接放到ddr的顶端位置，而是会有一定的布局，预留一些空间给其他一些需要固定空间的功能使用。
 
@@ -154,7 +154,7 @@ Disassembly of section .rel.dyn:
 |       对齐       |          16b对齐           |
 |      堆栈区域      |           无限制            |
 
-## 2、relocate代码流程
+## 2. relocate代码流程
 
 主要是分成如下流程 
 
@@ -454,7 +454,7 @@ fixnext:
     blo fixloop
 ```
 
-**（7）relocate中断向量表** 
+（7）relocate中断向量表
 
 异常中断向量表的定义如下 
 
@@ -564,9 +564,4 @@ ENTRY(relocate_vectors)
 ENDPROC(relocate_vectors)
 ```
 
-
-
-
-
-
-
+经过上述，uboot relocate就完成了。
