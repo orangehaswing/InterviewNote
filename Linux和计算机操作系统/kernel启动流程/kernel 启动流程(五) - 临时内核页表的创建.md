@@ -1,8 +1,8 @@
-# kernel 启动流程-临时内核页表的创建
+# kernel 启动流程(五) - 临时内核页表的创建
 
-## 零、说明
+# 零. 说明
 
-1、kernel启动流程第一阶段简单说明
+## 1. kernel启动流程第一阶段简单说明
 
 `arch/arm/kernel/head.S`
 
@@ -24,14 +24,14 @@ ENTRY(stext)
 
 本文要介绍的是“创建临时内核页表的页表项”的部分。
 
-## 2、疑问
+## 2. 疑问
 
 主要带着以下几个问题去理解
 
 - 什么是MMU?以及其和页表之间的关系？
 - 页表内容？页表格式？如何进行创建？
 
-## 3、对应代码实现
+## 3. 对应代码实现
 
 ```
     __HEAD
@@ -46,11 +46,11 @@ ENTRY(stext)
 
 __create_page_tables的工作就是创建临时内核页表。而创建临时内核页表则是为了打开MMU功能。
 
-# 一、MMU和页表简单介绍
+# 一. MMU和页表简单介绍
 
 以下只是为了理解很简单地进行介绍。 并且主要介绍段式管理的工作原理。
 
-## 1、MMU简单介绍
+## 1. MMU简单介绍
 
 MMU是Memory Management Unit的缩写，中文名是内存管理单元，它是中央处理器（CPU）中用来管理虚拟存储器、物理
 
@@ -63,7 +63,7 @@ MMU是Memory Management Unit的缩写，中文名是内存管理单元，它是�
 
 提供硬件机制的内存访问授权
 
-## 2、页表介绍
+## 2. 页表介绍
 
 MMU工作的核心是页表，也就是其根据页表来找到映射关系以及权限。 页表由页表项构成，每一个虚拟地址映射区都会有一个对应的页表项。 arm的页表有如下分类：
 
@@ -80,17 +80,13 @@ MMU工作的核心是页表，也就是其根据页表来找到映射关系以�
 | 31:20 bit |   段序号    |
 | 20: 0 bit | MMU flag |
 
-## 3、arm上MMU的工作原理
+## 3. arm上MMU的工作原理
 
 arm将页表基地址存放在协处理器cp15的c2寄存器上。 
 
 如下说明： 
 
-CP15 中的寄存器 C2 保存的是页表的基地址，即一级映射描述符表的基地址。 
-
-arm的MMU会根据虚拟地址计算出其相应页表项的偏移，从cp15的c2寄存器中获取页表基址之后，加上偏移得到对应的页表
-
-项地址。后续操作就是根据页表结构来做的。这些动作都是MMU硬件处理！ 
+CP15 中的寄存器 C2 保存的是页表的基地址，即一级映射描述符表的基地址。 arm的MMU会根据虚拟地址计算出其相应页表项的偏移，从cp15的c2寄存器中获取页表基址之后，加上偏移得到对应的页表项地址。后续操作就是根据页表结构来做的。这些动作都是MMU硬件处理！ 
 
 如果是段式页表的话，再根据段内偏移以及页表项中的物理段基址最终得到对应的物理地址。
 
@@ -107,7 +103,7 @@ arm的MMU会根据虚拟地址计算出其相应页表项的偏移，从cp15的c
 (4) 物理段基址加上段内偏移得到实际的物理地址0x20001000.
 ```
 
-## 4、临时内核页表及其内容
+## 4. 临时内核页表及其内容
 
 为了打开MMU，内核需要创建一个临时内核页表，用于kenrel启动过程中的打开MMU的过渡阶段。 并且，使用的是段式管理的方法。 需要建立如下区域的映射
 
@@ -124,7 +120,7 @@ arm的MMU会根据虚拟地址计算出其相应页表项的偏移，从cp15的c
 
   在kernel启动初期需要使用到dtb的东西，因此，在临时内核页表中需要做这些区域的映射。
 
-# 二、s5pv210映射说明
+# 二. s5pv210映射说明
 
 内存地址和对应段页表项的地址如下： 
 
@@ -154,9 +150,9 @@ arm的MMU会根据虚拟地址计算出其相应页表项的偏移，从cp15的c
 - [0xC0000000-0xC00FFFFF]段到[0xC0500000-0xC05FFFFF]段是kernel镜像的映射
 - [0xDFC00000-0xDFCFFFFF]段到[0xDFD00000-0xDFDFFFFF]段是dtb内存区域的映射 
 
-# 三、代码分析
+# 三. 代码分析
 
-## 1、代码入口
+## 1. 代码入口
 
 （1）分配物理地址给r8
 
@@ -187,8 +183,6 @@ ENTRY(stext)
 ...
     bl    __create_page_tables
 ```
-
-
 
 create_page_tables主要用于创建临时内核页表。
 
@@ -282,7 +276,7 @@ __create_page_tables:
 ENDPROC(__create_page_tables)
 ```
 
-## 2、详解1
+## 2. 详解1
 
 ```
     pgtbl     r4, r8                @ page table address
@@ -316,9 +310,10 @@ kernel起始地址	=	DRAM起始物理地址	+	TEXT_OFFSET	=	0x20008000
 
 TEXT_OFFSET如下： 
 
+./arch/arm/Makefile
+
 
 ```
-./arch/arm/Makefile
 # The byte offset of the kernel image in RAM from the start of RAM.
 TEXT_OFFSET := $(textofs-y)
 # Text offset. This list is sorted numerically by address in order to
@@ -330,15 +325,16 @@ textofs-y       := 0x00008000
 
 PG_DIR_SIZE如下： 
 
-```
 arch/arm/kernel/head.S
+
+```
 #define PG_DIR_SIZE    0x4000
 #define PMD_ORDER    2
 ```
 
 前面也说过页表的大小是16K，刚好和这里是符合的。最终获得页表物理地址（s5pv210是0x20004000）并且存放在r4寄存器中。
 
-## 3、详解2
+## 3. 详解2
 
 为临时内核页表分配空间之后，接下来的任务就是清空临时内核页表分配空间。
 
@@ -368,7 +364,7 @@ arch/arm/kernel/head.S
 @ 如果还没有写完，进入下一个循环
 ```
 
-## 4、详解3
+## 4. 详解3
 
 设置MMU的标识并存放到r7寄存器中，后续需要写入到临时内核页表的页表项中
 
@@ -385,13 +381,11 @@ DEFINE(PROCINFO_MM_MMUFLAGS,    offsetof(struct proc_info_list, __cpu_mm_mmu_fla
 
 PROCINFO_MM_MMUFLAGS对应proc_info_list中的__cpu_mm_mmu_flags，这个成员用于表示临时页表映射的内核空间的MMU标识。 
 
-s5pv210的这个值对应为PMD_TYPE_SECT | PMD_SECT_AP_WRITE | PMD_SECT_AP_READ | \ PMD_SECT_AF |
-
-PMD_FLAGS_UP。 
+s5pv210的这个值对应为PMD_TYPE_SECT | PMD_SECT_AP_WRITE | PMD_SECT_AP_READ | \ PMD_SECT_AF |PMD_FLAGS_UP。 
 
 最终，将这个成员对应的值写入到r7寄存器中。
 
-## 5、详解4
+## 5. 详解4
 
 开始进行映射表的创建，首先是创建恒等映射。 
 
@@ -446,10 +440,12 @@ c0100020 t __turn_mmu_on_end
 
 kernel将这些链接地址存放到了__turn_mmu_on_loc中。
 
+```
 __turn_mmu_on_loc:
-​    .long    .
-​    .long    __turn_mmu_on
-​    .long    __turn_mmu_on_end
+    .long    .
+    .long    __turn_mmu_on
+    .long    __turn_mmu_on_end
+```
 
 也就是说临时内核映射表需要为__turn_mmu_on添加如下页表
 
@@ -494,7 +490,7 @@ __turn_mmu_on_loc:
 
 通过上述，就完成了__turn_mmu_on代码部分的恒等映射。
 
-## 6、详解5
+## 6. 详解5
 
 以下对kernel的内核空间进行映射。
 
@@ -518,17 +514,101 @@ c0547d74 B _end
 |           …           |                       |            |                      |                         |
 | 0xC0500000-0xC05FFFFF | 0x20500000-0x205FFFFF | 0X20007014 | (0x20004000+0xC05*4) | (0x205<<20) \| mmuflags |
 
+代码分析如下：
 
+```
+    /*
+     * Map our RAM from the start to the end of the kernel .bss section.
+     */
+    add    r0, r4, #PAGE_OFFSET >> (SECTION_SHIFT - PMD_ORDER)
+@ PAGE_OFFSET表示内核空间的偏移，这里是0xc0000000，也是内核映射区的起始段的起始地址。
+@ 将PAGE_OFFSET左移(SECTION_SHIFT - PMD_ORDER)后得到0xc0000000所在段的段页表项的地址偏移。
+@ 将段页表项的地址偏移+临时内核页表地址（r4）得到0xc0000000所在段的段页表项的物理地址。
+@ 将这个物理地址存放到r0寄存器中
 
+    ldr    r6, =(_end - 1)
+@ 将内核映射区的末尾地址存入r6寄存器中。
 
+    orr    r3, r8, r7
+@ 将DRAM起始物理地址(r8)或上MMU标识(r7)，得到0xc0000000所在段的段页表项的内容。存放在r3寄存器中。
+@ 例如0xc0000000对应段的段页表项就应该是0x20000000 | MMU_FLAG.
 
+    add    r6, r4, r6, lsr #(SECTION_SHIFT - PMD_ORDER)
+@ 将内核映射区的末尾地址(r6)左移(SECTION_SHIFT - PMD_ORDER)后得到其所在段的段页表项的物理地址
 
+1:    str    r3, [r0], #1 << PMD_ORDER
+@ 将r3存入当前段页表项中（[r0]）
+@ 然后将r0加上4得到下一个段页表项的地址
 
+    add    r3, r3, #1 << SECTION_SHIFT
+@ 更新r3中的页表项值为下一个段的页表项值。
+@ 只需要更新其被映射地址，也就是直接加上0x100000.
+@ 例如当前是0xc0000000所在段，其对应的物理地址是0x20000000，其段页表项值为0x20000000 | mmu_flag
+@ 那么下一个段就应该是0xc0100000，其对应物理地址应该是0x20100000,那么其段页表项值为0x20100000 | mmu_flag
 
+    cmp    r0, r6
+@ 判断是否已经是内核映射区的末尾段了。
 
+    bls    1b
+@ 如果不是的话，进入下一次循环。
+```
 
+## 7. 详解6
 
+**后续就是创建DTB的映射区。** 
+**方法和上述类似，主要是从r2中提取dtb的物理内存地址，计算出对应虚拟地址之后，进行映射表创建。** 
+并且其固定映射了两个段。所以DTB的大小不能超过1M。 
+例如：tiny210中ubootlog
 
+```
+Loading Device Tree to 3fc6d000, end 3fc75acb ... OK
+```
 
+所以应该创建 DTB arm区[0x3fc00000-0x3fe00000] 到 DTB映射区[0xdfc00000-0xdfe00000]的映射表。 
+对应如下：
 
+|          虚拟段          |         物理段         |   对应页表位置   |         计算方式         |        临时页表映射的值         |
+| :-------------------: | :-----------------: | :--------: | :------------------: | :---------------------: |
+| 0xDFC00000-0xDFCFFFFF | 0x3FC00000-3FCFFFFF | 0x200077F0 | (0x20004000+0xDFC*4) | (0x205<<20) \| mmuflags |
+| 0xDFD00000-0xDFDFFFFF | 0x3FD00000-3FDFFFFF | 0x200077F4 | (0x20004000+0xDFC*4) | (0x205<<20) \| mmuflags |
 
+代码分析如下：
+
+```
+    /*
+     * Then map boot params address in r2 if specified.
+     * We map 2 sections in case the ATAGs/DTB crosses a section boundary.
+     */
+    mov    r0, r2, lsr #SECTION_SHIFT
+@ 将dtb起始物理地址(r2)左移SECTION_SHIFT，存放在r0中。
+
+    movs    r0, r0, lsl #SECTION_SHIFT
+@ 再将r0右移SECTION_SHIFT得到这个物理内存段的地址（和上一步简单理解就是把低20位清零）
+
+    subne    r3, r0, r8
+@ 计算dtb物理内存段(r0)对应DRAM起始地址(r8)的偏移，存放在r3中
+
+    addne    r3, r3, #PAGE_OFFSET
+@ 将偏移(r3)加上，内核空间起始地址PAGE_OFFSET，得到要映射到的虚拟地址，
+@ 例如0x3fc00000，对应偏移是0x1fc00000,那么计算得要其要映射到的虚拟地址是0xdfc00000.
+
+    addne    r3, r4, r3, lsr #(SECTION_SHIFT - PMD_ORDER)
+@ 获取要映射的虚拟地址的段的页表项的地址，存放在r3中。
+
+    orrne    r6, r7, r0
+@ 将物理内存段地址（r0）或上mmu标识（r7），得到对应页表项值，存放到r6中
+
+    strne    r6, [r3], #1 << PMD_ORDER
+@ 将页表项值(r6)写入到页表项中（[r3]）
+@ 然后r3+4,获取到下一个页表项的地址
+
+    addne    r6, r6, #1 << SECTION_SHIFT
+@ 页表项值+0x100000，得到下一个页表项应该写入的页表项值
+
+    strne    r6, [r3]
+@ 将页表项值(r6)写入到页表项中（[r3]）
+```
+
+上述就完成了dtb所在的两个段的映射。
+
+**综上，临时内核页表就创建完成，并且放在了0x20004000的物理地址上。**

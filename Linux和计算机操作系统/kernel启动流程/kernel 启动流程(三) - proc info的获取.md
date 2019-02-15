@@ -1,8 +1,8 @@
-# kernel 启动流程-proc info的获取
+# kernel 启动流程(三) - proc info的获取
 
-# 零、说明
+# 零. 说明
 
-## 1、kernel启动流程第一阶段简单说明
+## 1. kernel启动流程第一阶段简单说明
 
 `arch/arm/kernel/head.S`
 
@@ -23,7 +23,7 @@ ENTRY(stext)
 
 本文要介绍的是“获取CPU ID，提取相应的proc info”的部分。
 
-## 2、疑问
+## 2. 疑问
 
 主要带着以下几个问题去理解
 
@@ -33,7 +33,7 @@ ENTRY(stext)
 
 - 如何获取对应CPU的proc info？
 
-## 3、对应代码实现
+## 3. 对应代码实现
 
         __HEAD
     ENTRY(stext)
@@ -45,13 +45,13 @@ ENTRY(stext)
 mrc p15, 0, r9, c0, c0 @ get processor id，用于获取CPU ID，具体参考第二节 
 bl __lookup_processor_type @ r5=procinfo r9=cpuid，根据cpu id获取proc info，具体参考第一节和第三节。
 
-# 一、procinfo
+# 一. procinfo
 
-## 1、说明 
+## 1. 说明 
 
 procinfo使用proc_info_list结构体，用来说明一个cpu的信息，包括这个cpu的ID号，对应的内核数据映射区的MMU标识等等。
 
-## 2、数据结构定义 
+## 2. 数据结构定义 
 
 ```
 arch/arm/include/asm/procinfo.h
@@ -87,7 +87,7 @@ struct proc_info_list {
 - cpu id和procinfo是一一对应的关系，所以可以通过cpu id来获取到对应的procinfo结构体，后续的小节中会说明。 
   这里回答了“为什么要获取cpu id”的疑问。
 
-## 3、存放位置 
+## 3. 存放位置 
 
 所有CPU的proc info都会被存放到.init.proc.info段中 
 
@@ -128,13 +128,13 @@ SECTIONS
 8041aa3c T __proc_info_end
 ```
 
-## 4、示例 
+## 4. 示例 
 
 以s5pv210为例，其arm体系是armv7，cortex-A8架构，对应procinfo定义于proc-v7.S中 
 
 
     arch/arm/mm/proc-v7.S
-    
+
     .section ".proc.info.init", #alloc
     /*
      * ARM Ltd. Cortex A8 processor.
@@ -181,14 +181,14 @@ __v7_proc是一个宏，其定义如下
 - __cpu_flush ： __v7_setup 
   上述几个成员我们在后续启动过程都会使用到。
 
-# 二、如何获取CPU ID
+# 二. 如何获取CPU ID
 
-## 1、原理 
+## 1. 原理 
 
 - arm体系上可支持最多16个协处理器。 
 - arm体系将CPU ID（处理器标识符，主标识符）存放在协处理器cp15的c0寄存器中。 
 
-## 2、协处理器cp15 
+## 2. 协处理器cp15 
 
 这部分建议参考《ARM 的 CP15 协处理器的寄存器》 
 
@@ -198,7 +198,7 @@ __v7_proc是一个宏，其定义如下
   cp15有16个寄存器。其中和处理器标识符（CPU ID）相关的是c0寄存器。 
   cp15 中寄存器 c0 对应两个标识符寄存器，分别是处理器标识符寄存器（主标识符寄存器）和cache类型标识符寄存器。当操作码2（opcode2）是0的时候，访问的是处理器标识符寄存器，当操作码2（opcode2）是1的时候的时候访问的是cache类型标识符寄存器。
 
-## 3、协处理器指令说明 
+## 3. 协处理器指令说明 
 
 （1）MCR 指令：ARM寄存器到协处理器寄存器的数据传送
 
@@ -220,9 +220,9 @@ MRC{<cond>} p15，0，<Rd>,<CRn>,<CRm>{,<opcode_2>}
 - CRn作为目标寄存器的协处理器寄存器，其编号可能是C0，C1，…，C15。
 - CRm和opcode_2两者组合决定对协处理器寄存器进行所需要的操作，如果没有指定，则将为为C0，opcode_2为0，否则可能导致不可预知的结果。
 
-## 4、获取cpu id的指令 
+## 4. 获取cpu id的指令 
 
-通过上述，我们通过mrc指令从p15中的c0寄存器中获取CPU ID,并且获取获取CPU ID的参数如下： 
+通过上述，我们通过mrc指令从cp15中的c0寄存器中获取CPU ID,并且获取获取CPU ID的参数如下： 
 
 - p->p15, 
 - opcode_1->0 
@@ -236,15 +236,15 @@ MRC{<cond>} p15，0，<Rd>,<CRn>,<CRm>{,<opcode_2>}
 mrc    p15, 0, r9, c0, c0        @ get processor id
 ```
 
-# 三、如何获取cpu对应的procinfo
+# 三. 如何获取cpu对应的procinfo
 
-## 1、原理 
+## 1. 原理 
 
 在上述第二节中，可知所有cpu的procinfo结构体都被连接到了.init.proc.info段中，也就是__proc_info_begin和__proc_info_end之间的位置中。 
 
 启动过程中，获取cpu id，在依次将cpu id和这个区间内的proc_info_list的cpu_val成员进行比较，如果匹配则对应proc_info_list结构体就是所需的proc info。
 
-## 2、代码实现 
+## 2. 代码实现 
 
 - 首先将__proc_info_begin的区间信息存放在__lookup_processor_type_data位置上 
 ```

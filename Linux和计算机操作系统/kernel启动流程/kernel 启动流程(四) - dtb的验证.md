@@ -1,8 +1,8 @@
-# kernel 启动流程-dtb的验证
+# kernel 启动流程(四) - dtb的验证
 
-# 零、说明
+# 零. 说明
 
-## 1、kernel启动流程第一阶段简单说明
+## 1. kernel启动流程第一阶段简单说明
 
 `arch/arm/kernel/head.S`
 
@@ -23,14 +23,14 @@ ENTRY(stext)
 
 因为现在基本上很少使用atags，所以这里我们只说dtb的部分。
 
-## 2、疑问
+## 2. 疑问
 
 主要带着以下几个问题去理解
 
 - dtb是什么？为什么要验证dtb的合法性？
 - 如何验证dtb的合法性？
 
-3、对应代码实现
+3. 对应代码实现
 --------------------- 
 ```
     __HEAD
@@ -42,23 +42,23 @@ ENTRY(stext)
     bl  __vet_atags
 ```
 
-# 一、DTB说明
+# 一. DTB说明
 
 这部分建议直接参考wowo的dtb的文章 
 
-- Device Tree（一）：背景介绍
-- Device Tree（二）：基本概念 
-- Device Tree（三）：代码分析 
+- [Device Tree（一）：背景介绍](http://www.wowotech.net/device_model/why-dt.html) 
+  [Device Tree（二）：基本概念](http://www.wowotech.net/device_model/dt_basic_concept.html) 
+  [Device Tree（三）：代码分析](http://www.wowotech.net/device_model/why-dt.html) 
 
 简单说明，dtb里面存放了各种硬件信息，如果dtb有问题，会导致后续开机过程中读取的设备信息有问题而导致无法开机。
 
-# 二、如何验证了一个dtb是否合法
+# 二. 如何验证了一个dtb是否合法
 
-## 1、原理说明 
+## 1. 原理说明 
 
 在生成dtb的时候会在头部上添加一个幻数magic，而验证dtb是否合法主要也就是看这个dtb的magic是否和预期的值一致。 
 
-2、dtb结构如下
+2. dtb结构如下
 --------------------- 
 |         结构体如下         |
 | :-------------------: |
@@ -70,7 +70,7 @@ ENTRY(stext)
 |     alignment gap     |
 |  device-tree string   |
 
-## 3、dtb header结构如下：
+## 3. dtb header结构如下：
 
 |     结构体如下      |
 | :------------: |
@@ -96,7 +96,7 @@ ENTRY(stext)
 
 综上，我们只要提取待验证dtb的地址上的数据的前四个字节，与0xd00dfeed（大端）或者0xedfe0dd0（小端）进行比较，如果匹配的话，就说明对应待验证dtb就是一个合法的dtb。
 
-# 三、代码分析
+# 三. 代码分析
 
 具体就是分析__vet_atags的实现。 
 
@@ -138,34 +138,3 @@ arch/arm/kernel/head-common.S
 ```
 
 综上，验证dtb的工作完成。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

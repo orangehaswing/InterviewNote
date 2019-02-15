@@ -1,8 +1,8 @@
-# Kernel启动流程-vmlinux.lds分析
+# Kernel启动流程(零) - vmlinux.lds分析
 
-# 一、基础部分
+# 一. 基础部分
 
-## 1、段说明
+## 1. 段说明
 
 - text段 
 
@@ -20,7 +20,7 @@
 
   linux定义的一种初始化过程中才会用到的段，一旦初始化完成，那么这些段所占用的内存会被释放掉，后续会继续说明
 
-## 2、各种地址说明
+## 2. 各种地址说明
 
 - 地址解释 
 
@@ -52,13 +52,13 @@
   - uboot（BL2）阶段并没有打开MMU，并且其使用的是位置相关设计，所以其加载地址和链接地址都需要设置成相同， 也就是加载地址是0x23E00000，链接地址也是0x23E00000，运行地址也就和这两者一致，也就是
 
 
-  - kernel启动过程中，在MMU打开之前，使用的是位置无关设计， 
+-   kernel启动过程中，在MMU打开之前，使用的是位置无关设计， 
 
     内核镜像加载地址是0x20008000，链接地址是0xc0008000,运行地址是0x20008000.
 
-  - 打开MMU之后， 内核镜像加载地址是0x20008000，链接地址是0xc0008000,运行地址是0xc0008000.
+-   打开MMU之后， 内核镜像加载地址是0x20008000，链接地址是0xc0008000,运行地址是0xc0008000.
 
-# 二、链接脚本语言
+# 二. 链接脚本语言
 
 一个简单的vmlinux.lds.S的例子 
 
@@ -79,9 +79,9 @@ SECTIONS
 - 第6行指示：输出文件的data端由所有目标文件的data段组成； 
 - 第7行指示：输出文件的bss端由所有目标文件的bss段组成；
 
-# 三、vmlinux.lds.S分析
+# 三. vmlinux.lds.S分析
 
-## 0、一些有助于我们分析vmlinux.lds.S的东西
+## 0. 一些有助于我们分析vmlinux.lds.S的东西
 
 kernel在启动过程中会打印一些和memory信息相关的log
 
@@ -154,7 +154,7 @@ Section Headers:
   [ 6] __ksymtab         PROGBITS        80397700 2a7700 0042d0 00   A  0   0  4
 ```
 
-## 1、整体的段结构
+## 1. 整体的段结构
 
 vmlinux.lds.S的段基本上会按照如下格式进行组织。 参考include/asm-generic/vmlinux.lds.h注释部分
 
@@ -214,7 +214,7 @@ vmlinux.lds.S的段基本上会按照如下格式进行组织。 参考include/
 * _sdata - _edata区间： 
   存放data段，包括只读data段和可读可写数据段。 
 * bss段
-## 2、__init_begin - __init_end区间定义段
+## 2. __init_begin - __init_end区间定义段
 
 arch/arm/kernel/vmlinux.lds.S
 
@@ -264,7 +264,7 @@ void free_initmem(void)
 }
 ```
 
-## 3、_stext - _etext区间定义段
+## 3. _stext - _etext区间定义段
 
 ```
    .head.text : {
@@ -294,7 +294,7 @@ c0100000 T _stext
 c03c228c T _etext
 ```
 
-## 4、_sdata - _edata区间
+## 4. _sdata - _edata区间
 
 ```
         __data_loc = .;
@@ -322,7 +322,7 @@ c0500000 D _sdata
 c0514ba0 D _edata
 ```
 
-## 5、bss段定义
+## 5. bss段定义
 
 ```
         BSS_SECTION(0, 0, 0)
@@ -344,9 +344,9 @@ c0514ba0 B __bss_start
 c0547d74 B __bss_stop
 ```
 
-# 四、vmlinux.lds.S更多说明
+# 四. vmlinux.lds.S更多说明
 
-## 1、入口
+## 1. 入口
 
 有很多不同的方法来设置入口点.链接器会通过按顺序尝试一下方法来设置入口点,如果成功了,就会停止. 
 
@@ -365,7 +365,7 @@ ENTRY(stext)
 说明其入口地址是stext，在arch/arm/kernel/head.S中。 
 注意：也就是说kernel启动的入口在这里，后续分析kernel启动流程就是从这里开始分析的。
 
-## 2、连接地址
+## 2. 连接地址
 
 为什么stext的地址是0xc0008000呢？（通过System.map查看的）。 
 
@@ -434,18 +434,3 @@ textofs-y       := 0x00008000
 #error KERNEL_RAM_VADDR must start at 0xXXXX8000
 #endif
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
