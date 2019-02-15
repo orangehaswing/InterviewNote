@@ -511,7 +511,7 @@ static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 
 ```
 
-**61）有没有可能两个不相等的对象有有相同的 hashcode？**
+**61）有没有可能两个不相等的对象有相同的 hashcode？**
 
 有可能，两个不相等的对象可能会有相同的 hashcode 值，这就是为什么在 hashmap 中会有冲突。相等 hashcode 值的规定只是说如果两个对象相等，必须有相同的hashcode 值，但是没有关于不相等对象的任何规定。
 
@@ -525,7 +525,7 @@ static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 
 **64）Java 中，Comparator 与 Comparable 有什么不同？(答案)**
 
-Comparable 接口用于定义对象的自然顺序，而 comparator 通常用于定义用户定制的顺序。Comparable 总是只有一个，但是可以有多个 comparator 来定义对象的顺序。
+Comparable 接口用于定义对象的自然顺序，需要修改Class源代码；而 comparator 通常用于定义用户定制的顺序。Comparable 总是只有一个，但是可以有多个 comparator 来定义对象的顺序。
 
 **65）为什么在重写 equals 方法的时候需要重写 hashCode 方法？(答案)**
 
@@ -575,7 +575,7 @@ c）如果可以，更偏向于使用 volatile 而不是 synchronized。
 
 **77）说出几点 Java 中使用 Collections 的最佳实践(答案)**
 
-这是我在使用 Java 中 Collectionc 类的一些最佳实践：
+这是我在使用 Java 中 Collections类的一些最佳实践：
 
  a）使用正确的集合类，例如，如果不需要同步列表，使用 ArrayList 而不是 Vector。
 
@@ -793,23 +793,16 @@ DOM 解析器将整个 XML 文档加载到内存来创建一棵 DOM 模型树，
 
 **132）说出 5 个 JDK 1.8 引入的新特性？(答案)**
 
-Java 8 在 Java 历史上是一个开创新的版本，下面 JDK 8 中 5 个主要的特性： Lambda 表达式，允许像对象一样传递匿名函数 Stream API，充分利用现代多核 CPU，可以写出很简洁的代码 Date 与 Time API，最终，有一个稳定、简单的日期和时间库可供你使用 扩展方法，现在，接口中可以有静态、默认方法。 重复注解，现在你可以将相同的注解在同一类型上使用多次。
+1、default关键字:引入了新的关键字default，通过使用default修饰方法，可以让我们在接口里面定义具体的方法实现
+
+2、Lambda 表达式:函数式编程，允许把函数本身作为参数传入另一个函数，还允许返回一个函数
+
+3、函数式接口：指仅仅只包含一个抽象方法的接口，提供了一个@FunctionalInterface注解来定义函数式接口
+
+4.方法与构造函数引用：提供了另外一种调用方式::，当你需要使用方法引用时 ，目标引用放在分隔符::前 ，方法的名称放在后面 ，即`ClassName :: methodName` 。
+
+5、Date API更新
 
 **133）Java 中，Maven 和 ANT 有什么区别？(答案)**
 
 虽然两者都是构建工具，都用于创建 Java 应用，但是 Maven 做的事情更多，在基于“约定优于配置”的概念下，提供标准的Java 项目结构，同时能为应用自动管理依赖（应用中所依赖的 JAR 文件），Maven 与 ANT 工具更多的不同之处请参见答案。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
