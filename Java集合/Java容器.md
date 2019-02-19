@@ -6,7 +6,7 @@
 
 ## Collection
 
-![collection](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%AE%B9%E5%99%A8/resource/VP6n3i8W48Ptde8NQ9_0eSR5eOD6uqx.png?raw=true)
+![collection](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E9%9B%86%E5%90%88/resource/VP6n3i8W48Ptde8NQ9_0eSR5eOD6uqx.png?raw=true)
 
 ### 1. Set
 
@@ -27,7 +27,7 @@
 
 ## Map
 
-![map](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%AE%B9%E5%99%A8/resource/SoWkIImgAStDuUBAp2j9BKfBJ4vLy4q.png?raw=true)
+![map](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E9%9B%86%E5%90%88/resource/SoWkIImgAStDuUBAp2j9BKfBJ4vLy4q.png?raw=true)
 
 - TreeMap：基于红黑树实现。
 - HashMap：基于哈希表实现。
@@ -38,7 +38,7 @@
 
 ## 迭代器模式
 
-![iterator](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%AE%B9%E5%99%A8/resource/SoWkIImgAStDuUBAp2j9BKfBJ4vLy0G.png?raw=true)
+![iterator](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E9%9B%86%E5%90%88/resource/SoWkIImgAStDuUBAp2j9BKfBJ4vLy0G.png?raw=true)
 
 Collection 继承了 Iterable 接口，其中的 iterator() 方法能够产生一个 Iterator 对象，通过这个对象就可以迭代遍历 Collection 中的元素。
 
@@ -539,7 +539,7 @@ transient Node<E> first;
 transient Node<E> last;
 ```
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%AE%B9%E5%99%A8/resource/49495c95-52e5-4c9a-b27b-92cf235ff5ec.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/49495c95-52e5-4c9a-b27b-92cf235ff5ec.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E9%9B%86%E5%90%88/resource/49495c95-52e5-4c9a-b27b-92cf235ff5ec.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/49495c95-52e5-4c9a-b27b-92cf235ff5ec.png?raw=true)
 
 ### 2. 与 ArrayList 的比较
 
@@ -561,7 +561,7 @@ transient Entry[] table;
 
 Entry 存储着键值对。它包含了四个字段，从 next 字段我们可以看出 Entry 是一个链表。即数组中的每个位置被当成一个桶，一个桶存放一个链表。HashMap 使用拉链法来解决冲突，同一个链表中存放哈希值相同的 Entry。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%AE%B9%E5%99%A8/resource/8fe838e3-ef77-4f63-bf45-417b6bc5c6bb.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/8fe838e3-ef77-4f63-bf45-417b6bc5c6bb.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E9%9B%86%E5%90%88/resource/8fe838e3-ef77-4f63-bf45-417b6bc5c6bb.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/8fe838e3-ef77-4f63-bf45-417b6bc5c6bb.png?raw=true)
 
 ```
 static class Entry<K,V> implements Map.Entry<K,V> {
@@ -637,7 +637,7 @@ map.put("K3", "V3");
 - 计算键值对所在的桶；
 - 在链表上顺序查找，时间复杂度显然和链表的长度成正比。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%AE%B9%E5%99%A8/resource/49d6de7b-0d0d-425c-9e49-a1559dc23b10.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/49d6de7b-0d0d-425c-9e49-a1559dc23b10.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E9%9B%86%E5%90%88/resource/49d6de7b-0d0d-425c-9e49-a1559dc23b10.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/49d6de7b-0d0d-425c-9e49-a1559dc23b10.png?raw=true)
 
 ### 3. put 操作
 
@@ -978,7 +978,7 @@ final Segment<K,V>[] segments;
 static final int DEFAULT_CONCURRENCY_LEVEL = 16;
 ```
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%AE%B9%E5%99%A8/resource/3fdfc89d-719e-4d93-b518-29fa612b3b18.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/3fdfc89d-719e-4d93-b518-29fa612b3b18.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E9%9B%86%E5%90%88/resource/3fdfc89d-719e-4d93-b518-29fa612b3b18.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/3fdfc89d-719e-4d93-b518-29fa612b3b18.png?raw=true)
 
 ### 2. size 操作
 

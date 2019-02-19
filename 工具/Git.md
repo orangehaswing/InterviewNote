@@ -20,20 +20,20 @@ Github 就是一个中心服务器。
 
 # 工作流
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/a1198642-9159-4d88-8aec-c3b04e7a2563.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/a1198642-9159-4d88-8aec-c3b04e7a2563.jpg?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/a1198642-9159-4d88-8aec-c3b04e7a2563.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/a1198642-9159-4d88-8aec-c3b04e7a2563.jpg?raw=true)
 
 新建一个仓库之后，当前目录就成为了工作区，工作区下有一个隐藏目录 .git，它属于 Git 的版本库。
 
 Git 版本库有一个称为 stage 的暂存区，还有自动创建的 master 分支以及指向分支的 HEAD 指针。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/46f66e88-e65a-4ad0-a060-3c63fe22947c.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/46f66e88-e65a-4ad0-a060-3c63fe22947c.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/46f66e88-e65a-4ad0-a060-3c63fe22947c.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/46f66e88-e65a-4ad0-a060-3c63fe22947c.png?raw=true)
 
 - git add files 把文件的修改添加到暂存区
 - git commit 把暂存区的修改提交到当前分支，提交之后暂存区就被清空了
 - git reset -- files 使用当前分支上的修改覆盖暂存区，用来撤销最后一次 git add files
 - git checkout -- files 使用暂存区的修改覆盖工作目录，用来撤销本地修改
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/17976404-95f5-480e-9cb4-250e6aa1d55f.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/17976404-95f5-480e-9cb4-250e6aa1d55f.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/17976404-95f5-480e-9cb4-250e6aa1d55f.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/17976404-95f5-480e-9cb4-250e6aa1d55f.png?raw=true)
 
 可以跳过暂存区域直接从分支中取出修改，或者直接提交修改到分支中。
 
@@ -44,25 +44,25 @@ Git 版本库有一个称为 stage 的暂存区，还有自动创建的 master �
 
 使用指针将每个提交连接成一条时间线，HEAD 指针指向当前分支指针。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/fb546e12-e1fb-4b72-a1fb-8a7f5000dce6.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/fb546e12-e1fb-4b72-a1fb-8a7f5000dce6.jpg?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/fb546e12-e1fb-4b72-a1fb-8a7f5000dce6.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/fb546e12-e1fb-4b72-a1fb-8a7f5000dce6.jpg?raw=true)
 
 新建分支是新建一个指针指向时间线的最后一个节点，并让 HEAD 指针指向新分支表示新分支成为当前分支。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/bc775758-89ab-4805-9f9c-78b8739cf780.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/bc775758-89ab-4805-9f9c-78b8739cf780.jpg?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/bc775758-89ab-4805-9f9c-78b8739cf780.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/bc775758-89ab-4805-9f9c-78b8739cf780.jpg?raw=true)
 
 每次提交只会让当前分支指针向前移动，而其它分支指针不会移动。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/5292faa6-0141-4638-bf0f-bb95b081dcba.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/5292faa6-0141-4638-bf0f-bb95b081dcba.jpg?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/5292faa6-0141-4638-bf0f-bb95b081dcba.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/5292faa6-0141-4638-bf0f-bb95b081dcba.jpg?raw=true)
 
 合并分支也只需要改变指针即可。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/1164a71f-413d-494a-9cc8-679fb6a2613d.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/1164a71f-413d-494a-9cc8-679fb6a2613d.jpg?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/1164a71f-413d-494a-9cc8-679fb6a2613d.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/1164a71f-413d-494a-9cc8-679fb6a2613d.jpg?raw=true)
 
 # 冲突
 
 当两个分支都对同一个文件的同一行进行了修改，在分支合并时就会产生冲突。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/58e57a21-6b6b-40b6-af85-956dd4e0f55a.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/58e57a21-6b6b-40b6-af85-956dd4e0f55a.jpg?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/58e57a21-6b6b-40b6-af85-956dd4e0f55a.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/58e57a21-6b6b-40b6-af85-956dd4e0f55a.jpg?raw=true)
 
 Git 会使用 <<<<<<< ，======= ，>>>>>>> 标记出不同分支的内容，只需要把不同分支中冲突部分修改成一样就能解决冲突。
 
@@ -86,7 +86,7 @@ $ git merge --no-ff -m "merge with no-ff" dev
 
 ```
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/dd78a1fe-1ff3-4bcf-a56f-8c003995beb6.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/dd78a1fe-1ff3-4bcf-a56f-8c003995beb6.jpg?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/dd78a1fe-1ff3-4bcf-a56f-8c003995beb6.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/dd78a1fe-1ff3-4bcf-a56f-8c003995beb6.jpg?raw=true)
 
 # 分支管理策略
 
@@ -94,7 +94,7 @@ master 分支应该是非常稳定的，只用来发布新版本；
 
 日常开发在开发分支 dev 上进行。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/245fd2fb-209c-4ad5-bc5e-eb5664966a0e.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/245fd2fb-209c-4ad5-bc5e-eb5664966a0e.jpg?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/245fd2fb-209c-4ad5-bc5e-eb5664966a0e.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/245fd2fb-209c-4ad5-bc5e-eb5664966a0e.jpg?raw=true)
 
 # 储藏（Stashing）
 
@@ -136,5 +136,5 @@ $ ssh-keygen -t rsa -C "youremail@example.com"
 
 # Git 命令一览
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/resource/7a29acce-f243-4914-9f00-f2988c528412.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/7a29acce-f243-4914-9f00-f2988c528412.jpg?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E5%B7%A5%E5%85%B7/resource/7a29acce-f243-4914-9f00-f2988c528412.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/7a29acce-f243-4914-9f00-f2988c528412.jpg?raw=true)
 

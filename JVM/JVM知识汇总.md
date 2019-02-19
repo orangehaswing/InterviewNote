@@ -88,7 +88,7 @@ java -Xms1M -Xmx2M HackTheJava
 
 **堆内存空间参数设定**
 
-![堆内存参数](https://github.com/CyC2018/Interview-Notebook/raw/master/pics/ppt_img.gif)	 
+![堆内存参数](https://github.com/orangehaswing/OrdinaryNote/blob/master/JVM/resource/ppt_img.gif?raw=true)	 
 
 **在 JDK 1.8中移除整个永久代，取而代之的是一个叫元空间（Metaspace）的区域（永久代使用的是JVM的堆内存空间，而元空间使用的是物理内存，直接受到本机的物理内存限制）。**
 
