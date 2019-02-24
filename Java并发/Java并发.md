@@ -16,7 +16,7 @@
 
 ## 阻塞（Blocking）
 
-等待获取一个排它锁，如果其线程释放了锁就会结束此状态。
+等待获取一个互斥锁，如果其线程释放了锁就会结束此状态。
 
 ## 无限期等待（Waiting）
 
@@ -154,7 +154,7 @@ public static ExecutorService newCachedThreadPool(){
 
 ​
 
-- 初始化一个可以缓存线程的线程池，默认缓存60s，线程池的线程数可达到Integer.MAX_VALUE，即2147483647，内部使用SynchronousQueue作为阻塞队列；
+1. 初始化一个可以缓存线程的线程池，默认缓存60s，线程池的线程数可达到Integer.MAX_VALUE，即2147483647，内部使用SynchronousQueue作为阻塞队列；
 
 2. 和newFixedThreadPool创建的线程池不同，newCachedThreadPool在没有任务执行时，当线程的空闲时间超过keepAliveTime，会自动释放线程资源，当提交新任务时，如果没有空闲线程，则创建新线程执行任务，会导致一定的系统开销；
 
@@ -860,13 +860,13 @@ other task is running...
 
 JDK8 提供了 7 个阻塞队列：
 
-- ArrayBlockingQueue ：一个由数组结构组成的有界阻塞队列[源码](https://www.jianshu.com/p/0a0b58934401)
-- LinkedBlockingQueue ：一个由链表结构组成的有界阻塞队列[源码](https://www.jianshu.com/p/f1b2c053c103)
-- PriorityBlockingQueue ：一个支持优先级排序的无界阻塞队列[源码](https://www.jianshu.com/p/43954715aa28)
+- ArrayBlockingQueue ：一个由数组结构组成的有界阻塞队列  [源码](https://www.jianshu.com/p/0a0b58934401)
+- LinkedBlockingQueue ：一个由链表结构组成的有界阻塞队列  [源码](https://www.jianshu.com/p/f1b2c053c103)
+- PriorityBlockingQueue ：一个支持优先级排序的无界阻塞队列  [源码](https://www.jianshu.com/p/43954715aa28)
 - DelayQueue：一个使用优先级队列实现的无界阻塞队列。
-- SynchronousQueue：一个不存储元素的阻塞队列。[源码](https://www.jianshu.com/p/9d2c706e45b7)
-- LinkedTransferQueue：一个由链表结构组成的无界阻塞队列。[源码](https://www.jianshu.com/p/bd708cb3ea91)
-- LinkedBlockingDeque：一个由链表结构组成的双向阻塞队列。
+- SynchronousQueue：一个不存储元素的阻塞队列  [源码](https://www.jianshu.com/p/9d2c706e45b7)
+- LinkedTransferQueue：一个由链表结构组成的无界阻塞队列  [源码](https://www.jianshu.com/p/bd708cb3ea91)
+- LinkedBlockingDeque：一个由链表结构组成的双向阻塞队列
 
 这是[详解](https://www.jianshu.com/p/4af8ab00c587)
 

@@ -6,23 +6,63 @@ Redis 是速度非常快的非关系型（NoSQL）内存键值数据库，可以
 
 键的类型只能为字符串，值支持五种数据类型：字符串、列表、集合、散列表、有序集合。
 
-Redis 支持很多特性，例如将内存中的数据持久化到硬盘中，使用复制来扩展读性能，使用分片来扩展写性能。
+Redis 支持很多特性，例如将内存中的数据持久化到硬盘中，使用复制来扩展读性能，使用分片来扩展写性能。可以应用在
+
+缓存系统、排行版、计数器社交网络、消息队列系统、实时系统等场景。
+
+单线程为什么这么快？
+
+1. 纯内存
+2. 非阻塞IO
+3. 避免线程切换和竞争消耗
+
+单线程Redis注意事项
+
+1. 一次只运行一条命令
+2. 拒绝长（慢）命令，例如：keys、flushall、flushdb、slow lua script、mutil/exec、operate big value(collection)
+3. Redis其实不是单线程，fysnc file descriptor进行持久化
+
+特性
+
+- 速度快
+- 持久化
+- 多钟数据结构
+- 支持多种编程语言
+- 功能丰富
+- 简单
+- 主从复制
+- 高可用，分布式
 
 # 二、数据类型
 
-| 数据类型   | 可以存储的值      | 操作                                       |
-| ------ | ----------- | ---------------------------------------- |
-| STRING | 字符串、整数或者浮点数 | 对整个字符串或者字符串的其中一部分执行操作对整数和浮点数执行自增或者自减操作   |
-| LIST   | 列表          | 从两端压入或者弹出元素 对单个或者多个元素进行修剪，只保留一个范围内的元素    |
-| SET    | 无序集合        | 添加、获取、移除单个元素检查一个元素是否存在于集合中计算交集、并集、差集从集合里面随机获取元素 |
-| HASH   | 包含键值对的无序散列表 | 添加、获取、移除单个键值对获取所有键值对检查某个键是否存在            |
-| ZSET   | 有序集合        | 添加、获取、删除元素根据分值范围或者成员来获取元素计算一个键的排名        |
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/pics/redis-data-structure-types.jpeg)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/pics/redis-data-structure-types.jpeg)
 
-> [What Redis data structures look like](https://redislabs.com/ebook/part-1-getting-started/chapter-1-getting-to-know-redis/1-2-what-redis-data-structures-look-like/)
+| 结构类型   | 结构存储的值                                   | 结构的读写能力                                  |
+| ------ | ---------------------------------------- | ---------------------------------------- |
+| STRING | 可以是字符串、整数或者浮点数                           | 对整个字符串或者字符串的其中一部分执行操作对整数和浮点数执行自增或自减操作    |
+| LIST   | 一个链表，链表上的每个节点都包含了一个字符串                   | 从两端压入或者弹出元素 对单个或者多个元素进行修剪，只保留一个范围内的元素    |
+| SET    | 包含字符串的无序收集器（unordered collection），并且被包含的每个字符串都是独一无二、各不相同的 | 添加、获取、移除单个元素检查一个元素是否存在于集合中计算交集、并集、差集从集合里面随机获取元素 |
+| HAST   | 包含键值对的无序散列表                              | 添加、获取、移除单个键值对获取所有键值对检查某个键是否存在            |
+| ZSET   | 字符串成员（member）与浮点数分值（score）之间的有序映射，元素的排列顺序由分值的大小决定 | 添加、获取、删除元素根据分值范围或者成员来获取元素计算一个键的排名        |
 
-## STRING
+### STRING
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/6019b2db-bc3e-4408-b6d8-96025f4481d6.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/6019b2db-bc3e-4408-b6d8-96025f4481d6.png)
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/redis-string.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/redis-string.png)
+
+**设置语法**
+
+```
+set key value [EX seconds] [PX ms] [nx|xx]
+```
+
+- key: 键名
+- value: 键值
+- ex seconds: 键秒级过期时间
+- ex ms: 键毫秒及过期时间
+- nx: 键不存在才能设置，setnx和nx选项作用一样，用于添加，分布式锁的实现
+- xx: 键存在才能设置，setxx和xx选项作用一样，用于更新
+
+**常用命令**
 
 ```
 > set hello world
@@ -35,9 +75,50 @@ OK
 (nil)
 ```
 
-## LIST
+书中提到一个有趣的概念，批量操作mget可以提供效率节省时间
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/fb327611-7e2b-4f2f-9f5b-38592d408f07.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/fb327611-7e2b-4f2f-9f5b-38592d408f07.png)
+逐条 get/se t的时间消耗公式：
+
+```
+n次get/set时间 = n次网络时间 + n次命令时间
+```
+
+批量get/set的时间消耗公式： `n次get/set时间 = 1次网络时间 + n次命令时间`
+
+合理的使用批量操作可以提高Redis性能，但是注意不要量太大，**如果过量的话可能会导致Redis阻塞**
+
+**时间复杂度**
+
+- set: O(1)
+- get: O(1)
+- del: O(k)，k为键的个数
+- mget: O(k)，k为键的个数
+- mset: O(k)，k为键的个数
+- append: O(1)
+- str: O(1)
+- getrange: O(n), n为字符串的长度
+
+**内部编码**
+
+- int: 8字节长整型
+- embstr: 小于39字节值
+- raw: 大于39字节的值
+
+**典型场景**
+
+- 缓存
+- 计算器
+- 分布式锁
+
+**场景**
+
+- 缓存
+- 计算器
+- 分布式锁
+
+### LIST
+
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026733016.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026733016.png)
 
 ```
 > rpush list-key item
@@ -46,26 +127,22 @@ OK
 (integer) 2
 > rpush list-key item
 (integer) 3
-
 > lrange list-key 0 -1
 1) "item"
 2) "item2"
 3) "item"
-
 > lindex list-key 1
 "item2"
-
 > lpop list-key
 "item"
-
 > lrange list-key 0 -1
 1) "item2"
 2) "item"
 ```
 
-## SET
+### SET
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/cd5fbcff-3f35-43a6-8ffa-082a93ce0f0e.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/cd5fbcff-3f35-43a6-8ffa-082a93ce0f0e.png)
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026799672.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026799672.png)
 
 ```
 > sadd set-key item
@@ -76,61 +153,144 @@ OK
 (integer) 1
 > sadd set-key item
 (integer) 0
-
 > smembers set-key
 1) "item"
 2) "item2"
 3) "item3"
-
 > sismember set-key item4
 (integer) 0
 > sismember set-key item
 (integer) 1
-
 > srem set-key item2
 (integer) 1
 > srem set-key item2
 (integer) 0
-
 > smembers set-key
 1) "item"
 2) "item3"
 ```
 
-## HASH
+### HASH
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/7bd202a7-93d4-4f3a-a878-af68ae25539a.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/7bd202a7-93d4-4f3a-a878-af68ae25539a.png)
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026823413.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026823413.png)
+
+**创建哈希类型的键值**
 
 ```
-> hset hash-key sub-key1 value1
+127.0.0.1:6379> hset user name LotusChing 
 (integer) 1
-> hset hash-key sub-key2 value2
+127.0.0.1:6379> hset user age 21
 (integer) 1
-> hset hash-key sub-key1 value1
-(integer) 0
-
-> hgetall hash-key
-1) "sub-key1"
-2) "value1"
-3) "sub-key2"
-4) "value2"
-
-> hdel hash-key sub-key2
+127.0.0.1:6379> hset user gender "Male"
 (integer) 1
-> hdel hash-key sub-key2
-(integer) 0
-
-> hget hash-key sub-key1
-"value1"
-
-> hgetall hash-key
-1) "sub-key1"
-2) "value1"
 ```
 
-## ZSET
+HSET 不支持创建一次性创建多field
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/1202b2d6-9469-4251-bd47-ca6034fb6116.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/1202b2d6-9469-4251-bd47-ca6034fb6116.png)
+```
+127.0.0.1:6379> hset user name "LotusChing" age 21
+(error) ERR wrong number of arguments for 'hset' command
+```
+
+**获取哈希键中的field值**
+
+```
+127.0.0.1:6379> hget user name
+"LotusChing"
+127.0.0.1:6379> hget user age
+"21"
+127.0.0.1:6379> hget user gender
+"Male"
+```
+
+HGET 不支持一次获取多个field
+
+**获取哈希键中的fields**
+
+```
+127.0.0.1:6379> hekys user
+1) "name"
+2) "age"
+```
+
+**获取哈希键中的所有field的value**
+
+```
+127.0.0.1:6379> hvals user
+1) "LotusChing"
+2) "21"
+```
+
+**删除哈希键中某个field**
+
+```
+127.0.0.1:6379> hdel user age
+(integer) 1
+127.0.0.1:6379> hkeys user
+1) "name"
+```
+
+**统计哈希中field的个数**
+
+```
+127.0.0.1:6379> hkeys user
+1) "name"
+2) "age"
+3) "gender"
+127.0.0.1:6379> hlen user
+(integer) 3
+```
+
+**批量设置哈希键的field**
+
+```
+127.0.0.1:6379> hmset user name "LotusChing" age 21 gender "Male"
+OK
+127.0.0.1:6379> hkeys user
+1) "name"
+2) "age"
+3) "gender"
+127.0.0.1:6379> hvals user
+1) "LotusChing"
+2) "21"
+3) "Male"
+```
+
+**批量获取哈希键中field的value**
+
+```
+127.0.0.1:6379> hmget user name age gender
+1) "LotusChing"
+2) "21"
+3) "Male"
+```
+
+**判断哈希键中field是否存在**
+
+```
+127.0.0.1:6379> hexists user name
+(integer) 1
+127.0.0.1:6379> hexists user hobbies
+(integer) 0
+```
+
+**一次性获取哈希键中所有的fields和values**
+
+注意：尽量避免使用`hgetall`，因为如果哈希键field过多的话，可能会导致Redis阻塞，建议使用`hmget`获取所需哈希键中的field值，或者采用`hscan`
+
+```
+127.0.0.1:6379> hgetall user
+1) "name"
+2) "LotusChing"
+3) "age"
+4) "21"
+5) "gender"
+6) "Male"
+```
+
+### ZSET
+
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026839475.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026839475.png)
 
 ```
 > zadd zset-key 728 member1
@@ -139,26 +299,26 @@ OK
 (integer) 1
 > zadd zset-key 982 member0
 (integer) 0
-
 > zrange zset-key 0 -1 withscores
 1) "member1"
 2) "728"
 3) "member0"
 4) "982"
-
 > zrangebyscore zset-key 0 800 withscores
 1) "member1"
 2) "728"
-
 > zrem zset-key member1
 (integer) 1
 > zrem zset-key member1
 (integer) 0
-
 > zrange zset-key 0 -1 withscores
 1) "member0"
 2) "982"
 ```
+
+参考资料：
+
+- [Chapter 1: Getting to know Redis | Redis Labs](https://redislabs.com/ebook/part-1-getting-started/chapter-1-getting-to-know-redis/)
 
 # 三、数据结构
 
@@ -547,6 +707,10 @@ Redis 没有关系型数据库中的表这一概念来将同种类型的数据�
 为了按发布时间和点赞数进行排序，可以建立一个文章发布时间的有序集合和一个文章点赞数的有序集合。（下图中的 score 就是这里所说的点赞数；下面所示的有序集合分值并不直接是时间和点赞数，而是根据时间和点赞数间接计算出来的）
 
 [![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/f7d170a3-e446-4a64-ac2d-cb95028f81a8.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/f7d170a3-e446-4a64-ac2d-cb95028f81a8.png)
+
+
+
+
 
 
 

@@ -1,8 +1,297 @@
-# MYSQL性能优化(一)
 
-今天，数据库的操作越来越成为整个应用的性能瓶颈了，这点对于Web应用尤其明显。关于数据库的性能，这并不只是DBA才需要担心的事，而这更是我们程序员需要去关注的事情。当我们去设计数据库表结构，对操作数据库时（尤其是查表时的SQL语句），我们都需要注意数据操作的性能。这里，我们不会讲过多的SQL语句的优化，而只是针对MySQL这一Web应用最多的数据库。希望下面的这些优化技巧对你有用。
+MySQL操作指令
+=========
+## 1. 连接Mysql
 
-#### 1. 为查询缓存优化你的查询
+格式： mysql -h主机地址 -u用户名 －p用户密码
+
+1、连接到本机上的MYSQL
+
+首先打开DOS窗口，然后进入目录mysql\bin，再键入命令**mysql -u root -p**，
+回车后提示你输密码.注意用户名前可以有空格也可以没有空格，但是密码前必须没有空格，否则让你重新输入密码。
+
+如果刚安装好MYSQL，超级用户root是没有密码的，故直接回车即可进入到MYSQL中了，MYSQL的提示符是： mysql>
+
+2、连接到远程主机上的MYSQL。假设远程主机的IP为：110.110.110.110，用户名为root,密码为abcd123。则键入以下命令：
+    mysql -h110.110.110.110 -u root -p 123;（注:u与root之间可以不用加空格，其它也一样）
+
+3、退出MYSQL命令： exit （回车）
+
+## 2. 修改密码
+
+格式：mysqladmin -u用户名 -p旧密码 password 新密码
+
+1、给root加个密码ab12
+
+首先在DOS下进入目录mysql\bin，然后键入以下命令
+
+    mysqladmin -u root -password ab12
+注：因为开始时root没有密码，所以-p旧密码一项就可以省略了。
+
+2、再将root的密码改为djg345
+    mysqladmin -u root -p ab12 password djg345
+## 3. 增加新用户
+
+注意：和上面不同，下面的因为是MYSQL环境中的命令，所以后面都带一个分号作为命令结束符
+
+格式：grant select on 数据库.* to 用户名@登录主机 identified by “密码”
+
+1、增加一个用户test1密码为abc，让他可以在任何主机上登录，并对所有数据库有查询、插入、修改、删除的权限。首先用root用户连入MYSQL，然后键入以下命令：
+    grant select,insert,update,delete on *.* to [email=test1@”%]test1@”%[/email]” Identified by “abc”;
+
+但增加的用户是十分危险的，你想如某个人知道test1的密码，那么他就可以在internet上的任何一台电脑上登录你的mysql数据库并对你的数据可以为所欲为了，解决办法见2。
+
+2、增加一个用户test2密码为abc,让他只可以在localhost上登录，并可以对数据库mydb进行查询、插入、修改、删除的操作（localhost指本地主机，即MYSQL数据库所在的那台主机），这样用户即使用知道test2的密码，他也无法从internet上直接访问数据库，只能通过MYSQL主机上的web页来访问了。
+    grant select,insert,update,delete on mydb.* to [email=test2@localhost]test2@localhost[/email] identified by “abc”;
+
+如果你不想test2有密码，可以再打一个命令将密码消掉。
+    grant select,insert,update,delete on mydb.* to [email=test2@localhost]test2@localhost[/email] identified by “”;
+## 4. 数据库操作
+
+### 4.1 创建数据库
+
+注意：创建数据库之前要先连接Mysql服务器
+
+命令：**create database <数据库名>**
+
+例1：建立一个名为xhkdb的数据库
+   mysql> create database xhkdb;
+
+例2：创建数据库并分配用户
+①CREATE DATABASE 数据库名;
+
+②GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER ON 数据库名.* TO 数据库名@localhost IDENTIFIED BY '密码';
+
+③SET PASSWORD FOR '数据库名'@'localhost' = OLD_PASSWORD('密码');
+
+依次执行3个命令完成数据库创建。注意：中文 “密码”和“数据库”是户自己需要设置的。
+
+### 4.2 显示数据库
+
+命令：show databases （注意：最后有个s）
+**mysql> show databases;**
+
+注意：为了不再显示的时候乱码，要修改数据库默认编码。以下以GBK编码页面为例进行说明：
+
+1、修改MYSQL的配置文件：my.ini里面修改default-character-set=gbk
+
+2、代码运行时修改：
+   ①Java代码：jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=gbk
+   ②PHP代码：header("Content-Type:text/html;charset=gb2312");
+   ③C语言代码：int mysql_set_character_set( MYSQL * mysql, char * csname)；
+该函数用于为当前连接设置默认的字符集。字符串csname指定了1个有效的字符集名称。连接校对成为字符集的默认校对。该函数的工作方式与SET NAMES语句类似，但它还能设置mysql- > charset的值，从而影响了由mysql_real_escape_string() 设置的字符集。
+
+### 4.3 删除数据库
+
+命令：**drop database <数据库名>**
+例如：删除名为 xhkdb的数据库
+mysql> drop database xhkdb;
+
+例子1：删除一个已经确定存在的数据库
+   mysql> drop database drop_database;
+   Query OK, 0 rows affected (0.00 sec)
+
+例子2：删除一个不确定存在的数据库
+   mysql> drop database drop_database;
+   ERROR 1008 (HY000): Can't drop database 'drop_database'; database doesn't exist
+      //发生错误，不能删除'drop_database'数据库，该数据库不存在。
+   mysql> drop database if exists drop_database;
+   Query OK, 0 rows affected, 1 warning (0.00 sec)//产生一个警告说明此数据库不存在
+   mysql> create database drop_database;
+   Query OK, 1 row affected (0.00 sec)
+   mysql> drop database if exists drop_database;//if exists 判断数据库是否存在，不存在也不产生错误
+   Query OK, 0 rows affected (0.00 sec)
+
+### 4.4 连接数据库
+
+命令： **use <数据库名>**
+
+例如：如果xhkdb数据库存在，尝试存取它：
+   mysql> use xhkdb;
+屏幕提示：Database changed
+
+use 语句可以通告MySQL把db_name数据库作为默认（当前）数据库使用，用于后续语句。该数据库保持为默认数据库，直到语段的结尾，或者直到发布一个不同的USE语句：
+   mysql> USE db1;
+   mysql> SELECT COUNT(*) FROM mytable;   # selects from db1.mytable
+   mysql> USE db2;
+   mysql> SELECT COUNT(*) FROM mytable;   # selects from db2.mytable
+
+使用USE语句为一个特定的当前的数据库做标记，不会阻碍您访问其它数据库中的表。下面的例子可以从db1数据库访问作者表，并从db2数据库访问编辑表：
+   mysql> USE db1;
+   mysql> SELECT author_name,editor_name FROM author,db2.editor
+       ->        WHERE author.editor_id = db2.editor.editor_id;
+
+USE语句被设立出来，用于与Sybase相兼容。
+
+有些网友问到，连接以后怎么退出。其实，不用退出来，use 数据库后，使用show databases就能查询所有数据库，如果想跳到其他数据库，用use 其他数据库名字就可以了。
+
+## 5. 数据表操作
+
+### 5.1 创建数据表
+
+命令：**create table** <表名> ( <字段名1> <类型1> [,..<字段名n> <类型n>]);
+
+例如，建立一个名为MyClass的表，
+
+字段名	数字类型	数据宽度	是否为空	是否主键	自动增加		默认值
+id	    	 int	       			4	       		否	   	primary key	auto_increment	 
+name	 char	      		20	       		否	 	 	 
+sex	     	 int	       			4	       		否	 	 	                      0
+degree	 double	      		16	       		是	 
+
+mysql> create table MyClass(
+> id int(4) not null primary key auto_increment,
+> name char(20) not null,
+> sex int(4) not null default '0',
+> degree double(16,2));
+
+### 5.2 查看数据表
+
+命令：**show tables**;查看所有数据表；
+
+### 5.3 删除数据表
+
+命令：**drop table <表名>**
+
+例如：删除表名为 MyClass 的表
+   mysql> drop table MyClass;
+
+### 5.4 表插入数据
+
+命令：**insert into <表名> [( <字段名1>[,..<字段名n > ])] values ( 值1 )[, ( 值n )]**
+
+例如：往表 MyClass中插入二条记录, 这二条记录表示：编号为1的名为Tom的成绩为96.45, 编号为2 的名为Joan 的成绩为82.99， 编号为3 的名为Wang 的成绩为96.5。
+   mysql> insert into MyClass values(1,'Tom',96.45),(2,'Joan',82.99), (2,'Wang', 96.59);
+
+注意：insert into每次只能向表中插入一条记录。
+
+### 5.5 查询表中的数据
+
+1)、查询所有行
+命令： select <字段1，字段2，...> from < 表名 > where < 表达式 >
+例如：查看表 MyClass 中所有数据
+   mysql> **select * from MyClass;**
+
+2）、查询前几行数据
+例如：查看表 MyClass 中前2行数据
+mysql> **select * from MyClass order by id limit 0,2;**
+
+select一般配合where使用，以查询更精确更复杂的数据。
+
+### 5.6 删除表中数据
+
+命令：delete from 表名 where 表达式
+
+例如：删除表 MyClass中编号为1 的记录
+mysql> delete from MyClass where id=1;
+
+### 5.7 修改表中数据
+
+语法：update 表名 set 字段=新值,… where 条件
+mysql> update MyClass set name='Mary' where id=1;
+
+### 5.8 修改表名
+
+命令：rename table 原表名 to 新表名;
+
+例如：在表MyClass名字更改为YouClass
+mysql> rename table MyClass to YouClass;
+
+## 6. 备份数据库
+
+命令在DOS的[url=file://\\mysql\\bin]\\mysql\\bin[/url]目录下执行
+
+### 1.导出整个数据库
+
+导出文件默认是存在mysql\bin目录下
+
+    mysqldump -u 用户名 -p 数据库名 > 导出的文件名
+    mysqldump -u user_name -p123456 database_name > outfile_name.sql
+
+### 2.导出一个表
+
+    mysqldump -u 用户名 -p 数据库名 表名> 导出的文件名
+    mysqldump -u user_name -p database_name table_name > outfile_name.sql
+
+### 3.导出一个数据库结构
+
+    mysqldump -u user_name -p -d –add-drop-table database_name > outfile_name.sql
+    -d 没有数据 –add-drop-table 在每个create语句之前增加一个drop table
+
+### 4.带语言参数导出
+
+    mysqldump -uroot -p –default-character-set=latin1 –set-charset=gbk –skip-opt database_name > outfile_name.sql
+
+例如，将aaa库备份到文件back_aaa中：
+　　[root@test1 root]# cd　/home/data/mysql
+　　[root@test1 mysql]# mysqldump -u root -p --opt aaa > back_aaa
+
+## 7. 删除数据表
+
+出现**ERROR 1217 (23000): Cannot delete or update a parent row: a foreign key constraint fails**错误。
+
+1. 可能是由于表之间相互关联
+
+   可设置SET FOREIGN_KEY_CHECKS = 0;
+   然后 drop table 表名;
+   恢复表间相互关联
+   SET FOREIGN_KEY_CHECKS = 0;
+
+## 8. 设置UTF8编码方式（临时）
+
+SET character_set_client = utf8; 
+SET character_set_connection = utf8; 
+SET character_set_database = utf8; 
+SET character_set_results = utf8; 
+SET character_set_server = utf8; 
+
+## 9. 索引优化
+
+1.负向查询不能使用索引
+
+select name from user where id not in (1,3,4);	
+
+应该修改为: select name from user where id in (2,5,6);
+
+2.前导模糊查询不能使用索引
+
+如:	select name from user where name like '%zhangsan'
+
+非前导则可以:	select name from user where name like 'zhangsan%'
+
+建议可以考虑使用 `Lucene` 等全文索引工具来代替频繁的模糊查询。
+
+3.数据区分不明显的不建议创建索引。如 user 表中的性别字段，可以明显区分的才建议创建索引，如身份证等字段。
+
+4.字段的默认值不要为 null。这样会带来和预期不一致的查询结果。
+
+5.在字段上进行计算不能命中索引
+
+select name from user where FROM_UNIXTIME(create_time) < CURDATE();
+
+应该修改为:	select name from user where create_time < FROM_UNIXTIME(CURDATE());
+
+6.最左前缀问题
+
+如果给 user 表中的 username pwd 字段创建了复合索引那么使用以下SQL 都是可以命中索引:
+
+- select username from user where username='zhangsan' and pwd ='axsedf1sd'
+- select username from user where pwd ='axsedf1sd' and username='zhangsan'
+- select username from user where username='zhangsan'
+
+但是使用  select username from user where pwd ='axsedf1sd'  是不能命中索引的。
+
+7.如果明确知道只有一条记录返回	select name from user where username='zhangsan' limit 1	可以提高效率，可以让数据库停止游标移动。
+
+8.不要让数据库帮我们做强制类型转换	select name from user where telno=18722222222  。这样虽然可以查出数据，但是会导致全表扫描。
+
+需要修改为：select name from user where telno='18722222222'
+
+9.如果需要进行 join 的字段两表的字段类型要相同，不然也不会命中索引。
+
+## 10.性能优化
+
+**1. 为查询缓存优化你的查询**
 
 大多数的MySQL服务器都开启了查询缓存。这是提高性最有效的方法之一，而且这是被MySQL的数据库引擎处理的。当有很多相同的查询被执行了多次的时候，这些查询结果会被放到一个缓存中，这样，后续的相同的查询就不用操作表而直接访问缓存结果了。
 
@@ -10,7 +299,7 @@
 
 上面两条SQL语句的差别就是 CURDATE() ，MySQL的查询缓存对这个函数不起作用。所以，像 NOW() 和 RAND() 或是其它的诸如此类的SQL函数都不会开启查询缓存，因为这些函数的返回是会不定的易变的。所以，你所需要的就是用一个变量来代替MySQL的函数，从而开启缓存。
 
-#### 2. EXPLAIN 你的 SELECT 查询
+**2. EXPLAIN 你的 SELECT 查询**
 
 使用 [EXPLAIN](http://dev.mysql.com/doc/refman/5.0/en/explain.html) 关键字可以让你知道MySQL是如何处理你的SQL语句的。这可以帮你分析你的查询语句或是表结构的性能瓶颈。
 
@@ -26,7 +315,7 @@ EXPLAIN 的查询结果还会告诉你你的索引主键被如何利用的，你
 
 我们可以看到，前一个结果显示搜索了 7883 行，而后一个只是搜索了两个表的 9 和 16 行。查看rows列可以让我们找到潜在的性能问题。
 
-#### 3. 当只要一行数据时使用 LIMIT 1
+**3. 当只要一行数据时使用 LIMIT 1**
 
 当你查询表的有些时候，你已经知道结果只会有一条结果，但因为你可能需要去fetch游标，或是你也许会去检查返回的记录数。
 
@@ -34,7 +323,7 @@ EXPLAIN 的查询结果还会告诉你你的索引主键被如何利用的，你
 
 下面的示例，只是为了找一下是否有“中国”的用户，很明显，后面的会比前面的更有效率。（请注意，第一条中是Select *，第二条是Select 1）
 
-#### 4. 为搜索字段建索引
+**4. 为搜索字段建索引**
 
 索引并不一定就是给主键或是唯一的字段。如果在你的表中，有某个字段你总要会经常用来做搜索，那么，请为其建立索引吧。
 
@@ -44,13 +333,13 @@ EXPLAIN 的查询结果还会告诉你你的索引主键被如何利用的，你
 
 另外，你应该也需要知道什么样的搜索是不能使用正常的索引的。例如，当你需要在一篇大的文章中搜索一个词时，如： “WHERE post_content LIKE ‘%apple%'”，索引可能是没有意义的。你可能需要使用[MySQL全文索引](http://dev.mysql.com/doc/refman/5.1/en/fulltext-search.html) 或是自己做一个索引（比如说：搜索关键词或是Tag什么的）
 
-#### 5. 在Join表的时候使用相当类型的例，并将其索引
+**5. 在Join表的时候使用相当类型的例，并将其索引**
 
 如果你的应用程序有很多 JOIN 查询，你应该确认两个表中Join的字段是被建过索引的。这样，MySQL内部会启动为你优化Join的SQL语句的机制。
 
 而且，这些被用来Join的字段，应该是相同的类型的。例如：如果你要把 DECIMAL 字段和一个 INT 字段Join在一起，MySQL就无法使用它们的索引。对于那些STRING类型，还需要有相同的字符集才行。（两个表的字符集有可能不一样）
 
-#### 6. 千万不要 ORDER BY RAND()
+**6. 千万不要 ORDER BY RAND()**
 
 想打乱返回的数据行？随机挑一个数据？真不知道谁发明了这种用法，但很多新手很喜欢这样用。但你确不了解这样做有多么可怕的性能问题。
 
@@ -58,13 +347,13 @@ EXPLAIN 的查询结果还会告诉你你的索引主键被如何利用的，你
 
 下面的示例是随机挑一条记录
 
-#### 7. 避免 SELECT *
+**7. 避免 SELECT** 
 
 从数据库里读出越多的数据，那么查询就会变得越慢。并且，如果你的数据库服务器和WEB服务器是两台独立的服务器的话，这还会增加网络传输的负载。
 
 所以，你应该养成一个需要什么就取什么的好的习惯。
 
-#### 8. 永远为每张表设置一个ID
+**8. 永远为每张表设置一个ID**
 
 我们应该为数据库里的每张表都设置一个ID做为其主键，而且最好的是一个INT型的（推荐使用UNSIGNED），并设置上自动增加的AUTO_INCREMENT标志。
 
@@ -74,7 +363,7 @@ EXPLAIN 的查询结果还会告诉你你的索引主键被如何利用的，你
 
 在这里，只有一个情况是例外，那就是“关联表”的“外键”，也就是说，这个表的主键，通过若干个别的表的主键构成。我们把这个情况叫做“外键”。比如：有一个“学生表”有学生的ID，有一个“课程表”有课程ID，那么，“成绩表”就是“关联表”了，其关联了学生表和课程表，在成绩表中，学生ID和课程ID叫“外键”其共同组成主键。
 
-#### 9. 使用 ENUM 而不是 VARCHAR
+**9. 使用 ENUM 而不是 VARCHAR**
 
 [ENUM](http://dev.mysql.com/doc/refman/5.0/en/enum.html) 类型是非常快和紧凑的。在实际上，其保存的是 TINYINT，但其外表上显示为字符串。这样一来，用这个字段来做一些选项列表变得相当的完美。
 
@@ -82,7 +371,7 @@ EXPLAIN 的查询结果还会告诉你你的索引主键被如何利用的，你
 
 MySQL也有一个“建议”（见第十条）告诉你怎么去重新组织你的表结构。当你有一个 VARCHAR 字段时，这个建议会告诉你把其改成 ENUM 类型。使用 PROCEDURE ANALYSE() 你可以得到相关的建议。
 
-#### 10. 从 PROCEDURE ANALYSE() 取得建议
+**10. 从 PROCEDURE ANALYSE() 取得建议**
 
 [PROCEDURE ANALYSE()](http://dev.mysql.com/doc/refman/5.0/en/procedure-analyse.html) 会让 MySQL 帮你去分析你的字段和其实际的数据，并会给你一些有用的建议。只有表中有实际的数据，这些建议才会变得有用，因为要做一些大的决定是需要有数据作为基础的。
 
@@ -94,7 +383,7 @@ MySQL也有一个“建议”（见第十条）告诉你怎么去重新组织你
 
 一定要注意，这些只是建议，只有当你的表里的数据越来越多时，这些建议才会变得准确。一定要记住，你才是最终做决定的人。
 
-#### 11. 尽可能的使用 NOT NULL
+**11. 尽可能的使用 NOT NULL**
 
 除非你有一个很特别的原因去使用 NULL 值，你应该总是让你的字段保持 NOT NULL。这看起来好像有点争议，请往下看。
 
@@ -106,7 +395,7 @@ MySQL也有一个“建议”（见第十条）告诉你怎么去重新组织你
 
 > “NULL columns require additional space in the row to record whether their values are NULL. For MyISAM tables, each NULL column takes one bit extra, rounded up to the nearest byte.”
 
-#### 12. Prepared Statements
+**12. Prepared Statements**
 
 Prepared Statements很像存储过程，是一种运行在后台的SQL语句集合，我们可以从使用 prepared statements 获得很多好处，无论是性能问题还是安全问题。
 
@@ -120,7 +409,7 @@ Prepared Statements 可以检查一些你绑定好的变量，这样可以保护
 
 在PHP中要使用prepared statements，你可以查看其使用手册：[mysqli 扩展](http://php.net/manual/en/book.mysqli.php) 或是使用数据库抽象层，如： [PDO](http://us.php.net/manual/en/book.pdo.php).
 
-#### 13. 无缓冲的查询
+**13. 无缓冲的查询**
 
 正常的情况下，当你在当你在你的脚本中执行一个SQL语句的时候，你的程序会停在那里直到没这个SQL语句返回，然后你的程序再往下继续执行。你可以使用无缓冲查询来改变这个行为。
 
@@ -132,7 +421,7 @@ Prepared Statements 可以检查一些你绑定好的变量，这样可以保护
 
 然而，这会有一些限制。因为你要么把所有行都读走，或是你要在进行下一次的查询前调用 [mysql_free_result()](http://us2.php.net/manual/en/function.mysql-free-result.php) 清除结果。而且， [mysql_num_rows()](http://us2.php.net/manual/en/function.mysql-num-rows.php) 或 [mysql_data_seek()](http://us2.php.net/manual/en/function.mysql-data-seek.php) 将无法使用。所以，是否使用无缓冲的查询你需要仔细考虑。
 
-#### 14. 把IP地址存成 UNSIGNED INT
+**14. 把IP地址存成 UNSIGNED INT**
 
 很多程序员都会创建一个 VARCHAR(15) 字段来存放字符串形式的IP而不是整形的IP。如果你用整形来存放，只需要4个字节，并且你可以有定长的字段。而且，这会为你带来查询上的优势，尤其是当你需要使用这样的WHERE条件：IP between ip1 and ip2。
 
@@ -140,7 +429,7 @@ Prepared Statements 可以检查一些你绑定好的变量，这样可以保护
 
 而你的查询，你可以使用 [INET_ATON()](http://dev.mysql.com/doc/refman/5.0/en/miscellaneous-functions.html#function_inet-aton) 来把一个字符串IP转成一个整形，并使用 [INET_NTOA()](http://dev.mysql.com/doc/refman/5.0/en/miscellaneous-functions.html#function_inet-ntoa) 把一个整形转成一个字符串IP。在PHP中，也有这样的函数 [ip2long()](http://php.net/manual/en/function.ip2long.php) 和 [long2ip()](http://us.php.net/manual/en/function.long2ip.php)。
 
-#### 15. 固定长度的表会更快
+**15. 固定长度的表会更快**
 
 如果表中的所有字段都是“固定长度”的，整个表会被认为是 [“static” 或 “fixed-length”](http://dev.mysql.com/doc/refman/5.1/en/static-format.html)。 例如，表中没有如下类型的字段： VARCHAR，TEXT，BLOB。只要你包括了其中一个这些字段，那么这个表就不是“固定长度静态表”了，这样，MySQL 引擎会用另一种方法来处理。
 
@@ -150,7 +439,7 @@ Prepared Statements 可以检查一些你绑定好的变量，这样可以保护
 
 使用“垂直分割”技术（见下一条），你可以分割你的表成为两个一个是定长的，一个则是不定长的。
 
-#### 16. 垂直分割
+**16. 垂直分割**
 
 “垂直分割”是一种把数据库中的表按列变成几张表的方法，这样可以降低表的复杂度和字段的数目，从而达到优化的目的。（以前，在银行做过项目，见过一张表有100多个字段，很恐怖）
 
@@ -160,7 +449,7 @@ Prepared Statements 可以检查一些你绑定好的变量，这样可以保护
 
 另外，你需要注意的是，这些被分出去的字段所形成的表，你不会经常性地去Join他们，不然的话，这样的性能会比不分割时还要差，而且，会是极数级的下降。
 
-#### 17. 拆分大的 DELETE 或 INSERT 语句
+**17. 拆分大的 DELETE 或 INSERT 语句**
 
 如果你需要在一个在线的网站上去执行一个大的 DELETE 或 INSERT 查询，你需要非常小心，要避免你的操作让你的整个网站停止相应。因为这两个操作是会锁表的，表一锁住了，别的操作都进不来了。
 
@@ -170,7 +459,7 @@ Apache 会有很多的子进程或线程。所以，其工作起来相当有效�
 
 所以，如果你有一个大的处理，你定你一定把其拆分，使用 LIMIT 条件是一个好的方法。下面是一个示例：
 
-#### 18. 越小的列会越快
+**18. 越小的列会越快**
 
 对于大多数的数据库引擎来说，硬盘操作可能是最重大的瓶颈。所以，把你的数据变得紧凑会对这种情况非常有帮助，因为这减少了对硬盘的访问。
 
@@ -180,7 +469,7 @@ Apache 会有很多的子进程或线程。所以，其工作起来相当有效�
 
 当然，你也需要留够足够的扩展空间，不然，你日后来干这个事，你会死的很难看，参看[Slashdot的例子](http://news.slashdot.org/article.pl?sid=06/11/09/1534204)（2009年11月06日），一个简单的ALTER TABLE语句花了3个多小时，因为里面有一千六百万条数据。
 
-#### 19. 选择正确的存储引擎
+**19. 选择正确的存储引擎**
 
 在 MySQL 中有两个存储引擎 MyISAM 和 InnoDB，每个引擎都有利有弊。酷壳以前文章《[MySQL: InnoDB 还是 MyISAM?](https://coolshell.cn/articles/652.html)》讨论和这个事情。
 
@@ -193,7 +482,7 @@ InnoDB 的趋势会是一个非常复杂的存储引擎，对于一些小的应�
 - [target=”_blank”MyISAM Storage Engine](http://dev.mysql.com/doc/refman/5.1/en/myisam-storage-engine.html)
 - [InnoDB Storage Engine](http://dev.mysql.com/doc/refman/5.1/en/innodb.html)
 
-#### 20. 使用一个对象关系映射器（Object Relational Mapper）
+**20. 使用一个对象关系映射器（Object Relational Mapper）**
 
 使用 ORM (Object Relational Mapper)，你能够获得可靠的性能增涨。一个ORM可以做的所有事情，也能被手动的编写出来。但是，这需要一个高级专家。
 
@@ -203,7 +492,7 @@ ORM 还可以把你的SQL语句打包成一个事务，这会比单独执行他�
 
 目前，个人最喜欢的PHP的ORM是：[Doctrine](http://www.doctrine-project.org/)。
 
-#### 21. 小心“永久链接”
+**21. 小心“永久链接”**
 
 “永久链接”的目的是用来减少重新创建MySQL链接的次数。当一个链接被创建了，它会永远处在连接的状态，就算是数据库操作已经结束了。而且，自从我们的Apache开始重用它的子进程后——也就是说，下一次的HTTP请求会重用Apache的子进程，并重用相同的 MySQL 链接。
 
@@ -213,7 +502,7 @@ ORM 还可以把你的SQL语句打包成一个事务，这会比单独执行他�
 
 而且，Apache 运行在极端并行的环境中，会创建很多很多的了进程。这就是为什么这种“永久链接”的机制工作地不好的原因。在你决定要使用“永久链接”之前，你需要好好地考虑一下你的整个系统的架构。
 
-# 索引失效的可能情况
+## 11.索引失效的可能情况
 
 **如下是可能导致索引失效的情况： **
 
@@ -259,18 +548,3 @@ ORM 还可以把你的SQL语句打包成一个事务，这会比单独执行他�
 **9. Oracle在进行一次查询时，一般对一个表只会使用一个索引.**    因此，有时候过多的索引可能导致Oracle使用错误的索引，降低查询效率。例如某表有索引1（Policyno）和索引2（classcode），如果查询条件为policyno = ‘xx’ and classcode = ‘xx’，则系统有可能会使用索引2，相较于使用索引1，查询效率明显降低**。**
 
 **10. 优先且尽可能使用分区索引。**
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

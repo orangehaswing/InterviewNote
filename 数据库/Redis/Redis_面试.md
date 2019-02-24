@@ -1,8 +1,8 @@
-### redis 简介
+# Redis_面试
 
 简单来说 redis 就是一个数据库，不过与传统数据库不同的是 redis 的数据是存在内存中的，所以存写速度非常快，因此 redis 被广泛应用于缓存方向。另外，redis 也经常用来做分布式锁。redis 提供了多种数据类型来支持不同的业务场景。除此之外，redis 支持事务 、持久化、LUA脚本、LRU驱动事件、多种集群方案。
 
-### 为什么要用 redis /为什么要用缓存
+## 为什么要用 redis /缓存
 
 主要从“高性能”和“高并发”这两点来看待这个问题。
 
@@ -18,7 +18,7 @@
 
 [![img](https://camo.githubusercontent.com/5905a206838e5837821793c84c0db28f90a4766e/687474703a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f31382d392d32342f38353134363736302e6a7067)](https://camo.githubusercontent.com/5905a206838e5837821793c84c0db28f90a4766e/687474703a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f31382d392d32342f38353134363736302e6a7067)
 
-### 为什么要用 redis 而不用 map/guava 做缓存?
+## 用 redis 而不用 map/guava 做缓存
 
 > 下面的内容来自 segmentfault 一位网友的提问，地址：[https://segmentfault.com/q/1010000009106416](https://segmentfault.com/q/1010000009106416)
 
@@ -26,7 +26,7 @@
 
 使用 redis 或 memcached 之类的称为分布式缓存，在多实例的情况下，各实例共用一份缓存数据，缓存具有一致性。缺点是需要保持 redis 或 memcached服务的高可用，整个程序架构上较为复杂。
 
-### redis 和 memcached 的区别
+## redis 和 memcached 的区别
 
 对于 redis 和 memcached 我总结了下面四点。现在公司一般都是用 redis 来实现缓存，而且 redis 自身也越来越强大了！
 
@@ -39,15 +39,15 @@
 
 [![redis 和 memcached 的区别](https://camo.githubusercontent.com/f51fdf878ceaedb4c6d6df7d568ca718d2e327f6/687474703a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f31382d392d32342f36313630333137392e6a7067)](https://camo.githubusercontent.com/f51fdf878ceaedb4c6d6df7d568ca718d2e327f6/687474703a2f2f6d792d626c6f672d746f2d7573652e6f73732d636e2d6265696a696e672e616c6979756e63732e636f6d2f31382d392d32342f36313630333137392e6a7067)
 
-### redis 常见数据结构以及使用场景分析
+## redis 常见数据结构以及使用场景分析
 
-#### 1. String
+### 1. String
 
 > **常用命令:** set,get,decr,incr,mget 等。
 
 String数据结构是简单的key-value类型，value其实不仅可以是String，也可以是数字。 常规key-value缓存应用； 常规计数：微博数，粉丝数等。
 
-#### 2.Hash
+### 2.Hash
 
 > **常用命令：** hget,hset,hgetall 等。
 
@@ -65,7 +65,7 @@ value={
 
 ```
 
-#### 3.List
+### 3.List
 
 > **常用命令:** lpush,rpush,lpop,rpop,lrange等
 
@@ -75,7 +75,7 @@ Redis list 的实现为一个双向链表，即可以支持反向查找和遍历
 
 另外可以通过 lrange 命令，就是从某个元素开始读取多少个元素，可以基于 list 实现分页查询，这个很棒的一个功能，基于 redis 实现简单的高性能分页，可以做类似微博那种下拉不断分页的东西（一页一页的往下走），性能高。
 
-#### 4.Set
+### 4.Set
 
 > **常用命令：** sadd,spop,smembers,sunion 等
 
@@ -90,7 +90,7 @@ sinterstore key1 key2 key3     将交集存在key1内
 
 ```
 
-#### 5.Sorted Set
+### 5.Sorted Set
 
 > **常用命令：** zadd,zrange,zrem,zcard等
 
@@ -98,7 +98,7 @@ sinterstore key1 key2 key3     将交集存在key1内
 
 **举例：** 在直播系统中，实时排行信息包含直播间在线用户列表，各种礼物排行榜，弹幕消息（可以理解为按消息维度的消息排行榜）等信息，适合使用 Redis 中的 SortedSet 结构进行存储。
 
-### redis 设置过期时间
+## redis 设置过期时间
 
 Redis中有个设置时间过期的功能，即对存储在 redis 数据库中的值可以设置一个过期时间。作为一个缓存数据库，这是非常实用的。如我们一般项目中的 token 或者一些登录信息，尤其是短信验证码都是有时间限制的，按照传统的数据库处理方式，一般都是自己判断过期，这样无疑会严重影响项目性能。
 
@@ -117,7 +117,9 @@ Redis中有个设置时间过期的功能，即对存储在 redis 数据库中�
 
 **redis 内存淘汰机制。**
 
-### redis 内存淘汰机制（MySQL里有2000w数据，Redis中只存20w的数据，如何保证Redis中的数据都是热点数据？）
+## redis 内存淘汰机制
+
+（MySQL里有2000w数据，Redis中只存20w的数据，如何保证Redis中的数据都是热点数据？）
 
 redis 配置文件 redis.conf 中有相关注释，我这里就不贴了，大家可以自行查阅或者通过这个网址查看： [http://download.redis.io/redis-stable/redis.conf](http://download.redis.io/redis-stable/redis.conf)
 
@@ -132,7 +134,9 @@ redis 配置文件 redis.conf 中有相关注释，我这里就不贴了，大�
 
 **备注： 关于 redis 设置过期时间以及内存淘汰机制，我这里只是简单的总结一下，后面会专门写一篇文章来总结！**
 
-### redis 持久化机制（怎么保证 redis 挂掉之后再重启数据可以进行恢复）
+## redis 持久化机制
+
+（怎么保证 redis 挂掉之后再重启数据可以进行恢复）
 
 很多时候我们需要持久化数据也就是将内存中的数据写入到硬盘里面，大部分原因是为了之后重用数据（比如重启机器、机器故障之后回复数据），或者是为了防止系统故障而将数据备份到一个远程位置。
 
@@ -193,13 +197,13 @@ AOF重写是一个有歧义的名字，该功能是通过读取数据库中的�
 
 - [https://github.com/Snailclimb/JavaGuide/blob/master/数据存储/Redis/Redis持久化.md](https://github.com/Snailclimb/JavaGuide/blob/master/%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/Redis/Redis%E6%8C%81%E4%B9%85%E5%8C%96.md)
 
-### redis 事务
+## redis 事务
 
 Redis 通过 MULTI、EXEC、WATCH 等命令来实现事务(transaction)功能。事务提供了一种将多个命令请求打包，然后一次性、按顺序地执行多个命令的机制，并且在事务执行期间，服务器不会中断事务而改去执行其他客户端的命令请求，它会将事务中的所有命令都执行完毕，然后才去处理其他客户端的命令请求。
 
 在传统的关系式数据库中，常常用 ACID 性质来检验事务功能的可靠性和安全性。在 Redis 中，事务总是具有原子性（Atomicity)、一致性(Consistency)和隔离性（Isolation），并且当 Redis 运行在某种特定的持久化模式下时，事务也具有持久性（Durability）。
 
-### 缓存雪崩和缓存穿透问题解决方案
+## 缓存雪崩和缓存穿透
 
 **缓存雪崩**
 
@@ -223,7 +227,7 @@ Redis 通过 MULTI、EXEC、WATCH 等命令来实现事务(transaction)功能。
 
 - [https://blog.csdn.net/zeb_perfect/article/details/54135506[enter](https://blog.csdn.net/zeb_perfect/article/details/54135506%5Benter) link description here]([https://blog.csdn.net/zeb_perfect/article/details/54135506](https://blog.csdn.net/zeb_perfect/article/details/54135506))
 
-### 如何解决 Redis 的并发竞争 Key 问题
+## 解决 Redis 的并发竞争 Key 问题
 
 所谓 Redis 的并发竞争 Key 的问题也就是多个系统同时对一个 key 进行操作，但是最后执行的顺序和我们期望的顺序不同，这样也就导致了结果的不同！
 
@@ -237,7 +241,7 @@ Redis 通过 MULTI、EXEC、WATCH 等命令来实现事务(transaction)功能。
 
 - [https://www.jianshu.com/p/8bddd381de06](https://www.jianshu.com/p/8bddd381de06)
 
-### 如何保证缓存与数据库双写时的数据一致性？
+## 保证缓存与数据库双写时的数据一致性
 
 你只要用缓存，就可能会涉及到缓存与数据库双存储双写，你只要是双写，就一定会有数据一致性的问题，那么你如何解决一致性问题？
 
