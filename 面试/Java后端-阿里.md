@@ -49,7 +49,10 @@
 
 11. 有多少种方法可以让线程阻塞，能说多少说多少
 
-   wait()，sleep()，join()，yield(),synchroized, ReentrantLock, IO阻塞
+- 当线程执行 Thread.sleep() 时，它一直阻塞到指定的毫秒时间之后，或者阻塞被另一个线程打断；
+- 当线程碰到一条 wait() 语句时，它会一直阻塞到接到通知 notify()、被中断或经过了指定毫秒时间为止（若制定了超时值的话）
+- 线程阻塞与不同 I/O 的方式有多种。常见的一种方式是 InputStream 的 read() 方法，该方法一直阻塞到从流中读取一个字节的数据为止，它可以无限阻塞，因此不能指定超时时间；
+- 线程也可以阻塞等待获取某个对象锁的排他性访问权限（即等待获得 synchronized 语句必须的锁时阻塞）。
 
 12. synchronized和reetrantlock锁
 
@@ -71,13 +74,34 @@
 
 1. B-Tree索引，myisam和innodb中索引的区别
 
-   ​
+   索引：不再需要进行全表扫描，只需要对树进行搜索即可，所以查找速度快很多。除了用于查找，还可以用于排序和分组。
+
+   索引分类：B+Tree 哈希索引 全文索引 空间数据索引
+
+   区别：
+
+   - 事务：InnoDB 是事务型的，可以使用 Commit 和 Rollback 语句。
+   - 并发：MyISAM 只支持表级锁，而 InnoDB 还支持行级锁。
+   - 外键：InnoDB 支持外键。
+   - 备份：InnoDB 支持在线热备份。
+   - 崩溃恢复：MyISAM 崩溃后发生损坏的概率比 InnoDB 高很多，而且恢复的速度也更慢。
+   - 其它特性：MyISAM 支持压缩表和空间数据索引。
 
 2. BIO和NIO的应用场景
 
 3. 讲讲threadlocal
 
 4. 数据库隔离级别，每层级别分别用什么方法实现，三级封锁协议,共享锁排它锁，mvcc多版本并发控制协议，间隙锁
+
+   未提交读（READ UNCOMMITTED）: 事务中的修改，即使没有提交，对其它事务也是可见的。
+
+   提交读（READ COMMITTED）: 一个事务只能读取已经提交的事务所做的修改。换句话说，一个事务所做的修改在提交之前对其它事务是不可见的。
+
+   可重复读（REPEATABLE READ）: 保证在同一个事务中多次读取同样数据的结果是一样的。
+
+   可串行化（SERIALIZABLE）: 强制事务串行执行。
+
+   ​
 
 5. 数据库索引？B+树？为什么要建索引？什么样的字段需要建索引，建索引的时候一般考虑什么？索引会不会使插入、删除作效率变低，怎么解决？
 
@@ -95,6 +119,13 @@
 
 2. 线程池的拒接任务策略
 
+   1. workerCountOf方法根据ctl的低29位，得到线程池的当前线程数，如果线程数小于corePoolSize，则执行addWorker方法创建新的线程执行任务；否则执行步骤（2）；
+   2. 如果线程池处于RUNNING状态，且把提交的任务成功放入阻塞队列中，则执行步骤（3），否则执行步骤（4）；
+   3. 再次检查线程池的状态，如果线程池没有RUNNING，且成功从阻塞队列中删除任务，则执行reject方法处理任务；
+   4. 执行addWorker方法创建新的线程执行任务，如果addWoker执行失败，则执行reject方法处理任务；
+
+   线程池中的核心线程数，当提交一个任务时，线程池创建一个新线程执行任务，直到当前线程数等于corePoolSize；如果当前线程数为 corePoolSize，继续提交的任务被保存到阻塞队列中，等待被执行；如果阻塞队列满了，那就创建新的线程执行当前任务；直到线程池中的线程数达到 maxPoolSize，这时再有任务来，只能执行 reject() 处理该任务。
+
 3. HashMap和Hashtable的区别
 
    Hashtable线程安全，使用线程安全的类用ConcurrentHashMap，这个类被废弃；HashMap可以存放null值；容器初始值：HashMap 16 扩展 2的倍数，Hashtable是11，扩展是2n + 1；底层实现是 数组 + 链表/大于8转变成红黑树
@@ -111,15 +142,55 @@
 
 6. 说一说GC
 
-   minor GC
+   minor GC：eden满的时候回收
 
-   full Gc
+   full GC：System.gc();老年代空间不足；空间担保失败；JDK 1.7 及以前的永久代空间不足
+
+   JVM内存：程序计数器，虚拟机栈，本地方法栈；堆，方法区
+
+   算法：复制，标记-清除，标记-整理，分代回收：新生代：复制；老年代：标记-清除，标记-整理
+
+   CMS和G1：G1 商业 ，面向服务端，目的希望替换CMS。G1 把堆划分成多个大小相等的独立区域（Region），新生代和老年代不再物理隔离，每个小空间可以单独进行垃圾回收；两者都支持并发使用；CMS使用标记-清除，G1使用标记-整理 + 复制算法
 
 7. JVM如何加载一个类的过程，双亲委派模型中有哪些方法？
 
 8. TCP如何保证可靠传输？三次握手过程？
 
+   可靠性：三次握手，四次挥手，超时重传，滑动窗口，流量控制；拥塞控制：慢开始，拥塞避免，快恢复，快启动
+
 9. springboot的启动流程
+
+   springmvc启动流程：
+
+   ​	运行：DispatcherServlet  init方法：对WebApplicationContext、组件和外部资源的初始化。service()处于侦听模式。
+
+   ​	继承：DispatcherServlet继承FrameworkServlet，HttpServletBean，HttpServlet。
+
+   HttpServletBean中，Spring会将这个Servlet视作是一个Spring的bean；FrameworkServlet真正初始化了一个Spring的容器（WebApplicationContext），并引入到Servlet对象。
+
+   ​	运行体系：整个运行体系由DispatcherServlet、组件、容器构成。DispatcherServlet是逻辑处理的调度中心，组件则是被调度的操作对象。容器是协助DispatcherServlet更好地对组件进行管理。
+
+   - 初始化主线的驱动要素 —— servlet中的init方法
+   - 初始化主线的执行次序 —— HttpServletBean -> FrameworkServlet -> DispatcherServlet
+   - 初始化主线的操作对象 —— Spring容器（WebApplicationContext）和组件
+
+   DispatcherServlet步骤：
+
+   - 1. 发起请求到前端控制器(`DispatcherServlet`)
+   - 2. 前端控制器请求处理器映射器(`HandlerMapping`)查找`Handler`(可根据xml配置、注解进行查找)
+   - 3. 处理器映射器(`HandlerMapping`)向前端控制器返回`Handler`
+   - 4. 前端控制器调用处理器适配器(`HandlerAdapter`)执行`Handler`
+   - 5. 处理器适配器(HandlerAdapter)去执行Handler
+   - 6. Handler执行完，给适配器返回ModelAndView(Springmvc框架的一个底层对象)
+   - 7. 处理器适配器(`HandlerAdapter`)向前端控制器返回`ModelAndView`
+   - 8. 前端控制器(`DispatcherServlet`)请求视图解析器(`ViewResolver`)进行视图解析，根据逻辑视图名解析成真正的视图(jsp)
+   - 9. 视图解析器(ViewResolver)向前端控制器(`DispatcherServlet`)返回View
+   - 10. 前端控制器进行视图渲染，即将模型数据(在`ModelAndView`对象中)填充到request域
+   - 11. 前端控制器向用户响应结果
+
+   **springboot启动流程：**
+
+   ​
 
 10. 集群、负载均衡、分布式、数据一致性的区别与关系
 
