@@ -134,11 +134,31 @@ public static void main(String[] args) {
 - Java 不支持多重继承，因此继承了 Thread 类就无法继承其它类，但是可以实现多个接口；
 - 类可能只要求可执行就行，继承整个 Thread 类开销过大。
 
+## 三种方式的区别
+
+- 实现 Runnable 接口可以避免 Java 单继承特性而带来的局限；增强程序的健壮性，代码能够被多个线程共享，代码与数据是独立的；适合多个相同程序代码的线程区处理同一资源的情况。
+- 继承 Thread 类和实现 Runnable 方法启动线程都是使用 start() 方法，然后 JVM 虚拟机将此线程放到就绪队列中，如果有处理机可用，则执行 run() 方法。
+- 实现 Callable 接口要实现 call() 方法，并且线程执行完毕后会有返回值。其他的两种都是重写 run() 方法，没有返回值。
+
 # 基础线程机制
 
 ## Executors
 
 Executor 管理多个异步任务的执行，而无需程序员显式地管理线程的生命周期。这里的异步是指多个任务的执行互不干扰，不需要进行同步操作。
+
+**为什么引入Executor线程池框架？**
+
+new Thread() 的缺点
+
+- 每次 new Thread() 耗费性能
+- 调用 new Thread() 创建的线程缺乏管理，被称为野线程，而且可以无限制创建，之间相互竞争，会导致过多占用系统资源导致系统瘫痪。
+- 不利于扩展，比如如定时执行、定期执行、线程中断
+
+采用线程池的优点
+
+- 重用存在的线程，减少对象创建、消亡的开销，性能佳
+- 可有效控制最大并发线程数，提高系统资源的使用率，同时避免过多资源竞争，避免堵塞
+- 提供定时执行、定期执行、单线程、并发数控制等功能
 
 主要有三种 Executor：
 
@@ -360,6 +380,12 @@ public static void main(String[] args) {
     thread.setDaemon(true);
 }
 ```
+
+**另外有几点需要注意：**
+
+- setDaemon(true) 必须在调用线程的 start() 方法之前设置，否则会跑出 IllegalThreadStateException 异常。
+- 在守护线程中产生的新线程也是守护线程。
+- 不要认为所有的应用都可以分配给守护线程来进行服务，比如读写操作或者计算逻辑。
 
 ## sleep()
 
@@ -661,6 +687,17 @@ Future<?> future = executorService.submit(() -> {
 });
 future.cancel(true);
 ```
+
+# 线程阻塞
+
+线程可以阻塞于四种状态：
+
+- 当线程执行 Thread.sleep() 时，它一直阻塞到指定的毫秒时间之后，或者阻塞被另一个线程打断；
+- 当线程碰到一条 wait() 语句时，它会一直阻塞到接到通知 notify()、被中断或经过了指定毫秒时间为止（若制定了超时值的话）
+- 线程阻塞与不同 I/O 的方式有多种。常见的一种方式是 InputStream 的 read() 方法，该方法一直阻塞到从流中读取一个字节的数据为止，它可以无限阻塞，因此不能指定超时时间；
+- 线程也可以阻塞等待获取某个对象锁的排他性访问权限（即等待获得 synchronized 语句必须的锁时阻塞）。
+
+> 注意，并非所有的阻塞状态都是可中断的，以上阻塞状态的前两种可以被中断，后两种不会对中断做出反应
 
 # J.U.C - AQS
 
@@ -1318,6 +1355,15 @@ synchronized 中的锁是非公平的，ReentrantLock 默认情况下也是非�
 
 除非需要使用 ReentrantLock 的高级功能，否则优先使用 synchronized。这是因为 synchronized 是 JVM 实现的一种锁机制，JVM 原生地支持它，而 ReentrantLock 不是所有的 JDK 版本都支持。并且使用 synchronized 不用担心没有释放锁而导致死锁问题，因为 JVM 会确保锁的释放。
 
+## synchronized与lock
+
+**区别，使用场景**
+
+- （用法）synchronized（隐式锁）：在需要同步的对象中加入此控制，synchronized 可以加在方法上，也可以加在特定代码块中，括号中表示需要锁的对象。
+- （用法）lock（显示锁）：需要显示指定起始位置和终止位置。一般使用 ReentrantLock 类做为锁，多个线程中必须要使用一个 ReentrantLock 类做为对象才能保证锁的生效。且在加锁和解锁处需要通过 lock() 和 unlock() 显示指出。所以一般会在 finally 块中写 unlock() 以防死锁。
+- （性能）synchronized 是托管给 JVM 执行的，而 lock 是 Java 写的控制锁的代码。在 Java1.5 中，synchronize 是性能低效的。因为这是一个重量级操作，需要调用操作接口，导致有可能加锁消耗的系统时间比加锁以外的操作还多。相比之下使用 Java 提供的 Lock 对象，性能更高一些。但是到了 Java1.6 ，发生了变化。synchronize 在语义上很清晰，可以进行很多优化，有适应自旋，锁消除，锁粗化，轻量级锁，偏向锁等等。导致 在 Java1.6 上 synchronize 的性能并不比 Lock 差。
+- （机制）**synchronized 原始采用的是 CPU 悲观锁机制，即线程获得的是独占锁**。独占锁意味着其他线程只能依靠阻塞来等待线程释放锁。**Lock 用的是乐观锁方式**。所谓乐观锁就是，每次不加锁而是假设没有冲突而去完成某项操作，如果因为冲突失败就重试，直到成功为止。乐观锁实现的机制就是 CAS 操作（Compare and Swap）。
+
 # Java 内存模型
 
 Java 内存模型试图屏蔽各种硬件和操作系统的内存访问差异，以实现让 Java 程序在各种平台下都能达到一致的内存访问效果。
@@ -1586,6 +1632,18 @@ synchronized 和 ReentrantLock。
 
 乐观锁需要操作和冲突检测这两个步骤具备原子性，这里就不能再使用互斥同步来保证了，只能靠硬件来完成。硬件支持的原子性操作最典型的是：比较并交换（Compare-and-Swap，CAS）。
 
+#### Compare And Swap
+
+CAS 指的是现代 CPU 广泛支持的一种对内存中的共享数据进行操作的一种特殊指令。这个指令会对内存中的共享数据做原子的读写操作。
+
+简单介绍一下这个指令的操作过程：
+
+- 首先，CPU 会将内存中将要被更改的数据与期望的值做比较。
+- 然后，当这两个值相等时，CPU 才会将内存中的数值替换为新的值。否则便不做操作。
+- 最后，CPU 会将旧的数值返回。
+
+​这一系列的操作是原子的。它们虽然看似复杂，但却是 Java 5 并发机制优于原有锁机制的根本。简单来说，CAS 的含义是：我认为原有的值应该是什么，如果是，则将原有的值更新为新值，否则不做修改，并告诉我原来的值是多少。  简单的来说，CAS 有 3 个操作数，内存值 V，旧的预期值 A，要修改的新值 B。当且仅当预期值 A 和内存值 V 相同时，将内存值 V 修改为 B，否则返回 V。这是一种乐观锁的思路，它相信在它修改之前，没有其它线程去修改它；而 Synchronized 是一种悲观锁，它认为在它修改之前，一定会有其它线程去修改它，悲观锁效率很低。
+
 整个AQS同步组件、Atomic原子类操作等等都是以CAS实现的，甚至ConcurrentHashMap在1.8的版本中也调整为了CAS+Synchronized。可以说CAS是整个JUC的基石。
 
 ![img](https://upload-images.jianshu.io/upload_images/2251324-6aa6051b693594c1.png?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/623/format/webp)
@@ -1666,6 +1724,28 @@ CPU提供了两种方法来实现多处理器的原子操作:
 **ABA问题**
 
 CAS需要检查操作值有没有发生改变，如果没有发生改变则更新。但是存在这样一种情况如果一个值原来是A，变成了B，然后又变成了A，那么在CAS检查的时候会发现没有改变，但是实质上它已经发生了改变，这就是所谓的ABA问题。对于ABA问题其解决方案是加上版本号，即在每个变量都加上一个版本号，每次改变时加1，即A —> B  —> A，变成1A —> 2B  —> 3A。
+
+#### AQS
+
+AQS 是 AbstractQueuedSynchronizer 的简称，java.util.concurrent（J.U.C）大大提高了并发性能。它提供了一个基于 FIFO 队列，这个队列可以用来构建锁或者其他相关的同步装置的基础框架。下图是 AQS 底层的数据结构：
+
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/616953-20160403170136176-573839888.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/616953-20160403170136176-573839888.png)
+
+它底层使用的是双向列表，是队列的一种实现 , 因此也可以将它当成一种队列。
+
+- Sync queue 是同步列表，它是双向列表 , 包括 head，tail 节点。其中 head 节点主要用来后续的调度 ;
+- Condition queue 是单向链表 , 不是必须的 , 只有当程序中需要 Condition 的时候，才会存在这个单向链表 , 并且可能会有多个 Condition queue。
+
+简单的来说：
+
+- AQS其实就是一个可以给我们实现锁的**框架**
+- 内部实现的关键是：**先进先出的队列、state 状态**
+- 定义了内部类 ConditionObject
+- 拥有两种线程模式
+- - 独占模式
+  - 共享模式
+- 在 LOCK 包中的相关锁（常用的有 ReentrantLock、 ReadWriteLock ）都是基于 AQS 来构建
+- 一般我们叫 AQS 为同步器。
 
 ### 2. AtomicInteger
 
@@ -2146,5 +2226,103 @@ JDK 1.6 引入了偏向锁和轻量级锁，从而让锁拥有了四个状态：
 
 
 
+# 线程池实现原理
 
+[![ThrealpoolExecutor_framework](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/ThrealpoolExecutor_framework.jpg)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/ThrealpoolExecutor_framework.jpg)
 
+## 并发队列
+
+**入队**
+
+非阻塞队列：当队列中满了时候，放入数据，数据丢失
+
+阻塞队列：当队列满了的时候，进行等待，什么时候队列中有出队的数据，那么第11个再放进去
+
+**出队**
+
+非阻塞队列：如果现在队列中没有元素，取元素，得到的是null
+
+阻塞队列：等待，什么时候放进去，再取出来
+
+线程池使用的是阻塞队列
+
+## Executor类图
+
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/820628cf179f4952812da4e8ca5de672.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/820628cf179f4952812da4e8ca5de672.png)
+
+## 线程池工作原理
+
+线程池中的核心线程数，当提交一个任务时，线程池创建一个新线程执行任务，直到当前线程数等于corePoolSize；如果当前线程数为 corePoolSize，继续提交的任务被保存到阻塞队列中，等待被执行；如果阻塞队列满了，那就创建新的线程执行当前任务；直到线程池中的线程数达到 maxPoolSize，这时再有任务来，只能执行 reject() 处理该任务。
+
+## 常用方法
+
+### execute与submit的区别
+
+1. 接收的参数不一样
+2. submit有返回值，而execute没有
+
+用到返回值的例子，比如说我有很多个做 validation 的 task，我希望所有的 task 执行完，然后每个 task 告诉我它的执行结果，是成功还是失败，如果是失败，原因是什么。然后我就可以把所有失败的原因综合起来发给调用者。
+
+1. submit方便Exception处理
+
+如果你在你的 task 里会抛出 checked 或者 unchecked exception，而你又希望外面的调用者能够感知这些 exception 并做出及时的处理，那么就需要用到 submit，通过捕获 Future.get 抛出的异常。
+
+### shutDown与shutDownNow的区别
+
+当线程池调用该方法时,线程池的状态则立刻变成 SHUTDOWN 状态。此时，则不能再往线程池中添加任何任务，否则将会抛出 RejectedExecutionException 异常。但是，此时线程池不会立刻退出，直到添加到线程池中的任务都已经处理完成，才会退出。
+
+## 内部实现
+
+```
+public ThreadPoolExecutor(
+	int corePoolSize,     // 核心线程数
+	int maximumPoolSize,  // 最大线程数
+	long keepAliveTime,   // 线程存活时间（在 corePore<*<maxPoolSize 情况下有用）
+	TimeUnit unit,        // 存活时间的时间单位
+	BlockingQueue<Runnable> workQueue    // 阻塞队列（用来保存等待被执行的任务）
+	ThreadFactory threadFactory,    // 线程工厂，主要用来创建线程；
+	RejectedExecutionHandler handler // 当拒绝处理任务时的策略
+){
+    
+this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
+         Executors.defaultThreadFactory(), defaultHandler);
+}
+```
+
+关于 workQueue 参数，有四种队列可供选择：
+
+- ArrayBlockingQueue：基于数组结构的有界阻塞队列，按 FIFO 排序任务；
+- LinkedBlockingQuene：基于链表结构的阻塞队列，按 FIFO 排序任务；
+- SynchronousQuene：一个不存储元素的阻塞队列，每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于 ArrayBlockingQuene；
+- PriorityBlockingQuene：具有优先级的无界阻塞队列；
+
+关于 handler 参数，线程池的饱和策略，当阻塞队列满了，且没有空闲的工作线程，如果继续提交任务，必须采取一种策略处理该任务，线程池提供了 4 种策略：
+
+- ThreadPoolExecutor.AbortPolicy：丢弃任务并抛出RejectedExecutionException异常。
+- ThreadPoolExecutor.DiscardPolicy：丢弃任务，但是不抛出异常。
+- ThreadPoolExecutor.DiscardOldestPolicy：丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）
+- ThreadPoolExecutor.CallerRunsPolicy：由调用线程处理该任务
+
+当然也可以根据应用场景实现 RejectedExecutionHandler 接口，自定义饱和策略，如记录日志或持久化存储不能处理的任务。
+
+## 线程池的状态
+
+```
+private final AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0));
+```
+
+其中 AtomicInteger 变量 ctl 的功能非常强大：利用低 29 位表示线程池中线程数，通过高 3 位表示线程池的运行状态：
+
+- **RUNNING**：-1 << COUNT_BITS，即高 3 位为 111，该状态的线程池会接收新任务，并处理阻塞队列中的任务；
+- **SHUTDOWN**： 0 << COUNT_BITS，即高 3 位为 000，该状态的线程池不会接收新任务，但会处理阻塞队列中的任务；
+- **STOP** ： 1 << COUNT_BITS，即高 3 位为 001，该状态的线程不会接收新任务，也不会处理阻塞队列中的任务，而且会中断正在运行的任务；
+- **TIDYING** ： 2 << COUNT_BITS，即高 3 位为 010，该状态表示线程池对线程进行整理优化；
+- **TERMINATED**： 3 << COUNT_BITS，即高 3 位为 011，该状态表示线程池停止工作；
+
+## 线程池其他常用方法
+
+如果执行了线程池的 prestartAllCoreThreads() 方法，线程池会提前创建并启动所有核心线程。 ThreadPoolExecutor 提供了动态调整线程池容量大小的方法：setCorePoolSize() 和 setMaximumPoolSize()。
+
+## 如何合理设置线程池的大小
+
+一般需要根据任务的类型来配置线程池大小： 如果是 CPU 密集型任务，就需要尽量压榨 CPU，参考值可以设为 NCPU+1 如果是 IO 密集型任务，参考值可以设置为 2*NCPU

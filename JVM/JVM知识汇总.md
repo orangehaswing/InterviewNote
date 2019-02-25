@@ -322,7 +322,7 @@ HotSpot 虚拟机的 Eden 和 Survivor 的大小比例默认为 8:1，保证了�
 以上是 HotSpot 虚拟机中的 7 个垃圾收集器，连线表示垃圾收集器可以配合使用。
 
 - 单线程与多线程：单线程指的是垃圾收集器只使用一个线程进行收集，而多线程使用多个线程；
-- 串行与并行：串行指的是垃圾收集器与用户程序交替执行，这意味着在执行垃圾收集的时候需要停顿用户程序；并行指的是垃圾收集器和用户程序同时执行。除了 CMS 和 G1 之外，其它垃圾收集器都是以串行的方式执行。
+- 串行与并行：串行指的是垃圾收集器与用户程序交替执行，这意味着在执行垃圾收集的时候需要停顿用户程序；并行指的是垃圾收集器和用户程序同时执行。 CMS 和 G1 可以使用在并发场景。
 
 ### 1. Serial 收集器
 
@@ -701,6 +701,15 @@ System.out.println(ConstClass.HELLOWORLD);
 - 启动类加载器（Bootstrap ClassLoader）此类加载器负责将存放在 <JRE_HOME>\lib 目录中的，或者被 -Xbootclasspath 参数所指定的路径中的，并且是虚拟机识别的（仅按照文件名识别，如 rt.jar，名字不符合的类库即使放在 lib 目录中也不会被加载）类库加载到虚拟机内存中。启动类加载器无法被 Java 程序直接引用，用户在编写自定义类加载器时，如果需要把加载请求委派给启动类加载器，直接使用 null 代替即可。
 - 扩展类加载器（Extension ClassLoader）这个类加载器是由 ExtClassLoader（sun.misc.Launcher$ExtClassLoader）实现的。它负责将 <JAVA_HOME>/lib/ext 或者被 java.ext.dir 系统变量所指定路径中的所有类库加载到内存中，开发者可以直接使用扩展类加载器。
 - 应用程序类加载器（Application ClassLoader）这个类加载器是由 AppClassLoader（sun.misc.Launcher$AppClassLoader）实现的。由于这个类加载器是 ClassLoader 中的 getSystemClassLoader() 方法的返回值，因此一般称为系统类加载器。它负责加载用户类路径（ClassPath）上所指定的类库，开发者可以直接使用这个类加载器，如果应用程序中没有自定义过自己的类加载器，一般情况下这个就是程序中默认的类加载器。
+- 自定义类加载器
+  - 步骤：定义一个类，继承 ClassLoader
+  - 重写 loadClass 方法
+  - 实例化 Class 对象
+- 自定义类加载器的优势
+  - 类加载器是 Java 语言的一项创新，也是 Java 语言流行的重要原因之一，它最初的设计是为了满足 java applet 的需求而开发出来的
+  - 高度的灵活性
+  - 通过自定义类加载器可以实现热部署
+  - 代码加密
 
 ## 双亲委派模型
 
@@ -716,7 +725,7 @@ System.out.println(ConstClass.HELLOWORLD);
 
 ### 2. 好处
 
-​	使得 Java 类随着它的类加载器一起具有一种带有优先级的层次关系，从而使得基础类得到统一。对于Object类因为父加载器先加载所以能保证对于所有Object的子类其所对应的Object都是由同一个ClassLoader所加载,也就保证了对象相等. 简单来说委托类优先模式保证了加载器的优先级问题,让优先级高的ClassLoader先加载,然后轮到优先级低的。
+​	使得 Java 类随着它的类加载器一起具有一种带有优先级的层次关系，从而使得基础类得到统一。对于Object类因为父加载器先加载所以能保证对于所有Object的子类其所对应的Object都是由同一个ClassLoader所加载,也就保证了对象相等. 简单来说委托类优先模式保证了加载器的优先级问题,让优先级高的ClassLoader先加载,然后轮到优先级低的。也避免重复加载的问题。
 
 ​	例如 java.lang.Object 存放在 rt.jar 中，如果编写另外一个 java.lang.Object 的类并放到 ClassPath 中，程序可以编译通过。由于双亲委派模型的存在，所以在 rt.jar 中的 Object 比在 ClassPath 中的 Object 优先级更高，这是因为 rt.jar 中的 Object 使用的是启动类加载器，而 ClassPath 中的 Object 使用的是应用程序类加载器。rt.jar 中的 Object 优先级更高，那么程序中所有的 Object 都是这个 Object。
 
