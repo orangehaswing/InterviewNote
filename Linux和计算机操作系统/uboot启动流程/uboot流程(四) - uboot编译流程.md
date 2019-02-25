@@ -49,7 +49,10 @@ uboot:
 最终编译完成之后，会在project-x/build/out/u-boot下生成如下文件：
 
 ```
-arch   common   dts       include   net         tools       u-boot.cfg      u-boot.lds        u-boot.srec	board  disk     examples  lib       scripts  System.map  u-boot      u-boot.dtb     u-boot.map        u-boot.sym	cmd    drivers  fs      Makefile  source   test        u-boot.bin  u-boot-dtb.bin  u-boot-nodtb.bin
+arch   common   dts       include   net         tools       u-boot.cfg      u-boot.lds        
+u-boot.srec	board  disk     examples  lib       scripts  System.map  u-boot      u-boot.dtb     
+u-boot.map        u-boot.sym	cmd    drivers  fs      Makefile  source   test        u-boot.bin  
+u-boot-dtb.bin  u-boot-nodtb.bin
 ```
 
 其中，arch、common、dts、include、board、drivers、fs等等目录是对应代码的编译目录，各个目录下都会生成相应的built.o，是由同目录下的目标文件连接而成。
@@ -71,6 +74,7 @@ arch   common   dts       include   net         tools       u-boot.cfg      u-bo
 ## 1. 编译整体流程
 
 流程如下： 
+
 （1）各目录下built-in.o的生成
 
 源文件、代码文件	-->	编译、汇编	-->	目标文件	-->	同目录目标文连接	-->	built-in目标文件

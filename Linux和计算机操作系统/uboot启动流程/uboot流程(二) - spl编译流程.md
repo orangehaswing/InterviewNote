@@ -1,4 +1,4 @@
-uboot流程(二) - spl编译流程
+# uboot流程(二) - spl编译流程
 
 # 一. uboot-spl编译和生成文件
 

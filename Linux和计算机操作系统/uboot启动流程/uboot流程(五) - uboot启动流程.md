@@ -48,27 +48,47 @@ ENTRY(_start)
 ## 1. 首先看一下主枝干的流程（包含了arch级的初始化）
 
 在arch级初始化是和spl完全一致的 
+
 _start———–>reset————–>关闭中断 
+
 ………………………………| 
+
 ………………………………———->cpu_init_cp15———–>关闭MMU,TLB 
+
 ………………………………| 
-………………………………———->cpu_init_crit————->lowlevel_init————->关键寄存器的配置和初始化 
+
+………………………………———->cpu_init_crit————->lowlevel_init————->关键寄存器的配置和初始化
+
 ………………………………| 
-………………………………———->_main————–>进入板级初始化，具体看下面
+
+………………………………———->_main————–>进入板级初始化
+
+具体看下面
 
 ## 2. 板级初始化的流程
 
 _main————–>board_init_f_alloc_reserve —————>堆栈、GD、early malloc空间的分配 
+
 …………| 
+
 …………————->board_init_f_init_reserve —————>堆栈、GD、early malloc空间的初始化 
+
 …………| 
+
 …………————->board_init_f —————>uboot relocate前的板级初始化以及relocate的区域规划 
+
 …………| 
+
 …………————->relocate_code、relocate_vectors —————>进行uboot和异常中断向量表的重定向 
+
 …………| 
+
 …………————->旧堆栈的清空 
+
 …………| 
+
 …………————->board_init_r —————>uboot relocate后的板级初始化 
+
 …………| 
 
 …………————->run_main_loop —————>进入命令行状态，等待终端输入命令以及对命令进行处理

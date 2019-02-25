@@ -50,14 +50,21 @@ CPU初始刚上电的状态。需要小心的设置好很多状态，包括cpu�
 
 代码整体流程如下，以下列出来的就是spl核心函数。 
 _start———–>reset————–>关闭中断 
+
 ………………………………| 
+
 ………………………………———->cpu_init_cp15———–>关闭MMU,TLB 
+
 ………………………………| 
-………………………………———->cpu_init_crit————->lowlevel_init————->平台级和板级的初始化 
+
+………………………………———->cpu_init_crit————->lowlevel_init————->平台级和板级的初始化
+
 ………………………………| 
+
 ………………………………———->_main————–>board_init_f_alloc_reserve & board_init_f_init_reserve & board_init_f
 
-​					     ———->加载BL2,跳转到BL2 
+………………………………———->加载BL2,跳转到BL2 
+
 board_init_f执行时已经是C语言环境了。在这里需要结束掉SPL的工作，跳转到BL2中。
 
 ## 2、_start
