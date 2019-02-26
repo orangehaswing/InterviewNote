@@ -160,6 +160,28 @@ new Thread() 的缺点
 - 可有效控制最大并发线程数，提高系统资源的使用率，同时避免过多资源竞争，避免堵塞
 - 提供定时执行、定期执行、单线程、并发数控制等功能
 
+### 线程池工作原理
+
+[![ThrealpoolExecutor_framework](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/ThrealpoolExecutor_framework.jpg)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/ThrealpoolExecutor_framework.jpg)
+
+#### 并发队列
+
+**入队**
+
+非阻塞队列：当队列中满了时候，放入数据，数据丢失
+
+阻塞队列：当队列满了的时候，进行等待，什么时候队列中有出队的数据，那么第11个再放进去
+
+**出队**
+
+非阻塞队列：如果现在队列中没有元素，取元素，得到的是null
+
+阻塞队列：等待，什么时候放进去，再取出来
+
+线程池使用的是阻塞队列
+
+线程池中的核心线程数，当提交一个任务时，线程池创建一个新线程执行任务，直到当前线程数等于corePoolSize；如果当前线程数为 corePoolSize，继续提交的任务被保存到阻塞队列中，等待被执行；如果阻塞队列满了，那就创建新的线程执行当前任务；直到线程池中的线程数达到 maxPoolSize，这时再有任务来，只能执行 reject() 处理该任务。
+
 主要有三种 Executor：
 
 #### newCachedThreadPool：
@@ -363,6 +385,14 @@ runWorker方法是线程池的核心：
 2. workQueue.poll：如果在keepAliveTime时间内，阻塞队列还是没有任务，则返回null；
 
 所以，线程池中实现的线程可以一直执行由用户提交的任务。
+
+### 线程池其他常用方法
+
+如果执行了线程池的 prestartAllCoreThreads() 方法，线程池会提前创建并启动所有核心线程。 ThreadPoolExecutor 提供了动态调整线程池容量大小的方法：setCorePoolSize() 和 setMaximumPoolSize()。
+
+### 合理设置线程池的大小
+
+一般需要根据任务的类型来配置线程池大小： 如果是 CPU 密集型任务，就需要尽量压榨 CPU，参考值可以设为 NCPU+1 如果是 IO 密集型任务，参考值可以设置为 2*NCPU
 
 ## Daemon
 
@@ -1921,13 +1951,13 @@ ThreadLocalMap getMap(Thread t) {
 
 所以在线程1中set的值，对线程2来说是摸不到的，而且在线程2中重新set的话，也不会影响到线程1中的值，保证了线程之间不会相互干扰。
 
-那每个线程中的`ThreadLoalMap`究竟是什么？
+那每个线程中的`ThreadLocalMap`究竟是什么？
 
-#### ThreadLoalMap
+#### ThreadLocalMap
 
 从名字上看，可以猜到它也是一个类似HashMap的数据结构，但是在ThreadLocal中，并没实现Map接口。
 
-在ThreadLoalMap中，也是初始化一个大小16的Entry数组，Entry对象用来保存每一个key-value键值对，只不过这里的key永远都是ThreadLocal对象，是不是很神奇，通过ThreadLocal对象的set方法，结果把ThreadLocal对象自己当做key，放进了ThreadLoalMap中。
+在ThreadLoalMap中，也是初始化一个大小16的Entry数组，Entry对象用来保存每一个key-value键值对，只不过这里的key永远都是ThreadLocal对象。通过ThreadLocal对象的set方法，结果把ThreadLocal对象自己当做key，放进了ThreadLoalMap中。
 
 ![img](https://upload-images.jianshu.io/upload_images/2184951-9611b7b31c9b2e20.png?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000/format/webp)
 
@@ -1975,7 +2005,7 @@ private void set(ThreadLocal<?> key, Object value) {
 2. 不巧，位置i已经有Entry对象了，如果这个Entry对象的key正好是即将设置的key，那么重新设置Entry中的value；
 3. 很不巧，位置i的Entry对象，和即将设置的key没关系，那么只能找下一个空位置；
 
-这样的话，在get的时候，也会根据ThreadLocal对象的hash值，定位到table中的位置，然后判断该位置Entry对象中的key是否和get的key一致，如果不一致，就判断下一个位置
+这样的话，在get的时候，也会根据ThreadLocal对象的hash值，定位到table中的位置，然后判断该位置Entry对象中的key是否和get的key一致，如果不一致，就判断下一个位置。
 
 可以发现，set和get如果冲突严重的话，效率很低，因为ThreadLoalMap是Thread的一个属性，所以即使在自己的代码中控制了设置的元素个数，但还是不能控制其它代码的行为。
 
@@ -2128,7 +2158,7 @@ ThreadLocal 从理论上讲并不是用来解决多线程并发问题的，因�
 
 ### 可重入锁
 
-如果锁具备可重入性，则称作为可重入锁。synchronized和ReentrantLock都是可重入锁，可重入性在我看来实际上表明了锁的分配机制：基于线程的分配，而不是基于方法调用的分配。举比如说，当一个线程执行到method1 的synchronized方法时，而在method1中会调用另外一个synchronized方法method2，此时该线程不必重新去申请锁，而是可以直接执行方法method2。
+如果锁具备可重入性，则称作为可重入锁。synchronized和ReentrantLock都是可重入锁，可重入性实际上表明了锁的分配机制：基于线程的分配，而不是基于方法调用的分配。比如说，当一个线程执行到method1 的synchronized方法时，而在method1中会调用另外一个synchronized方法method2，此时该线程不必重新去申请锁，而是可以直接执行方法method2。
 
 ### 读写锁
 
@@ -2223,106 +2253,3 @@ JDK 1.6 引入了偏向锁和轻量级锁，从而让锁拥有了四个状态：
 当有另外一个线程去尝试获取这个锁对象时，偏向状态就宣告结束，此时撤销偏向（Revoke Bias）后恢复到未锁定状态或者轻量级锁状态。
 
 [![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/390c913b-5f31-444f-bbdb-2b88b688e7ce.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/390c913b-5f31-444f-bbdb-2b88b688e7ce.jpg?raw=true)
-
-
-
-# 线程池实现原理
-
-[![ThrealpoolExecutor_framework](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/ThrealpoolExecutor_framework.jpg)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/ThrealpoolExecutor_framework.jpg)
-
-## 并发队列
-
-**入队**
-
-非阻塞队列：当队列中满了时候，放入数据，数据丢失
-
-阻塞队列：当队列满了的时候，进行等待，什么时候队列中有出队的数据，那么第11个再放进去
-
-**出队**
-
-非阻塞队列：如果现在队列中没有元素，取元素，得到的是null
-
-阻塞队列：等待，什么时候放进去，再取出来
-
-线程池使用的是阻塞队列
-
-## Executor类图
-
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/820628cf179f4952812da4e8ca5de672.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/820628cf179f4952812da4e8ca5de672.png)
-
-## 线程池工作原理
-
-线程池中的核心线程数，当提交一个任务时，线程池创建一个新线程执行任务，直到当前线程数等于corePoolSize；如果当前线程数为 corePoolSize，继续提交的任务被保存到阻塞队列中，等待被执行；如果阻塞队列满了，那就创建新的线程执行当前任务；直到线程池中的线程数达到 maxPoolSize，这时再有任务来，只能执行 reject() 处理该任务。
-
-## 常用方法
-
-### execute与submit的区别
-
-1. 接收的参数不一样
-2. submit有返回值，而execute没有
-
-用到返回值的例子，比如说我有很多个做 validation 的 task，我希望所有的 task 执行完，然后每个 task 告诉我它的执行结果，是成功还是失败，如果是失败，原因是什么。然后我就可以把所有失败的原因综合起来发给调用者。
-
-1. submit方便Exception处理
-
-如果你在你的 task 里会抛出 checked 或者 unchecked exception，而你又希望外面的调用者能够感知这些 exception 并做出及时的处理，那么就需要用到 submit，通过捕获 Future.get 抛出的异常。
-
-### shutDown与shutDownNow的区别
-
-当线程池调用该方法时,线程池的状态则立刻变成 SHUTDOWN 状态。此时，则不能再往线程池中添加任何任务，否则将会抛出 RejectedExecutionException 异常。但是，此时线程池不会立刻退出，直到添加到线程池中的任务都已经处理完成，才会退出。
-
-## 内部实现
-
-```
-public ThreadPoolExecutor(
-	int corePoolSize,     // 核心线程数
-	int maximumPoolSize,  // 最大线程数
-	long keepAliveTime,   // 线程存活时间（在 corePore<*<maxPoolSize 情况下有用）
-	TimeUnit unit,        // 存活时间的时间单位
-	BlockingQueue<Runnable> workQueue    // 阻塞队列（用来保存等待被执行的任务）
-	ThreadFactory threadFactory,    // 线程工厂，主要用来创建线程；
-	RejectedExecutionHandler handler // 当拒绝处理任务时的策略
-){
-    
-this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
-         Executors.defaultThreadFactory(), defaultHandler);
-}
-```
-
-关于 workQueue 参数，有四种队列可供选择：
-
-- ArrayBlockingQueue：基于数组结构的有界阻塞队列，按 FIFO 排序任务；
-- LinkedBlockingQuene：基于链表结构的阻塞队列，按 FIFO 排序任务；
-- SynchronousQuene：一个不存储元素的阻塞队列，每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于 ArrayBlockingQuene；
-- PriorityBlockingQuene：具有优先级的无界阻塞队列；
-
-关于 handler 参数，线程池的饱和策略，当阻塞队列满了，且没有空闲的工作线程，如果继续提交任务，必须采取一种策略处理该任务，线程池提供了 4 种策略：
-
-- ThreadPoolExecutor.AbortPolicy：丢弃任务并抛出RejectedExecutionException异常。
-- ThreadPoolExecutor.DiscardPolicy：丢弃任务，但是不抛出异常。
-- ThreadPoolExecutor.DiscardOldestPolicy：丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）
-- ThreadPoolExecutor.CallerRunsPolicy：由调用线程处理该任务
-
-当然也可以根据应用场景实现 RejectedExecutionHandler 接口，自定义饱和策略，如记录日志或持久化存储不能处理的任务。
-
-## 线程池的状态
-
-```
-private final AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0));
-```
-
-其中 AtomicInteger 变量 ctl 的功能非常强大：利用低 29 位表示线程池中线程数，通过高 3 位表示线程池的运行状态：
-
-- **RUNNING**：-1 << COUNT_BITS，即高 3 位为 111，该状态的线程池会接收新任务，并处理阻塞队列中的任务；
-- **SHUTDOWN**： 0 << COUNT_BITS，即高 3 位为 000，该状态的线程池不会接收新任务，但会处理阻塞队列中的任务；
-- **STOP** ： 1 << COUNT_BITS，即高 3 位为 001，该状态的线程不会接收新任务，也不会处理阻塞队列中的任务，而且会中断正在运行的任务；
-- **TIDYING** ： 2 << COUNT_BITS，即高 3 位为 010，该状态表示线程池对线程进行整理优化；
-- **TERMINATED**： 3 << COUNT_BITS，即高 3 位为 011，该状态表示线程池停止工作；
-
-## 线程池其他常用方法
-
-如果执行了线程池的 prestartAllCoreThreads() 方法，线程池会提前创建并启动所有核心线程。 ThreadPoolExecutor 提供了动态调整线程池容量大小的方法：setCorePoolSize() 和 setMaximumPoolSize()。
-
-## 如何合理设置线程池的大小
-
-一般需要根据任务的类型来配置线程池大小： 如果是 CPU 密集型任务，就需要尽量压榨 CPU，参考值可以设为 NCPU+1 如果是 IO 密集型任务，参考值可以设置为 2*NCPU
