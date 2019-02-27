@@ -28,7 +28,7 @@ public class FileUploadController {
 
 被@ModelAttribute注释的方法会在此controller每个方法执行前被执行，因此这里首先将判断WebRequest是否用Ajax方式的请求，然后将请求添加进model。
 
-springmvc中，通过 MultipartResolver 实现文件上传
+springmvc中，通过 MultipartFile来进行文件上传。所以，如果要实现文件的上传，只要在 spring-mvc.xml 中注册相应的 MultipartResolver 即可。
 
 MultipartResolver 的实现类有两个：
 
@@ -40,14 +40,16 @@ MultipartResolver 的实现类有两个：
 1. 第一个需要使用 Apache 的 commons-fileupload 等 jar 包支持，但它能在比较旧的 servlet 版本中使用。
 2. 第二个不需要第三方 jar 包支持，它使用 servlet 内置的上传功能，但是只能在 Servlet 3 以上的版本使用。
 
+这个项目在config中配置
+
+```
+@Bean
+public MultipartResolver multipartResolver() {
+	return new CommonsMultipartResolver();
+}
+```
+
 ## Views
-
-home.jsp
-
-```
-<li><a href="<c:url value="/fileupload" />" title="fileupload">File Upload</a></li>
-
-```
 
 fileupload.jsp
 

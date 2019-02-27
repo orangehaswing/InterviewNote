@@ -61,23 +61,16 @@ IOC容器的初始化分为三个过程实现：
 - 第二个过程是BeanDefinition的载入过程。这个载入过程是把用户定义好的Bean表示成Ioc容器内部的数据结构，而这个容器内部的数据结构就是BeanDefition。
 - 第三个过程是向IOC容器注册这些BeanDefinition的过程，这个过程就是将前面的BeanDefition保存到HashMap中的过程。
 
-更详细说明请阅读：[2 IOC容器初始化过程 - CSDN博客](https://blog.csdn.net/u010723709/article/details/47046211)
-
-参考资料：
-
-- [Spring IOC容器的初始化过程 - 掘金](https://juejin.im/post/5af8f8066fb9a07ac85a853e)
-- [Spring IOC核心源码学习 | Yikun](https://yikun.github.io/2015/05/29/Spring-IOC%E6%A0%B8%E5%BF%83%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/)
-
 ## 4. 项目中Spring AOP用在什么地方，为什么这么用，切点，织入，通知用自己的话描述一下
 
-- **Joinpoint（连接点）（重要）**类里面可以被增强的方法，这些方法称为连接点
-- **Pointcut（切入点）（重要）**所谓切入点是指我们要对哪些Joinpoint进行拦截的定义
-- **Advice（通知/增强）（重要）**所谓通知是指拦截到Joinpoint之后所要做的事情就是通知.通知分为前置通知，后置通知，异常通知，最终通知，环绕通知（切面要完成的功能）
-- **Aspect（切面）**：是切入点和通知（引介）的结合
-- **Introduction（引介）**引介是一种特殊的通知在不修改类代码的前提下， Introduction可以在运行期为类动态地添加一些方法或Field.
-- **Target（目标对象）**代理的目标对象（要增强的类）
-- **Weaving（织入）**是把增强应用到目标的过程，把advice 应用到 target的过程
-- **Proxy（代理）**一个类被AOP织入增强后，就产生一个结果代理类
+- **Joinpoint（连接点）** 类里面可以被增强的方法，这些方法称为连接点
+- **Pointcut（切入点）** 所谓切入点是指我们要对哪些Joinpoint进行拦截的定义
+- **Advice（通知/增强）** 所谓通知是指拦截到Joinpoint之后所要做的事情就是通知.通知分为前置通知，后置通知，异常通知，最终通知，环绕通知（切面要完成的功能）
+- **Aspect（切面）** 是切入点和通知（引介）的结合
+- **Introduction（引介）** 引介是一种特殊的通知在不修改类代码的前提下， Introduction可以在运行期为类动态地添加一些方法或Field.
+- **Target（目标对象）** 代理的目标对象（要增强的类）
+- **Weaving（织入）** 是把增强应用到目标的过程，把advice 应用到 target的过程
+- **Proxy（代理）** 一个类被AOP织入增强后，就产生一个结果代理类
 
 AOP（Aspect Oriented Programming ）称为面向切面编程，扩展功能不是修改源代码实现，在程序开发中主要用来解决一些系统层面上的问题，比如日志，事务，权限等待，Struts2的拦截器设计就是基于AOP的思想，是个比较经典的例子。
 
@@ -88,10 +81,7 @@ AOP（Aspect Oriented Programming ）称为面向切面编程，扩展功能不�
   - cglib是针对类实现代理，主要是对指定的类生成一个子类，覆盖其中的方法因为是继承，所以该类或方法最好不要声明成final。
   - JDK代理是不需要以来第三方的库，只要JDK环境就可以进行代理
   - cglib必须依赖于cglib的类库，但是它需要类来实现任何接口代理的是指定的类生成一个子类，覆盖其中的方法，是一种继承
-
-## 6. Struts拦截器和Spring AOP区别
-
-Struts2拦截器浅析-慕课网 [https://www.imooc.com/learn/450](https://www.imooc.com/learn/450)
+  - CGLib创建的动态代理对象性能比JDK创建的动态代理对象的性能高不少，但是CGLib在创建代理对象时所花费的时间却比JDK多得多，所以对于单例的对象，因为无需频繁创建对象，用CGLib合适
 
 ## 7. Spring 是如何管理事务的，事务管理机制
 
@@ -140,13 +130,11 @@ Spring事务管理主要包括3个接口，Spring的事务主要是由它们(**P
 - **优点**：不需要在业务逻辑代码中编写事务相关代码，只需要在配置文件配置或使用注解（@Transaction），这种方式没有侵入性。
 - **缺点**：声明式事务的最细粒度作用于方法上，如果像代码块也有事务需求，只能变通下，将代码块变为方法。
 
-[http://blog.csdn.net/jie_liang/article/details/77600742](http://blog.csdn.net/jie_liang/article/details/77600742)
-
 ## 8. Spring中bean加载机制，生命周期
 
 ### 加载机制
 
-【Spring】详解Spring中Bean的加载 - weknow619 - 博客园 [https://www.cnblogs.com/weknow619/p/6673667.html](https://www.cnblogs.com/weknow619/p/6673667.html)
+ [详解Spring中Bean的加载](https://www.cnblogs.com/weknow619/p/6673667.html)
 
 ### 生命周期
 
@@ -164,7 +152,7 @@ Spring事务管理主要包括3个接口，Spring的事务主要是由它们(**P
    - 相当于程序中的new Xx()
 2. Spring 将值和 Bean 的引用注入进 Bean 对应的属性中；
 3. **如果Bean实现了 BeanNameAware 接口**，Spring 将 Bean 的 ID 传递给setBeanName()方法
-   - 实现BeanNameAware清主要是为了通过Bean的引用来获得Bean的ID，一般业务中是很少有在Bean的ID的
+   - 实现BeanNameAware接口主要是为了通过Bean的引用来获得Bean的ID，一般业务中是很少有在Bean的ID的
 4. **如果Bean实现了BeanFactoryAware接口**，Spring将调用setBeanDactory(BeanFactory bf)方法并把BeanFactory容器实例作为参数传入。
    - 实现BeanFactoryAware 主要目的是为了获取Spring容器，如Bean通过Spring容器发布事件等
 5. **如果Bean实现了ApplicationContextAwaer接口**，Spring容器将调用setApplicationContext(ApplicationContext ctx)方法，将bean所在的应用上下文的引用传入进来
@@ -416,11 +404,9 @@ public class HappyController {
 
 ### 二：装配bean时常用的注解
 
-@Autowired：属于Spring 的org.springframework.beans.factory.annotation包下,可用于为类的属性、构造器、方法进行注值 @Resource：不属于spring的注解，而是来自于JSR-250位于java.annotation包下，使用该annotation为目标bean指定协作者Bean。
+@Autowired：属于Spring 的org.springframework.beans.factory.annotation包下,可用于为类的属性、构造器、方法进行注值
 
-...
-
-更详细请转向：[Spring常用注解介绍【经典总结】 - CSDN博客](https://blog.csdn.net/u010648555/article/details/76299467)
+ @Resource：不属于spring的注解，而是来自于JSR-250位于java.annotation包下，使用该annotation为目标bean指定协作者Bean。
 
 ## 15. Spring 中用到了那些设计模式？
 
@@ -484,7 +470,4 @@ Spring实现了一种能够通过额外的方法调用完成任务的设计模�
 
 ## 17. IOC和AOP用到的设计模式
 
-用过spring的朋友都知道spring的强大和高深，都觉得深不可测，其实当你真正花些时间读一读源码就知道它的一些技术实现其实是建立在一些最基本的技术之上而已；例如AOP(面向方面编程)的实现是建立在CGLib提供的类代理和jdk提供的接口代理，IOC(控制反转)的实现建立在工厂模式、Java反射机制和jdk的操作XML的DOM解析方式.
-
-
-
+用过spring的朋友都知道spring的强大和高深，都觉得深不可测，其实当你真正花些时间读一读源码就知道它的一些技术实现其实是建立在一些最基本的技术之上而已；例如AOP(面向方面编程)的实现是建立在CGLib提供的类代理和jdk提供的接口代理，IOC(控制反转)的实现建立在工厂模式、Java反射机制和jdk的操作XML的DOM解析方式。

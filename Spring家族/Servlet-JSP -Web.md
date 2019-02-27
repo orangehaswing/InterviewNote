@@ -79,30 +79,21 @@ Servlet 类由自己编写，但对象由服务器来创建，并由服务器来
 
 **总结（面试会问）：**　　　
 
-1）Servlet何时创建
+1. Servlet何时创建
 
-```
-默认第一次访问servlet时创建该对象（调用init()方法）
+   默认第一次访问servlet时创建该对象（调用init()方法）
 
-```
+2. Servlet何时销毁
 
-2）Servlet何时销毁
+   服务器关闭servlet就销毁了(调用destroy()方法)
 
-```
-服务器关闭servlet就销毁了(调用destroy()方法)
+3. 每次访问必须执行的方法
 
-```
-
-3）每次访问必须执行的方法
-
-```
-public void service(ServletRequest arg0, ServletResponse arg1)
-
-```
+   public void service(ServletRequest arg0, ServletResponse arg1)
 
 ## 5. Tomcat装载Servlet的三种情况
 
-1. Servlet容器启动时自动装载某些Servlet，实现它只需要在web.xml文件中的 `` 之间添加以下代码：
+1. Servlet容器启动时自动装载某些Servlet，实现它只需要在web.xml文件中添加以下代码：
 
 ```
 <load-on-startup>1</load-on-startup>
@@ -117,13 +108,11 @@ public void service(ServletRequest arg0, ServletResponse arg1)
 
 ## 6. forward和redirect
 
-*本节参考：《Java程序员面试笔试宝典》P172*
-
 　　在设计 Web 应用程序时，经常需要把一个系统进行结构化设计，即按照模块进行划分，让不同的 Servlet 来实现不同的功能，例如可以让其中一个 Servlet 接收用户的请求，另外一个 Servlet 来处理用户的请求。为了实现这种程序的模块化，就需要保证在不同的 Servlet 之间可以相互跳转，而 Servlet 中主要有两种实现跳转的方式：forward 与 redirect 方式。
 
 　　forward 是服务器内部的重定向，服务器直接访问目标地址的 URL，把那个 URL 的响应内容读取过来，而客户端并不知道，因此在客户端浏览器的地址栏中不会显示转向后的地址，还是原来的地址。由于在整个定向的过程中用的是同一个 Request，因此 forward 会将 Request 的信息带到被定向的 JSP 或 Servlet 中使用。
 
-　　redirect 则是客户端的重定向，是完全的跳转，即客户端浏览器会获取到跳转后的地址，然后重新发送请求，因此浏览器中会显示跳转后的地址。同事，由于这种方式比 forward 方式多了一次网络请求，因此其效率要低于 forward 方式。需要注意的是，客户端的重定向可以通过设置特定的 HTTP 头或改写 JavaScript 脚本实现。
+　　redirect 则是客户端的重定向，是完全的跳转，即客户端浏览器会获取到跳转后的地址，然后重新发送请求，因此浏览器中会显示跳转后的地址。同时，由于这种方式比 forward 方式多了一次网络请求，因此其效率要低于 forward 方式。需要注意的是，客户端的重定向可以通过设置特定的 HTTP 头或改写 JavaScript 脚本实现。
 
 　　下图可以更好的说明二者的区别：
 
@@ -208,7 +197,7 @@ Java Servlet API 是 Servlet 容器(tomcat) 和 servlet 之间的接口，它定
 
 **引申**
 
-1. 由于 HTTP 协议是无状态的协议，所以服务端需要记录用户的状态时，就需要用某种机制来识具体的用户，这个机制就是 Session。典型的场景比如购物车，当你点击下单按钮时，由于 HTTP 协议无状态，所以并不知道是哪个用户操作的，所以服务端要为特定的用户创建了特定的 Session，用用于标识这个用户，并且跟踪用户，这样才知道购物车里面有几本书。这个 Session 是保存在服务端的，有一个唯一标识。在服务端保存Session 的方法很多，内存、数据库、文件都有。集群的时候也要考虑 Session 的转移，在大型的网站，一般会有专门的 Session 服务器集群，用来保存用户会话，这个时候 Session 信息都是放在内存的，使用一些缓存服务比如 Memcached 之类的来放 Session。
+1. 由于 HTTP 协议是无状态的协议，所以服务端需要记录用户的状态时，就需要用某种机制来识具体的用户，这个机制就是 Session。典型的场景比如购物车，当你点击下单按钮时，由于 HTTP 协议无状态，所以并不知道是哪个用户操作的，所以服务端要为特定的用户创建了特定的 Session，用于标识这个用户，并且跟踪用户，这样才知道购物车里面有几本书。这个 Session 是保存在服务端的，有一个唯一标识。在服务端保存Session 的方法很多，内存、数据库、文件都有。集群的时候也要考虑 Session 的转移，在大型的网站，一般会有专门的 Session 服务器集群，用来保存用户会话，这个时候 Session 信息都是放在内存的，使用一些缓存服务比如 Memcached 之类的来放 Session。
 
 2. 思考一下服务端如何识别特定的客户？
 
@@ -236,11 +225,6 @@ MVC 是**客户端**的一种设计模式，所以他天然就不考虑数据如
 各层次的关系：表现层的控制->服务层->数据持久化层。
 
 [![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/jee-3-ties.bmp)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/jee-3-ties.bmp)
-
-参考资料：
-
-- [JavaEE中的三层结构和MVC - cuiyi's blog（崔毅 crazycy） - BlogJava](http://www.blogjava.net/crazycy/archive/2006/07/03/56387.html)
-- [三层构架和 MVC 不同吗？ - 知乎](https://www.zhihu.com/question/24291079)
 
 ## 11. RESTful 架构
 

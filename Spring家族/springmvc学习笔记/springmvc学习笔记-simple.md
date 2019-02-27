@@ -28,15 +28,15 @@ home.jsp
 
 ```
 <div id="simple">
-		<h2>Simple</h2>
-		<p>
-			See the <code>org.springframework.samples.mvc.simple</code> package for the @Controller code
-		</p>
-		<ul>
-			<li>
-				<a id="simpleLink" class="textLink" href="<c:url value="/simple" />">GET /simple</a>
-			</li>
-		</ul>
+<h2>Simple</h2>
+	<p>
+	See the <code>org.springframework.samples.mvc.simple</code> package for the @Controller code
+	</p>
+<ul>
+	<li>
+		<a id="simpleLink" class="textLink" href="<c:url value="/simple" />">GET /simple</a>
+	</li>
+</ul>
 </div>
 ```
 
@@ -61,7 +61,7 @@ public class SimpleControllerRevisited {
 
 @GetMapping注解设定path和headers参数。
 
-- path：
+- path：指定URL访问路径。
 
 
 - headers： 指定request中必须包含某些指定的header值，才能让该方法处理请求。这里包含的header值在class="textLink"中
@@ -70,33 +70,23 @@ public class SimpleControllerRevisited {
 
 ```
 <div id="simple">
-		<h2>Simple</h2>
-		<p>
-			See the <code>org.springframework.samples.mvc.simple</code> package for the @Controller code
-		</p>
-		<ul>
-			<li>
-				<a id="simpleRevisited" class="textLink" href="<c:url value="/simple/revisited" />">GET /simple/revisited</a>
-			</li>
-		</ul>
+<h2>Simple</h2>
+<p>
+	See the <code>org.springframework.samples.mvc.simple</code> package for the @Controller code
+</p>
+<ul>
+	<li>
+		<a id="simpleRevisited" class="textLink" href="<c:url value="/simple/revisited" />">GET /simple/revisited</a>
+	</li>
+</ul>
 </div>
-
 ```
 
 ```
 $("a.textLink").click(function(){
-		var link = $(this);
-		$.ajax({ url: link.attr("href"), dataType: "text", success: function(text) { 					MvcUtil.showSuccessResponse(text, link); }, 
-		error: function(xhr) { MvcUtil.showErrorResponse(xhr.responseText, link); }});
-		return false;
+	var link = $(this);
+	$.ajax({ url: link.attr("href"), dataType: "text", success: function(text) { 					MvcUtil.showSuccessResponse(text, link); }, 
+	error: function(xhr) { MvcUtil.showErrorResponse(xhr.responseText, link); }});
+	return false;
 });
 ```
-
-
-
-
-
-
-
-
-
