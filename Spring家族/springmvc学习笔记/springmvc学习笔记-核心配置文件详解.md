@@ -14,7 +14,7 @@
           
 <servlet-mapping>  
     <servlet-name>dispatcher</servlet-name>  
-    <url-pattern>/**</url-pattern>  
+    <url-pattern>/</url-pattern>  
 </servlet-mapping>  
 ```
 

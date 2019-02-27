@@ -2,7 +2,9 @@
 
 # WebMvcConfig
 
-@Configuration:标注在类上，相当于把该类作为spring的xml配置文件中的``，作用为：配置spring容器(应用上下文)。
+@Configuration
+
+标注在类上，相当于把该类作为spring的xml配置文件中的作用为：配置spring容器(应用上下文)。
 
 相当于：
 
@@ -25,8 +27,8 @@
 @ComponentScan(basePackages = "org.springframework.samples.mvc") 相当于：
 
 ```
-    <context:component-scan base-package="org.springmvcframework">
-    </context:component-scan>
+<context:component-scan base-package="org.springmvcframework">
+</context:component-scan>
 ```
 
 @EnableWebMvc：注解用来开启Web MVC的配置支持，也就是写Spring MVC时的时候会用到。

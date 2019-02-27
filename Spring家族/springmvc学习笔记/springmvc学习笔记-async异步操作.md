@@ -12,7 +12,7 @@ to servlet and filter declarations in web.xml.
 
 ```
 <servlet>
-        <servlet-name>spring_mvc</servlet-name>
+     	<servlet-name>spring_mvc</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
@@ -30,27 +30,26 @@ to servlet and filter declarations in web.xml.
 ## Controller
 
 ```
-	@GetMapping("/response-body")
-	public @ResponseBody Callable<String> callable() {
-
-		return new Callable<String>() {
-			@Override
-			public String call() throws Exception {
-				Thread.sleep(2000);
-				return "Callable result";
-			}
-		};
-	}
-
-	@GetMapping("/view")
-	public Callable<String> callableWithView(final Model model) {
-		return () -> {
+@GetMapping("/response-body")
+public @ResponseBody Callable<String> callable() {
+	return new Callable<String>() {
+		@Override
+		public String call() throws Exception {
 			Thread.sleep(2000);
-			model.addAttribute("foo", "bar");
-			model.addAttribute("fruit", "apple");
-			return "views/html";
-		};
-	}
+			return "Callable result";
+		}
+	};
+}
+
+@GetMapping("/view")
+public Callable<String> callableWithView(final Model model) {
+	return () -> {
+		Thread.sleep(2000);
+		model.addAttribute("foo", "bar");
+		model.addAttribute("fruit", "apple");
+		return "views/html";
+	};
+}
 ```
 
 使用了J.U.C中的 `Callable<T>` 当 `new Callable<String>`时，可以返回一个线程，对比Runnable的run()，Callable实现的方法是call()。这里设置睡眠时间，在页面上内容显示将会延迟2-3s。
@@ -58,14 +57,13 @@ to servlet and filter declarations in web.xml.
 ## Views
 
 ```
-		<li>
-			<a id="callableResponseBodyLink" class="textLink"
-				href="<c:url value="/async/callable/response-body" />">GET /async/callable/response-body</a>
-		</li>
-		<li>
-			<a id="callableViewLink" class="textLink"
-				href="<c:url value="/async/callable/view" />">GET /async/callable/view</a>
-		</li>
+<li>
+	<a id="callableResponseBodyLink" class="textLink"href="<c:url value="/async/callable/response-body" />">GET /async/callable/response-body</a>
+</li>
+
+<li>
+	<a id="callableViewLink" class="textLink"href="<c:url value="/async/callable/view" />">GET /async/callable/view</a>
+</li>
 ```
 
 # 第二节
@@ -75,11 +73,10 @@ to servlet and filter declarations in web.xml.
 ```
 @GetMapping("/exception")
 public @ResponseBody Callable<String> callableWithException(
-      final @RequestParam(required=false, defaultValue="true") boolean handled) {
-
-   return () -> {
-      Thread.sleep(2000);
-      if (handled) {
+    final @RequestParam(required=false, defaultValue="true") boolean handled) {
+   	return () -> {
+    	Thread.sleep(2000);
+      	if (handled) {
          // see handleException method further below
          throw new IllegalStateException("Callable error");
       }
@@ -90,7 +87,15 @@ public @ResponseBody Callable<String> callableWithException(
 }
 ```
 
-使用lambda表达式，线程睡眠时间2000毫秒，判断handled并抛出异常。
+使用lambda表达式，线程睡眠时间2000毫秒，使用异常统一处理的方式，判断handled并抛出异常。
+
+```
+@ExceptionHandler
+@ResponseBody
+public String handleException(IllegalStateException ex) {
+	return "Handled exception: " + ex.getMessage();
+}
+```
 
 ## Views
 
@@ -106,15 +111,14 @@ public @ResponseBody Callable<String> callableWithException(
 ## Controller
 
 ```
- @GetMapping("/custom-timeout-handling")
-    public @ResponseBody
-    WebAsyncTask<String> callableWithCustomTimeoutHandling() {
-        Callable<String> callable = () -> {
-            Thread.sleep(2000);
-            return "Callable result";
-        };
-        return new WebAsyncTask<String>(1000, callable);
-    }
+@GetMapping("/custom-timeout-handling")
+public @ResponseBody WebAsyncTask<String> callableWithCustomTimeoutHandling() {
+	Callable<String> callable = () -> {
+    Thread.sleep(2000);
+    return "Callable result";
+    };
+return new WebAsyncTask<String>(1000, callable);
+}
 ```
 
 返回WebAsyncTask来实现“异步”，返回WebAsyncTask的话是不需要我们主动去调用Callback的。直接返回`Callable<String>` 是可以的，但我们这里包装了一层，以便做到“超时处理”。这个Callable的call方法并不是我们直接调用的，而是在longTimeTask返回后，由Spring MVC用一个工作线程来调用执行。
@@ -125,8 +129,7 @@ public @ResponseBody Callable<String> callableWithException(
 
 ```
 <li>
-			<a id="callableCustomTimeoutLink" class="textLink"
-				href="<c:url value="/async/callable/custom-timeout-handling" />">GET /async/callable/custom-timeout-handling</a>
+	<a id="callableCustomTimeoutLink" class="textLink" href="<c:url value="/async/callable/custom-timeout-handling" />">GET /async/callable/custom-timeout-handling</a>
 </li>
 ```
 
@@ -145,21 +148,39 @@ private final Queue<DeferredResult<String>> exceptionQueue = new ConcurrentLinke
 ```
 @GetMapping("/deferred-result/response-body")
 public @ResponseBody DeferredResult<String> deferredResult() {
-   DeferredResult<String> result = new DeferredResult<>();
-   this.responseBodyQueue.add(result);
-   return result;
+	DeferredResult<String> result = new DeferredResult<>();
+	this.responseBodyQueue.add(result);
+	return result;
+}
+
+@GetMapping("/deferred-result/model-and-view")
+public DeferredResult<ModelAndView> deferredResultWithView() {
+	DeferredResult<ModelAndView> result = new DeferredResult<>();
+	this.mavQueue.add(result);
+	return result;
+}
+
+@GetMapping("/deferred-result/exception")
+public @ResponseBody DeferredResult<String> deferredResultWithException() {
+	DeferredResult<String> result = new DeferredResult<>();
+	this.exceptionQueue.add(result);
+	return result;
 }
 ```
 
-Callable和Deferredresult做的是同样的事情——释放容器线程，在另一个线程上异步运行长时间的任务。
+DeferredResult和Callable都是为了异步生成返回值提供基本的支持。
+
+简单来说就是一个请求进来，如果你使用了DeferredResult或者Callable，在没有得到返回数据之前，DispatcherServlet和所有Filter就会退出Servlet容器线程，但响应保持打开状态，一旦返回数据有了，这个DispatcherServlet就会被再次调用并且处理，以异步产生的方式，向请求端返回值。 
+
+这么做的好处就是请求不会长时间占用服务连接池，提高服务器的吞吐量。
 
 ```
 @GetMapping("/deferred-result/exception")
-	public @ResponseBody DeferredResult<String> deferredResultWithException() {
-		DeferredResult<String> result = new DeferredResult<>();
-		this.exceptionQueue.add(result);
-		return result;
-	}
+public @ResponseBody DeferredResult<String> deferredResultWithException() {
+	DeferredResult<String> result = new DeferredResult<>();
+	this.exceptionQueue.add(result);
+	return result;
+}
 ```
 
 与上一部分相似，返回的result由String变成了一个对象。
@@ -168,12 +189,10 @@ Callable和Deferredresult做的是同样的事情——释放容器线程，在�
 
 ```
 <li>
-   <a id="deferredResultSuccessLink" class="textLink"
-    href="<c:url value="/async/deferred-result/response-body" />">GET /async/deferred-result/response-body</a>
+	<a id="deferredResultSuccessLink" class="textLink" href="<c:url value="/async/deferred-result/response-body" />">GET /async/deferred-result/response-body</a>
 </li>
 <li>
-	<a id="deferredResultModelAndViewLink" class="textLink"
-	href="<c:url value="/async/deferred-result/model-and-view" />">GET /async/deferred-result/model-and-view</a>
+	<a id="deferredResultModelAndViewLink" class="textLink" href="<c:url value="/async/deferred-result/model-and-view" />">GET /async/deferred-result/model-and-view</a>
 </li>
 ```
 
@@ -183,13 +202,12 @@ Callable和Deferredresult做的是同样的事情——释放容器线程，在�
 
 ```
 @GetMapping("/deferred-result/timeout-value")
-	public @ResponseBody DeferredResult<String> deferredResultWithTimeoutValue() {
+public @ResponseBody DeferredResult<String> deferredResultWithTimeoutValue() {
+	// Provide a default result in case of timeout and override the timeout value
+	// set in src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml
 
-		// Provide a default result in case of timeout and override the timeout value
-		// set in src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml
-
-		return new DeferredResult<>(1000L, "Deferred result after timeout");
-	}
+	return new DeferredResult<>(1000L, "Deferred result after timeout");
+}
 ```
 
 设定一个超时时间，但是返回值还是正常执行。
@@ -198,8 +216,7 @@ Callable和Deferredresult做的是同样的事情——释放容器线程，在�
 
 ```
 <li>
-	<a id="deferredResultTimeoutValueLink" class="textLink"
-	href="<c:url value="/async/deferred-result/timeout-value" />">GET /async/deferred-result/timeout-value</a>
+	<a id="deferredResultTimeoutValueLink" class="textLink" href="<c:url value="/async/deferred-result/timeout-value" />">GET /async/deferred-result/timeout-value</a>
 </li>
 ```
 
@@ -210,20 +227,20 @@ Callable和Deferredresult做的是同样的事情——释放容器线程，在�
 @Scheduled(fixedRate=2000)
 
 	@Scheduled(fixedRate=2000)
-		public void processQueues() {
-			for (DeferredResult<String> result : this.responseBodyQueue) {
-				result.setResult("Deferred result");
-				this.responseBodyQueue.remove(result);
-			}
-			for (DeferredResult<String> result : this.exceptionQueue) {
-				result.setErrorResult(new IllegalStateException("DeferredResult error"));
-				this.exceptionQueue.remove(result);
-			}
-			for (DeferredResult<ModelAndView> result : this.mavQueue) {
-				result.setResult(new ModelAndView("views/html", "javaBean", new JavaBean("bar", "apple")));
-				this.mavQueue.remove(result);
-			}
+	public void processQueues() {
+		for (DeferredResult<String> result : this.responseBodyQueue) {
+			result.setResult("Deferred result");
+			this.responseBodyQueue.remove(result);
 		}
+		for (DeferredResult<String> result : this.exceptionQueue) {
+			result.setErrorResult(new IllegalStateException("DeferredResult error"));
+			this.exceptionQueue.remove(result);
+		}
+		for (DeferredResult<ModelAndView> result : this.mavQueue) {
+			result.setResult(new ModelAndView("views/html", "javaBean", new JavaBean("bar", "apple")));
+			this.mavQueue.remove(result);
+		}
+	}
 通过任务执行器（TaskExecutor）来实现多线程和并发
 
 1. 利用@EnableAsync注解开启异步任务支持

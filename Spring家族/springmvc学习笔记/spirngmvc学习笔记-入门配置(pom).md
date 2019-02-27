@@ -41,25 +41,27 @@ spring配置发展的过程
 
 主要用于POM文件的复用。
 
-### a）依赖关系：依赖关系列表（dependency list）是POM的重要部分
+### 依赖关系
+
+依赖关系列表（dependency list）是POM的重要部分
 
 ```
 <dependencies>
-		<!-- Spring -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${org.springframework-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>${org.springframework-version}</version>
-		</dependency>
+	<!-- Spring -->
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-context</artifactId>
+		<version>${org.springframework-version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-webmvc</artifactId>
+		<version>${org.springframework-version}</version>
+	</dependency>
 </dependencies>
 ```
 
-1. groupId , artifactId , version :这三个组合标示依赖的具体工程，而且 这个依赖工程必需是maven中心包管理范围内的，如果碰上非开源包，maven支持不了这个包，那么则有有三种 方法处理：
+1. groupId , artifactId , version :这三个组合标示依赖的具体工程，而且这个依赖工程必需是maven中心包管理范围内的，如果碰上非开源包，maven支持不了这个包，那么则有有三种 方法处理：
 
    a.本地安装这个插件install plugin
 
@@ -73,7 +75,7 @@ spring配置发展的过程
 
 3. scope：是用来指定当前包的依赖范围
 
-   <dependency>中还引入了<scope>，它主要管理依赖的部署。目前<scope>可以使用5个值： 
+   `<dependency>` 中还引入了 `<scope>`，它主要管理依赖的部署。目前<scope>可以使用5个值： 
 
    - compile，缺省值，适用于所有阶段，会随着项目一起发布。 
    - provided，类似compile，期望JDK、容器或使用者会提供这个依赖。如servlet.jar。 
@@ -83,11 +85,14 @@ spring配置发展的过程
 
 4. optional:设置指依赖是否可选，默认为false,即子项目默认都继承，为true,则子项目必需显示的引入，与dependencyManagement里定义的依赖类似 。
 
-5. exclusions：如果X需要A,A包含B依赖，那么X可以声明不要B依赖，只要在exclusions中声明exclusion.
+5. exclusions：如果X需要A,A包含B依赖，那么X可以声明不要B依赖，只要在exclusions中声明exclusion。
 
-6. exclusion:是将B从依赖树中删除，如上配置，alibaba.apollo.webx不想使用com.alibaba.external  ,但是alibaba.apollo.webx是集成了com.alibaba.external,r所以就需要排除掉.
+   是将B从依赖树中删除，如上配置，alibaba.apollo.webx不想使用com.alibaba.external  ,但是alibaba.apollo.webx是集成了com.alibaba.external,r所以就需要排除掉.
 
-### b）继承关系：继承其他pom.xml配置的机制。
+
+### 继承关系
+
+继承其他pom.xml配置的机制。
 
 比如父pom.xml：
 
@@ -118,7 +123,9 @@ spring配置发展的过程
 [...]
 ```
 
-### c）聚合关系：用于将多个maven项目聚合为一个大的项目。
+### 聚合关系
+
+用于将多个maven项目聚合为一个大的项目。
 
 ```
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -157,28 +164,28 @@ plugins：设置构建的插件
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project>
 ...
-	<build>
-		<finalName>${project.artifactId}</finalName>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.7.0</version>
-				<configuration>
-					<source>${java-version}</source>
-					<target>${java-version}</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
-				</configuration>
-			</plugin>
-	</build>
+<build>
+	<finalName>${project.artifactId}</finalName>
+	<plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>3.7.0</version>
+			<configuration>
+				<source>${java-version}</source>
+				<target>${java-version}</target>
+			</configuration>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-war-plugin</artifactId>
+			<configuration>
+				<failOnMissingWebXml>false</failOnMissingWebXml>
+			</configuration>
+		</plugin>
+</build>
 </project>
 ```
 
@@ -206,24 +213,3 @@ plugins：设置构建的插件
 5. executions:plugin也有很多个目标，每个目标具有不同的配置，executions就是设定plugin的目标，
 
 更多详细[标签属性](https://www.cnblogs.com/qq78292959/p/3711501.html)
-
-## 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

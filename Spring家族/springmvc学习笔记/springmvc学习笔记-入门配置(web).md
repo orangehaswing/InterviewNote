@@ -6,6 +6,7 @@
 <servlet>
     <servlet-name>springmvc</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    
     <!-- contextConfigLocation配置springmvc加载的配置文件(配置处理器映射器、适配器等等)
       若不配置，默认加载WEB-INF/servlet名称-servlet(springmvc-servlet.xml)
     -->
@@ -13,6 +14,7 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:springmvc.xml</param-value>
     </init-param>
+   
    <!-- 当值为0或者大于0时，表示容器在应用启动时就加载这个servlet；当是一个负数时或者没有指定时，则指示容器在该servlet被选择时才加载。正数的值越小，启动该servlet的优先级越高。
 	-->
     <load-on-startup>1</load-on-startup>
@@ -75,13 +77,10 @@ web.xml完整配置
 在spring容器中加载Handler
 
 ```
-<!-- 对于注解的Handler 可以单个配置实际开发中加你使用组件扫描
-    -->
-    <!--  <bean  class="com.iot.ssm.controller.ItemsController3"/> -->
-    <!-- 可以扫描controller、service、...
-	这里让扫描controller，指定controller的包
-	 -->
-    <context:component-scan base-package="com.iot.ssm.controller"></context:component-scan>
+<!-- 对于注解的Handler 可以单个配置实际开发中加你使用组件扫描 -->
+<!--  <bean  class="com.iot.ssm.controller.ItemsController3"/> -->
+<!-- 可以扫描controller、service、... 这里让扫描controller，指定controller的包 -->
+<context:component-scan base-package="com.iot.ssm.controller"></context:component-scan>
 ```
 
 启用spring的一些annotation
@@ -96,6 +95,7 @@ web.xml完整配置
 <!-- 配置注解驱动 可以将request参数与绑定到controller参数上 -->
 <mvc:annotation-driven/>
 <!-- Maps '/' requests to the 'home' view -->
+<!-- 对应一些我们不需要其他操作的JSP页面 -->
 <mvc:view-controller path="/" view-name="home"/>
 ```
 
@@ -134,20 +134,3 @@ springmvc-servlet.xml完整配置
 
 </beans>
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

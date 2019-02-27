@@ -39,17 +39,15 @@ body直接返回The String ResponseBody
 
 ```
 <div id="responses">	
-		<ul>
-			<li>
-				<a id="responseBody" class="textLink" href="<c:url value="/response/annotation" />">@ResponseBody</a>			
-			</li>
-			<li>
-				<a id="responseCharsetAccept" class="utf8TextLink" href="<c:url value="/response/charset/accept" />">@ResponseBody (UTF-8 charset requested)</a>
-			</li>
-			<li>
-				<a id="responseCharsetProduce" class="textLink" href="<c:url value="/response/charset/produce" />">@ResponseBody (UTF-8 charset produced)</a>
-			</li>
-		</ul>	
+<li>
+	<a id="responseBody" class="textLink" href="<c:url value="/response/annotation" />">@ResponseBody</a>			
+</li>
+<li>
+	<a id="responseCharsetAccept" class="utf8TextLink" href="<c:url value="/response/charset/accept" />">@ResponseBody (UTF-8 charset requested)</a>
+</li>
+<li>
+	<a id="responseCharsetProduce" class="textLink" href="<c:url value="/response/charset/produce" />">@ResponseBody (UTF-8 charset produced)</a>
+</li>
 </div>
 ```
 
@@ -60,17 +58,17 @@ body直接返回The String ResponseBody
 ResponseController
 
 ```
-	@GetMapping("/entity/status")
-	public ResponseEntity<String> responseEntityStatusCode() {
-		return new ResponseEntity<String>("The String ResponseBody with custom status code (403 Forbidden)",HttpStatus.FORBIDDEN);
-	}
+@GetMapping("/entity/status")
+public ResponseEntity<String> responseEntityStatusCode() {
+	return new ResponseEntity<String>("The String ResponseBody with custom status code (403 Forbidden)",HttpStatus.FORBIDDEN);
+}
 
-	@GetMapping("/entity/headers")
-	public ResponseEntity<String> responseEntityCustomHeaders() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.TEXT_PLAIN);
-		return new ResponseEntity<String>("The String ResponseBody with custom header Content-Type=text/plain",headers, HttpStatus.OK);
-	}
+@GetMapping("/entity/headers")
+public ResponseEntity<String> responseEntityCustomHeaders() {
+	HttpHeaders headers = new HttpHeaders();
+	headers.setContentType(MediaType.TEXT_PLAIN);
+	return new ResponseEntity<String>("The String ResponseBody with custom header Content-Type=text/plain",headers, HttpStatus.OK);
+}
 ```
 
 ResponseEntity:处理HTTP响应。
@@ -79,7 +77,7 @@ ResponseEntity标识整个http相应：状态码、头部信息以及相应体�
 
 MediaType.TEXT_PLAIN：纯文本格式的内容类型(Content-Type)。
 
-HttpHeaders：
+HttpHeaders：HTTP协议首部
 
 ## View
 
@@ -87,40 +85,11 @@ home.jsp
 
 ```
 <div id="responses">	
-		<ul>
-			<li>
-				<a id="responseEntityStatus" class="textLink" href="<c:url value="/response/entity/status" />">ResponseEntity (custom status)</a>			
-			</li>
-			<li>
-				<a id="responseEntityHeaders" class="textLink" href="<c:url value="/response/entity/headers" />">ResponseEntity (custom headers)</a>			
-			</li>
-		</ul>	
+<li>
+	<a id="responseEntityStatus" class="textLink" href="<c:url value="/response/entity/status" />">ResponseEntity (custom status)</a>			
+</li>
+<li>
+	<a id="responseEntityHeaders" class="textLink" href="<c:url value="/response/entity/headers" />">ResponseEntity (custom headers)</a>			
+</li>
 </div>
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

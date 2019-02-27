@@ -20,9 +20,9 @@ public String businessException() throws BusinessException {
 
 ```
 @ExceptionHandler
-    public String hanle(IllegalStateException e){
-        return "IllegalStateException handled!";
-    }
+public String hanle(IllegalStateException e){
+	return "IllegalStateException handled!";
+}
 ```
 
 @GetMapping("/global-exception")中的BusinessException为自定义异常，然后在URI请求中将自定义异常抛出。这里的BusinessException放在GlobalExceptionHandler类中，使用@ExceptionHandler捕获BusinessException ex异常类型。
@@ -74,4 +74,3 @@ public class BusinessException extends Exception {
 
 }
 ```
-

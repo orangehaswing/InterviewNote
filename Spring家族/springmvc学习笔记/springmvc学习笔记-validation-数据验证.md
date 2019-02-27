@@ -69,13 +69,4 @@ public class JavaBean {
 
 number设定 @NotNull，@Max(5)。表示不能为空值，最大值是5。date使用@DateTimeFormat注解ISO.DATE的标准时间格式。
 
-@Future：
-
-
-
-
-
-
-
-
-
+@Future：使用Future注解可以将一个Apex函数定义为异步执行类。该类会拥有自己的线程，并在此线程中独立运行，实现异步效果。

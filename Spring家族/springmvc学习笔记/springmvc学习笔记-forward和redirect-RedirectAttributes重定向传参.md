@@ -41,25 +41,27 @@ public class RedirectController {
 }
 ```
 
+**ConversionService接口：** 类型转换的服务接口，进行数据转换。比如Boolean转换成String。
+
 视图
 
 home.jsp
 
 ```
 <div id="redirect">
-		<h2>Redirecting</h2>
-		<p>
-			See the <code>org.springframework.samples.mvc.redirect</code> package for the @Controller code	
-		</p>
-		<ul>
-			<li>
-				<a href="<c:url value="/redirect/uriTemplate" />">URI Template String</a>
-			</li>
-			<li>
-				<a href="<c:url value="/redirect/uriComponentsBuilder" />">UriComponentsBuilder</a>
-			</li>
-		</ul>
-	</div>
+<h2>Redirecting</h2>
+<p>
+See the <code>org.springframework.samples.mvc.redirect</code> package for the @Controller code
+</p>
+<ul>
+	<li>
+		<a href="<c:url value="/redirect/uriTemplate" />">URI Template String</a>
+	</li>
+	<li>
+		<a href="<c:url value="/redirect/uriComponentsBuilder" />">UriComponentsBuilder</a>
+	</li>
+</ul>
+</div>
 ```
 
 redirect.jsp
@@ -176,14 +178,4 @@ public List<Student> list(@RequestPrama(value = "param1")String  param1,
 2. 重定向可以看见目标页面的URL，转发只能看见第一次访问的页面URL，以后的工作都是有服务器来做的。  
 3. 请求响应调用者和被调用者之间共享相同的request对象和response对象，重定向调用者和被调用者属于两个独立访问请求和响应过程。   
 4. 重定向跳转后必须加上return，要不然页面虽然跳转了，但是还会执行跳转后面的语句，转发是执行了跳转页面，下面的代码就不会在执行了。
-
-
-
-
-
-
-
-
-
-
 

@@ -12,7 +12,7 @@
 
 五种作用域中，**request、session** 和 **global session** 三种作用域仅在基于web的应用中使用（不必关心你所采用的是什么web应用框架），只能用在基于 web 的 Spring ApplicationContext 环境。
 
-### 1. singleton——唯一 bean 实例
+### 1. singleton—唯一 bean 实例
 
 **当一个 bean 的作用域为 singleton，那么Spring IoC容器中只会存在一个共享的 bean 实例，并且所有对 bean 的请求，只要 id 与该 bean 定义相匹配，则只会返回bean的同一实例。** singleton 是单例类型(对应于单例模式)，就是在创建起容器时就同时自动创建了一个bean的对象，不管你是否使用，但我们可以指定Bean节点的 `lazy-init=”true”` 来延迟初始化bean，这时候，只有在第一次获取bean时才会初始化bean，即第一次请求该bean时才初始化。 每次获取到的对象都是同一个对象。注意，singleton 作用域是Spring中的缺省作用域。要在XML中将 bean 定义成 singleton ，可以这样配置：
 
@@ -30,7 +30,7 @@ public class ServiceImpl{
 }
 ```
 
-### 2. prototype——每次请求都会创建一个新的 bean 实例
+### 2. prototype—每次请求都会创建一个新的 bean 实例
 
 **当一个bean的作用域为 prototype，表示一个 bean 定义对应多个对象实例。** **prototype 作用域的 bean 会导致在每次对该 bean 请求**（将其注入到另一个 bean 中，或者以程序的方式调用容器的 getBean() 方法**）时都会创建一个新的 bean 实例。prototype 是原型类型，它在我们创建容器的时候并没有实例化，而是当我们获取bean的时候才会去创建一个对象，而且我们每次获取到的对象都不是同一个对象。根据经验，对有状态的 bean 应该使用 prototype 作用域，而对无状态的 bean 则应该使用 singleton 作用域。** 在 XML 中将 bean 定义成 prototype ，可以这样配置：
 
@@ -42,7 +42,7 @@ public class ServiceImpl{
 
 通过 `@Scope` 注解的方式实现就不做演示了。
 
-### 3. request——每一次HTTP请求都会产生一个新的bean，该bean仅在当前HTTP request内有效
+### 3. request—每一次HTTP请求都会产生一个新的bean，该bean仅在当前HTTP request内有效
 
 **request只适用于Web程序，每一次 HTTP 请求都会产生一个新的bean，同时该bean仅在当前HTTP request内有效，当请求结束后，该对象的生命周期即告结束。** 在 XML 中将 bean 定义成 prototype ，可以这样配置：
 
@@ -50,7 +50,7 @@ public class ServiceImpl{
 <bean id="loginAction" class=cn.csdn.LoginAction" scope="request"/>
 ```
 
-### 4. session——每一次HTTP请求都会产生一个新的 bean，该bean仅在当前 HTTP session 内有效
+### 4. session—每一次HTTP请求都会产生一个新的 bean，该bean仅在当前 HTTP session 内有效
 
 **session只适用于Web程序，session 作用域表示该针对每一次 HTTP 请求都会产生一个新的 bean，同时该 bean 仅在当前 HTTP session 内有效.与request作用域一样，可以根据需要放心的更改所创建实例的内部状态，而别的 HTTP session 中根据 userPreferences 创建的实例，将不会看到这些特定于某个 HTTP session 的状态变化。当HTTP session最终被废弃的时候，在该HTTP session作用域内的bean也会被废弃掉。**
 

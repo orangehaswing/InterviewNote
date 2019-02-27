@@ -1,6 +1,6 @@
 # springmvc学习笔记-messageconverters
 
-- XML**（Extensible Markup Language）**是一种用来编码文档的标记语言，人和机器都能够快速理解XML文档的含义。它的其中一个目标就是能在互联网上广泛应用，现在XML已经被广泛地应用在各种应用、WEB服务和网站中。
+- XML **（Extensible Markup Language）** 是一种用来编码文档的标记语言，人和机器都能够快速理解XML文档的含义。它的其中一个目标就是能在互联网上广泛应用，现在XML已经被广泛地应用在各种应用、WEB服务和网站中。
 
 ```
 <?xml version="1.0" encoding="utf-8" ?>
@@ -22,7 +22,7 @@
 </me>
 ```
 
-- JSON**（JavaScript Object Notation）**是一种轻量级的数据格式，它以”name / value”的格式来传输数据对象，JSON的目的就是为了能替代XML，现在也有很多编程语言支持JSON格式了。
+- JSON **（JavaScript Object Notation）** 是一种轻量级的数据格式，它以”name / value”的格式来传输数据对象，JSON的目的就是为了能替代XML，现在也有很多编程语言支持JSON格式了。
 
 ```
 {
@@ -68,25 +68,25 @@
 
 ```
 <rssversion="2.0">
-	<channel>
-		<title>网站标题</title>
-		<link>网站首页地址</link>
-		<description>描述</description>
-		<copyright>授权信息</copyright>
-		<language>使用的语言（zh-cn表示简体中文）</language>
-		<pubDate>发布的时间</pubDate>
-		<lastBuildDate>最后更新的时间</lastBuildDate>
-		<generator>生成器</generator>
+<channel>
+	<title>网站标题</title>
+	<link>网站首页地址</link>
+	<description>描述</description>
+	<copyright>授权信息</copyright>
+	<language>使用的语言（zh-cn表示简体中文）</language>
+	<pubDate>发布的时间</pubDate>
+	<lastBuildDate>最后更新的时间</lastBuildDate>
+	<generator>生成器</generator>
 		
-		<item>
-			<title>标题</title>
-			<link>链接地址</link>
-			<description>内容简要描述</description>
-			<pubDate>发布时间</pubDate>
-			<category>所属目录</category>
-			<author>作者</author>
-		</item>
-	</channel>
+	<item>
+		<title>标题</title>
+		<link>链接地址</link>
+		<description>内容简要描述</description>
+		<pubDate>发布时间</pubDate>
+		<category>所属目录</category>
+		<author>作者</author>
+	</item>
+</channel>
 </rss>
 ```
 
@@ -96,7 +96,6 @@
 
 ```
 // StringHttpMessageConverter
-
 @PostMapping("/string")
 public String readString(@RequestBody String string) {
    return "Read string '" + string + "'";
@@ -129,7 +128,6 @@ public String writeString() {
 
 ```
 // Form encoded data (application/x-www-form-urlencoded)
-
 @PostMapping("/form")
 public String readForm(@ModelAttribute JavaBean bean) {
    return "Read x-www-form-urlencoded: " + bean;
@@ -164,8 +162,8 @@ public MultiValueMap<String, String> writeForm() {
 ## Controller
 
 ```
-// Jaxb2RootElementHttpMessageConverter (requires JAXB2 on the classpath - useful for serving clients that expect to work with XML)
-
+// Jaxb2RootElementHttpMessageConverter 
+(requires JAXB2 on the classpath - useful for serving clients that expect to work with XML)
 @PostMapping("/xml")
 public String readXml(@RequestBody JavaBean bean) {
    return "Read from XML: " + bean;
@@ -230,8 +228,8 @@ $("a.writeXmlLink").click(function() {
 ## Controller
 
 ```
-// MappingJacksonHttpMessageConverter (requires Jackson on the classpath - particularly useful for serving JavaScript clients that expect to work with JSON)
-
+// MappingJacksonHttpMessageConverter (requires Jackson on the classpath -
+ particularly useful for serving JavaScript clients that expect to work with JSON)
 @PostMapping("/json")
 public String readJson(@Valid @RequestBody JavaBean bean) {
    return "Read from JSON: " + bean;
@@ -261,9 +259,9 @@ public JavaBean writeJson() {
 <li>
    <a id="writeJsonAccept" class="writeJsonLink" href="<c:url value="/messageconverters/json" />">Write JSON via Accept=application/json</a>
 </li>
-            <li>
-                <a id="writeJsonExt" class="writeJsonLink" href="<c:url value="/messageconverters/json.json" />">Write JSON via ".json"</a>
-            </li>
+<li>
+   <a id="writeJsonExt" class="writeJsonLink" href="<c:url value="/messageconverters/json.json" />">Write JSON via ".json"</a>
+ </li>
 ```
 
 readJsonForm
@@ -478,16 +476,3 @@ public class JavaBean {
 
 }
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
