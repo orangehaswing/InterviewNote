@@ -12,7 +12,7 @@ B+ Tree 是基于 B Tree 和叶子节点顺序访问指针进行实现，它具�
 
 在 B+ Tree 中，一个节点中的 key 从左到右非递减排列，如果某个指针的左右相邻 key 分别是 keyi 和 keyi+1，且不为 null，则该指针指向节点的所有 key 大于等于 keyi 且小于等于 keyi+1。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/d5ce91a7-45f9-4560-9917-0dccd4900826.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/d5ce91a7-45f9-4560-9917-0dccd4900826.png)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/d5ce91a7-45f9-4560-9917-0dccd4900826.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/d5ce91a7-45f9-4560-9917-0dccd4900826.png?raw=true)
 
 ### 2. 操作
 
@@ -54,11 +54,11 @@ B+ Tree 是基于 B Tree 和叶子节点顺序访问指针进行实现，它具�
 
 InnoDB 的 B+Tree 索引分为主索引和辅助索引。主索引的叶子节点 data 域记录着完整的数据记录，这种索引方式被称为聚簇索引。因为无法把数据行存放在两个不同的地方，所以一个表只能有一个聚簇索引。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/0f6f92e8-f15e-4c09-8562-b9c6114df9ce.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/0f6f92e8-f15e-4c09-8562-b9c6114df9ce.png)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/0f6f92e8-f15e-4c09-8562-b9c6114df9ce.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/0f6f92e8-f15e-4c09-8562-b9c6114df9ce.png?raw=true)
 
 辅助索引的叶子节点的 data 域记录着主键的值，因此在使用辅助索引进行查找时，需要先查找到主键值，然后再到主索引中进行查找。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/1e74234e-d70b-411c-9333-226bcbb9c8f0.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/1e74234e-d70b-411c-9333-226bcbb9c8f0.png)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/1e74234e-d70b-411c-9333-226bcbb9c8f0.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/1e74234e-d70b-411c-9333-226bcbb9c8f0.png?raw=true)
 
 ### 2. 哈希索引
 
@@ -311,7 +311,7 @@ MySQL 提供了 FROM_UNIXTIME() 函数把 UNIX 时间戳转换为日期，并提
 
 当一个表的数据不断增多时，Sharding 是必然的选择，它可以将数据分布到集群的不同节点上，从而缓存单个数据库的压力。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/63c2909f-0c5f-496f-9fe5-ee9176b31aba.jpg)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/63c2909f-0c5f-496f-9fe5-ee9176b31aba.jpg)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/63c2909f-0c5f-496f-9fe5-ee9176b31aba.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/63c2909f-0c5f-496f-9fe5-ee9176b31aba.jpg?raw=true)
 
 ## 垂直切分
 
@@ -319,7 +319,7 @@ MySQL 提供了 FROM_UNIXTIME() 函数把 UNIX 时间戳转换为日期，并提
 
 在数据库的层面使用垂直切分将按数据库中表的密集程度部署到不同的库中，例如将原来的电商数据库垂直切分成商品数据库、用户数据库等。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/e130e5b8-b19a-4f1e-b860-223040525cf6.jpg)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/e130e5b8-b19a-4f1e-b860-223040525cf6.jpg)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/e130e5b8-b19a-4f1e-b860-223040525cf6.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/e130e5b8-b19a-4f1e-b860-223040525cf6.jpg?raw=true)
 
 ## Sharding 策略
 
@@ -353,7 +353,7 @@ MySQL 提供了 FROM_UNIXTIME() 函数把 UNIX 时间戳转换为日期，并提
 - **I/O 线程** ：负责从主服务器上读取二进制日志，并写入从服务器的重放日志（Replay log）中。
 - **SQL 线程** ：负责读取重放日志并重放其中的 SQL 语句。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/master-slave.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/master-slave.png)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/master-slave.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/master-slave.png?raw=true)
 
 ## 读写分离
 
@@ -367,5 +367,5 @@ MySQL 提供了 FROM_UNIXTIME() 函数把 UNIX 时间戳转换为日期，并提
 
 读写分离常用代理方式来实现，代理服务器接收应用层传来的读写请求，然后决定转发到哪个服务器。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/master-slave-proxy.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/master-slave-proxy.png)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/master-slave-proxy.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/master-slave-proxy.png?raw=true)
 
