@@ -237,8 +237,6 @@ ThresholdFilter为系统定义的拦截器，例如我们用ThresholdFilter来�
 - `30`表示只保留最近30天的日志，以防止日志填满整个磁盘空间。同理，可以使用`%d{yyyy-MM-dd_HH-mm}`来定义精确到分的日志切分方式；
 - `1GB`用来指定日志文件的上限大小，例如设置为1GB的话，那么到了这个值，就会删除旧的日志。
 
-logback 每天生成和大小生成冲突的问题可以看这个解答：[http://blog.csdn.net/wujianmin577/article/details/68922545](http://blog.csdn.net/wujianmin577/article/details/68922545)。
-
 子节点二`<root>`
 
 root节点是必选节点，用来指定最基础的日志输出级别，只有一个level属性，用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，不能设置为INHERITED或者同义词NULL。
@@ -255,7 +253,7 @@ root节点是必选节点，用来指定最基础的日志输出级别，只有�
 
 子节点三`<logger>`
 
-``用来设置某一个包或者具体的某一个类的日志打印级别、以及指定appender``。`logger`仅有一个name属性，一个可选的level和一个可选的addtivity属性。
+用来设置某一个包或者具体的某一个类的日志打印级别、以及指定appender。`logger`仅有一个name属性，一个可选的level和一个可选的addtivity属性。
 
 - `name`：用来指定受此logger约束的某一个包或者具体的某一个类。
 - `level`：用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，还有一个特俗值INHERITED或者同义词NULL，代表强制执行上级的级别。如果未设置此属性，那么当前logger将会继承上级的级别。

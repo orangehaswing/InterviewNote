@@ -64,7 +64,7 @@ public class TimeFilter implements Filter {
 
 `@Component`注解让`TimeFilter`成为Spring上下文中的一个Bean，`@WebFilter`注解的`urlPatterns`属性配置了哪些请求可以进入该过滤器，`/*`表示所有请求。
 
-启动项目时可以看到控制台输出了`过滤器初始化`，启动后访问[http://localhost:8080/user/1](http://localhost:8080/user/1)，控制台输出如下：
+启动项目时可以看到控制台输出了`start filter`，启动后访问[http://localhost:8080/user/1](http://localhost:8080/user/1)，控制台输出如下：
 
 ```
 start filter
@@ -138,9 +138,7 @@ public class TimeInterceptor implements HandlerInterceptor{
 
 `TimeInterceptor`实现了`HandlerInterceptor`接口的三个方法。`preHandle`方法在处理拦截之前执行，`postHandle`只有当被拦截的方法没有抛出异常成功时才会处理，`afterCompletion`方法无论被拦截的方法抛出异常与否都会执行。
 
-通过这三个方法的参数可以看到，相较于过滤器，拦截器多了Object和Exception对象，所以可以获取的信息比过滤器要多的多。但过滤器仍无法获取到方法的参数等信息，我们可以通过切面编程来实现这个目的，具体可参考
-
-[https://mrbird.cc/Spring-Boot-AOP%20log.html](https://mrbird.cc/Spring-Boot-AOP%20log.html)。
+通过这三个方法的参数可以看到，相较于过滤器，拦截器多了Object和Exception对象，所以可以获取的信息比过滤器要多的多。但过滤器仍无法获取到方法的参数等信息，我们可以通过切面编程来实现这个目的。
 
 要使拦截器在Spring Boot中生效，还需要如下两步配置：
 
@@ -230,24 +228,3 @@ end filter
 可看到过滤器要先于拦截器执行，晚于拦截器结束。下图很好的描述了它们的执行时间区别：
 
 ![32361-20180530095349427-444141538.png](https://mrbird.cc/img/32361-20180530095349427-444141538.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

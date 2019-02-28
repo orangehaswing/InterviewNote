@@ -81,7 +81,7 @@ public class StudentMapper implements StudentDao{
 
 在引入`spring-boot-starter-jdbc`驱动后，可直接在类中注入JdbcTemplate。由上面代码可发现，对于保存操作有两种不同的方法，当插入的表字段较多的情况下，推荐使用`NamedParameterJdbcTemplate`。
 
-对于返回结果，可以直接使用`List>`来接收，这也是个人比较推荐使用的方式，毕竟比较简单方便；也可以使用库表对应的实体对象来接收，不过这时候我们就需要手动创建一个实现了`org.springframework.jdbc.core.RowMapper`的对象，用于将实体对象属性和库表字段一一对应：
+对于返回结果，可以直接使用`List<>`来接收，这也是个人比较推荐使用的方式，毕竟比较简单方便；也可以使用库表对应的实体对象来接收，不过这时候我们就需要手动创建一个实现了`org.springframework.jdbc.core.RowMapper`的对象，用于将实体对象属性和库表字段一一对应：
 
 ```
 @Repository("studentDao")

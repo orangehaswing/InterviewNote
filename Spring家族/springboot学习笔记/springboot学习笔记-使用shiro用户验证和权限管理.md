@@ -22,10 +22,10 @@ Apache Shiro是一个全面的、蕴含丰富功能的安全框架。下图为�
 
 Authentication（认证）, Authorization（授权）, Session Management（会话管理）, Cryptography（加密）被 Shiro 框架的开发团队称之为应用安全的四大基石。那么就让我们来看看它们吧：
 
-- **Authentication（认证）：**用户身份识别，通常被称为用户“登录”
-- **Authorization（授权）：**访问控制。比如某个用户是否具有某个操作的使用权限。
-- **Session Management（会话管理）：**特定于用户的会话管理,甚至在非web 或 EJB 应用程序。
-- **Cryptography（加密）：**在对数据源使用加密算法加密的同时，保证易于使用。
+- **Authentication（认证）：** 用户身份识别，通常被称为用户“登录”
+- **Authorization（授权）：** 访问控制。比如某个用户是否具有某个操作的使用权限。
+- **Session Management（会话管理）：** 特定于用户的会话管理,甚至在非web 或 EJB 应用程序。
+- **Cryptography（加密）：** 在对数据源使用加密算法加密的同时，保证易于使用。
 
 还有其他的功能来支持和加强这些不同应用环境下安全领域的关注点。特别是对以下的功能支持：
 
@@ -60,49 +60,49 @@ RBAC 是基于角色的访问控制（Role-Based Access Control ）在 RBAC 中�
 
 ```
 <properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	<java.version>1.8</java.version>
 </properties>
 
 <dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.sourceforge.nekohtml</groupId>
-			<artifactId>nekohtml</artifactId>
-			<version>1.9.22</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.shiro</groupId>
-			<artifactId>shiro-spring</artifactId>
-			<version>1.4.0</version>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<optional>true</optional>
-		</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-data-jpa</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-thymeleaf</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>net.sourceforge.nekohtml</groupId>
+		<artifactId>nekohtml</artifactId>
+		<version>1.9.22</version>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-web</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.shiro</groupId>
+		<artifactId>shiro-spring</artifactId>
+		<version>1.4.0</version>
+	</dependency>
+	<dependency>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
+		<scope>runtime</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-test</artifactId>
+		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-devtools</artifactId>
+		<optional>true</optional>
+	</dependency>
 </dependencies>
 ```
 
@@ -291,9 +291,9 @@ public class ShiroConfig {
 
 Filter Chain定义说明：
 
-- 1、一个URL可以配置多个Filter，使用逗号分隔
-- 2、当设置多个过滤器时，全部验证通过，才视为通过
-- 3、部分过滤器可指定参数，如perms，roles
+1. 一个URL可以配置多个Filter，使用逗号分隔
+2. 当设置多个过滤器时，全部验证通过，才视为通过
+3. 部分过滤器可指定参数，如perms，roles
 
 Shiro内置的FilterChain
 
@@ -309,21 +309,21 @@ Shiro内置的FilterChain
 |     ssl     | org.apache.shiro.web.filter.authz.SslFilter |
 |    user     | org.apache.shiro.web.filter.authc.UserFilter |
 
-- anon:所有url都都可以匿名访问
+- anon: 所有url都都可以匿名访问
 - authc: 需要认证才能进行访问
-- user:配置记住我或认证通过可以访问
+- user: 配置记住我或认证通过可以访问
 
 **登录认证实现**
 
-在认证、授权内部实现机制中都有提到，最终处理都将交给Real进行处理。因为在Shiro中，最终是通过Realm来获取应用程序中的用户、角色及权限信息的。通常情况下，在Realm中会直接从我们的数据源中获取Shiro需要的验证信息。可以说，Realm是专用于安全框架的DAO. Shiro的认证过程最终会交由Realm执行，这时会调用RealmgetAuthenticationInfo(token)方法。
+在认证、授权内部实现机制中都有提到，最终处理都将交给Real进行处理。因为在Shiro中，最终是通过Realm来获取应用程序中的用户、角色及权限信息的。通常情况下，在Realm中会直接从我们的数据源中获取Shiro需要的验证信息。可以说，Realm是专用于安全框架的DAO。Shiro的认证过程最终会交由Realm执行，这时会调用RealmgetAuthenticationInfo(token)方法。
 
 该方法主要执行以下操作:
 
-- 1、检查提交的进行认证的令牌信息
-- 2、根据令牌信息从数据源(通常为数据库)中获取用户信息
-- 3、对用户信息进行匹配验证。
-- 4、验证通过将返回一个封装了用户信息的`AuthenticationInfo`实例。
-- 5、验证失败则抛出`AuthenticationException`异常信息。
+1. 检查提交的进行认证的令牌信息
+2. 根据令牌信息从数据源(通常为数据库)中获取用户信息
+3. 对用户信息进行匹配验证。
+4. 验证通过将返回一个封装了用户信息的`AuthenticationInfo`实例。
+5. 验证失败则抛出`AuthenticationException`异常信息。
 
 而在我们的应用程序中要做的就是自定义一个Realm类，继承AuthorizingRealm抽象类，重载doGetAuthenticationInfo()，重写获取用户信息的方法。
 
@@ -421,7 +421,7 @@ public String login(HttpServletRequest request, Map<String, Object> map) throws 
 
 ```
 
-其它dao层和service的代码就不贴出来了大家直接看代码。
+其它dao层和service的代码见springboot项目。
 
 ### 测试
 

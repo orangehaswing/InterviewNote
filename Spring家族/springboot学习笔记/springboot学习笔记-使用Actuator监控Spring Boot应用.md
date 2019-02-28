@@ -21,7 +21,7 @@ server:
 management:
   security:
     enabled: false #关掉安全认证
-  port: 80 #管理端口调整成8088
+  port: 8088 #管理端口调整成8088
   context-path: /monitor #actuator的访问路径
 endpoints:
   shutdown:
@@ -82,7 +82,6 @@ endpoints:
 endpoints:
   metrics:
     enabled: false
-
 ```
 
 如果你只想打开一两个接口，那就先禁用全部接口，然后启用那几个你要的，这样更方便。
@@ -93,12 +92,3 @@ endpoints:
   metrics:
     enabled: true
 ```
-
-
-
-
-
-
-
-
-
