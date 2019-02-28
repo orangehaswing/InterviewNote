@@ -68,9 +68,9 @@ public enum Propagation {
 
 ```
 <dependency>
-			<groupId>org.mybatis.spring.boot</groupId>
-			<artifactId>mybatis-spring-boot-starter</artifactId>
-			<version>1.3.0</version>
+	<groupId>org.mybatis.spring.boot</groupId>
+	<artifactId>mybatis-spring-boot-starter</artifactId>
+	<version>1.3.0</version>
 </dependency>
 ```
 
@@ -78,14 +78,14 @@ public enum Propagation {
 
 ```
 <dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<scope>runtime</scope>
+	<groupId>mysql</groupId>
+	<artifactId>mysql-connector-java</artifactId>
+	<scope>runtime</scope>
 </dependency>
 <dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>druid</artifactId>
-			<version>1.0.29</version>
+	<groupId>com.alibaba</groupId>
+	<artifactId>druid</artifactId>
+	<version>1.0.29</version>
 </dependency>
 ```
 
