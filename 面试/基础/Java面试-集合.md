@@ -1,15 +1,17 @@
-> 本文是“最最最常见Java面试题总结”系列第三周的文章。 主要内容：
->
-> 1. Arraylist 与 LinkedList 异同
-> 2. ArrayList 与 Vector 区别
-> 3. HashMap的底层实现
-> 4. HashMap 和 Hashtable 的区别
-> 5. HashMap 的长度为什么是2的幂次方
-> 6. HashMap 多线程操作导致死循环问题
-> 7. HashSet 和 HashMap 区别
-> 8. ConcurrentHashMap 和 Hashtable 的区别
-> 9. ConcurrentHashMap线程安全的具体实现方式/底层具体实现
-> 10. 集合框架底层数据结构总结
+#  Java面试-集合
+
+主要内容：
+
+1. Arraylist 与 LinkedList 异同
+2. ArrayList 与 Vector 区别
+3. HashMap的底层实现
+4. HashMap 和 Hashtable 的区别
+5. HashMap 的长度为什么是2的幂次方
+6. HashMap 多线程操作导致死循环问题
+7. HashSet 和 HashMap 区别
+8. ConcurrentHashMap 和 Hashtable 的区别
+9. ConcurrentHashMap线程安全的具体实现方式/底层具体实现
+10. 集合框架底层数据结构总结
 
 ## Arraylist 与 LinkedList 异同
 
