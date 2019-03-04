@@ -39,7 +39,7 @@
 **5. BeanFactory – BeanFactory 实现举例**
 
 - Bean 工厂是工厂模式的一个实现，提供了控制反转功能，用来把应用的配置和依赖
-- 从正真的应用代码中分离。最常用的BeanFactory 实现是XmlBeanFactory 类。
+- 使真正的应用代码中分离。最常用的BeanFactory 实现是XmlBeanFactory 类。
 
 **6.XMLBeanFactory**
 
@@ -103,7 +103,7 @@
 
 **20.什么是 Spring beans？**
 
-- Springbeans 是那些形成Spring应用的主干的java对象。它们被SpringIOC容器初始化，装配，和管理。这些beans通过容器中配置的元数据创建。比如，以XML文件中`<bean/> `的形式定义。
+- Spring beans 是那些形成Spring应用的主干的java对象。它们被SpringIOC容器初始化，装配，和管理。这些beans通过容器中配置的元数据创建。比如，以XML文件中`<bean/> `的形式定义。
 - Spring 框架定义的beans都是单件beans。在beantag中有个属性”singleton”，如果它被赋为TRUE，bean 就是单件，否则就是一个 prototypebean。
 - 默认是TRUE，所以所有在Spring框架中的beans 缺省都是单件。
 
@@ -140,7 +140,7 @@
 
 - Spring容器 从XML 文件中读取bean的定义，并实例化bean。
 - Spring根据bean的定义填充所有的属性。
-- 如果 bean 实现了 BeanNameAware 接 口，Spring 传递 bean 的 ID 到setBeanName方法。
+- 如果 bean 实现了 BeanNameAware 接口，Spring 传递 bean 的 ID 到setBeanName方法。
 - 如果Bean 实现了 BeanFactoryAware 接口， Spring传递beanfactory 给setBeanFactory 方法。
 - 如果有任何与 bean 相关联的 BeanPostProcessors ， Spring会在postProcesserBeforeInitialization()方法内调用它们。
 - 如果bean实现IntializingBean了，调用它的afterPropertySet方法，如果bean声明了初始化方法，调用此初始化方法。

@@ -7,8 +7,6 @@
 - [Java IO](https://github.com/orangehaswing/InterviewNote/tree/master/Java%20IO)
 - [Java设计模式](https://github.com/orangehaswing/OrdinaryNote/tree/master/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F)
 - [Linux和计算机操作系统](https://github.com/orangehaswing/OrdinaryNote/tree/master/Linux%E5%92%8C%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F)
-- [Matlab](https://github.com/orangehaswing/OrdinaryNote/tree/master/Matlab)
-- [Python](https://github.com/orangehaswing/OrdinaryNote/tree/master/Python)
 - [Spring家族](https://github.com/orangehaswing/OrdinaryNote/tree/master/Spring%E5%AE%B6%E6%97%8F)
 - [中间件](https://github.com/orangehaswing/InterviewNote/tree/master/%E4%B8%AD%E9%97%B4%E4%BB%B6)
 - [工具](https://github.com/orangehaswing/OrdinaryNote/tree/master/%E5%B7%A5%E5%85%B7)
