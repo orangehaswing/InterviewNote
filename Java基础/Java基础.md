@@ -24,21 +24,17 @@
 
 
 
-​	方法重载
-
-​		同时存在方法名相同而形式参数不同的构造器
-
-​		区分重载方法
-
-​			1、每个重载的方法都必须由一个独一无二的参数类型列表
-
-​			2、参数顺序不同
-
-​			注：不能根据方法的返回值来区分重载方法
-
-​		传入数据类型（实际参数类型）小于方法中声明的形式参数类型，实际数据类型就会被提升。char型略有不同，无法找到恰好接收char参数的方法，就会把char直接提升至int型。如果传入实际参数较大，就通过类型转换来执行窄化转换。
 
 
+​	
+
+## 重载和重写的区别
+
+**重载：** 发生在同一个类中，方法名必须相同，参数类型不同、个数不同、顺序不同，方法返回值和访问修饰符可以不同，发生在编译时。 　　
+
+**重写：** 发生在父子类中，方法名、参数列表必须相同，返回值范围小于等于父类，抛出的异常范围小于等于父类，访问修饰符范围大于等于父类；如果父类方法访问修饰符为private则子类就不能重写该方法。
+
+​	传入数据类型（实际参数类型）小于方法中声明的形式参数类型，实际数据类型就会被提升。char型略有不同，无法找到恰好接收char参数的方法，就会把char直接提升至int型。如果传入实际参数较大，就通过类型转换来执行窄化转换。
 
 this关键字
 
@@ -166,7 +162,65 @@ private 方法隐式地被指定为 final，如果在子类中定义的方法和
 
 声明类不允许被继承。
 
-### **继承**
+## final、finally和finalize区别
+
+### final
+
+final 用于声明属性、方法和类，分别表示属性不可变、方法不可覆盖和类不可被继承。
+
+- final 属性：被final修饰的变量不可变（引用不可变）
+- final 方法：不允许任何子类重写这个方法，但子类仍然可以使用这个方法
+- final 参数：用来表示这个参数在这个函数内部不允许被修改
+- final 类：此类不能被继承，所有方法都不能被重写
+
+### finally
+
+　　在异常处理的时候，提供 finally 块来执行任何的清除操作。如果抛出一个异常，那么相匹配的 catch 字句就会执行，然后控制就会进入 finally 块，前提是有 finally 块。例如：数据库连接关闭操作上
+
+　　finally 作为异常处理的一部分，它只能用在 try/catch 语句中，并且附带一个语句块，表示这段语句最终一定会被执行（不管有没有抛出异常），经常被用在需要释放资源的情况下。（×）（**这句话其实存在一定的问题，还没有深入了解，欢迎大家在 issue 中提出自己的见解）**
+
+- 异常情况说明：
+  - 在执行 try 语句块之前已经返回或抛出异常，所以 try 对应的 finally 语句并没有执行。
+  - 我们在 try 语句块中执行了 System.exit (0) 语句，终止了 Java 虚拟机的运行。那有人说了，在一般的 Java 应用中基本上是不会调用这个 System.exit(0) 方法的
+  - 当一个线程在执行 try 语句块或者 catch 语句块时被打断（interrupted）或者被终止（killed），与其相对应的 finally 语句块可能不会执行
+  - 还有更极端的情况，就是在线程运行 try 语句块或者 catch 语句块时，突然死机或者断电，finally 语句块肯定不会执行了。可能有人认为死机、断电这些理由有些强词夺理，没有关系，我们只是为了说明这个问题。
+
+### finalize
+
+　　finalize() 是 Object 中的方法，当垃圾回收器将要回收对象所占内存之前被调用，即当一个对象被虚拟机宣告死亡时会先调用它 finalize() 方法，让此对象处理它生前的最后事情（这个对象可以趁这个时机挣脱死亡的命运）。要明白这个问题，先看一下虚拟机是如何判断一个对象该死的。
+
+　　可以覆盖此方法来实现对其他资源的回收，例如关闭文件。
+
+#### 判定死亡
+
+　　Java 采用可达性分析算法来判定一个对象是否死期已到。Java中以一系列 "GC Roots" 对象作为起点，如果一个对象的引用链可以最终追溯到 "GC Roots" 对象，那就天下太平。
+
+　　否则如果只是A对象引用B，B对象又引用A，A B引用链均未能达到 "GC Roots" 的话，那它俩将会被虚拟机宣判符合死亡条件，具有被垃圾回收器回收的资格。
+
+#### 最后的救赎
+
+上面提到了判断死亡的依据，但被判断死亡后，还有生还的机会。
+
+如何自我救赎：
+
+1. 对象覆写了 finalize() 方法（这样在被判死后才会调用此方法，才有机会做最后的救赎）；
+2. 在 finalize() 方法中重新引用到 "GC Roots" 链上（如把当前对象的引用 this 赋值给某对象的类变量/成员变量，重新建立可达的引用）.
+
+需要注意：
+
+　　finalize() 只会在对象内存回收前被调用一次 (The finalize method is never invoked more than once by a Java virtual machine for any given object. )
+
+　　finalize() 的调用具有不确定性，只保证方法会调用，但不保证方法里的任务会被执行完（比如一个对象手脚不够利索，磨磨叽叽，还在自救的过程中，被杀死回收了）。
+
+#### finalize()的作用
+
+　　虽然以上以对象救赎举例，但 finalize() 的作用往往被认为是用来做最后的资源回收。 　　基于在自我救赎中的表现来看，此方法有很大的不确定性（不保证方法中的任务执行完）而且运行代价较高。所以用来回收资源也不会有什么好的表现。
+
+　　综上：finalize() 方法并没有什么鸟用。
+
+　　至于为什么会存在一个鸡肋的方法：书中说 “它不是 C/C++ 中的析构函数，而是 Java 刚诞生时为了使 C/C++ 程序员更容易接受它所做出的一个妥协”。
+
+### 继承
 
 ### **访问权限**
 
@@ -409,6 +463,14 @@ public class Box<T> {
 
 接口是一种特殊的抽象类，接口中的方法全部是抽象方法（但其前的abstract可以省略），所以抽象类中的抽象方法不能用的访问修饰符这里也不能用。而且protected访问修饰符也不能使用，因为接口可以让所有的类去实现（非继承），不只是其子类，但是要用public去修饰。接口可以去继承一个已有的接口。
 
+## 接口和抽象类的区别
+
+1. 接口的方法默认是public，所有方法在接口中不能有实现，抽象类可以有非抽象的方法
+2. 接口中的实例变量默认是final类型的，而抽象类中则不一定
+3. 一个类可以实现多个接口，但最多只能实现一个抽象类
+4. 一个类实现接口的话要实现接口的所有方法，而抽象类不一定
+5. 接口不能用new实例化，但可以声明，但是必须引用一个实现该接口的对象 从设计层面来说，抽象是对类的抽象，是一种模板设计，接口是行为的抽象，是一种行为的规范。
+
 ## 第十章 内部类
 
 内部类：将一个类的定义放在另一个类的定义内部
@@ -523,21 +585,41 @@ ListIterator迭代
 
 ## 第十二章 通过异常处理错误
 
-Java标准异常
+## Java 中的异常处理
 
-Throwale对象可分为两种类型：1、Error表示编译和系统错误  2、Expection是可以被抛出的基本类型
+### Java异常类层次结构图
 
-### **异常**
+![Java异常类层次结构图](https://camo.githubusercontent.com/e6b358c7ceca03c7128d52004c45a746728c76f4/687474703a2f2f696d61676573323031352e636e626c6f67732e636f6d2f626c6f672f3634313030332f3230313630372f3634313030332d32303136303730363233323034343238302d3335353335343739302e706e67)
 
-Throwable 可以用来表示任何可以作为异常抛出的类，分为两种： **Error** 和 **Exception**。其中 Error 用来表示 JVM 无法处理的错误，Exception 分为两种：
+在 Java 中，所有的异常都有一个共同的祖先java.lang包中的 **Throwable类**。Throwable： 有两个重要的子类：**Exception（异常）** 和 **Error（错误）** ，二者都是 Java 异常处理的重要子类，各自都包含大量子类。
 
-1. **受检异常** ：需要用 try...catch... 语句捕获并进行处理，并且可以从异常中恢复；
-2. **非受检异常** ：是程序运行时错误，例如除 0 会引发 Arithmetic Exception，此时程序奔溃并且无法恢复。
+**Error（错误）:是程序无法处理的错误**，表示运行应用程序中较严重问题。大多数错误与代码编写者执行的操作无关，而表示代码运行时 JVM（Java 虚拟机）出现的问题。例如，Java虚拟机运行错误（Virtual MachineError），当 JVM 不再有继续执行操作所需的内存资源时，将出现 OutOfMemoryError。这些异常发生时，Java虚拟机（JVM）一般会选择线程终止。
 
-![img](https://github.com/CyC2018/Interview-Notebook/raw/master/pics/PPjwP.png)
+这些错误表示故障发生于虚拟机自身、或者发生在虚拟机试图执行应用时，如Java虚拟机运行错误（Virtual MachineError）、类定义错误（NoClassDefFoundError）等。这些错误是不可查的，因为它们在应用程序的控制和处理能力之 外，而且绝大多数是程序运行时不允许出现的状况。对于设计合理的应用程序来说，即使确实发生了错误，本质上也不应该试图去处理它所引起的异常状况。在 Java中，错误通过Error的子类描述。
 
-[Java 入门之异常处理](https://www.tianmaying.com/tutorial/Java-Exception) 
-[Java 异常的面试问题及答案 -Part 1](http://www.importnew.com/7383.html)
+**Exception（异常）:是程序本身可以处理的异常**。Exception 类有一个重要的子类 **RuntimeException**。RuntimeException 异常由Java虚拟机抛出。**NullPointerException**（要访问的变量没有引用任何对象时，抛出该异常）、**ArithmeticException**（算术运算异常，一个整数除以0时，抛出该异常）和 **ArrayIndexOutOfBoundsException** （下标越界异常）。
+
+**注意：异常和错误的区别：异常能被程序本身可以处理，错误是无法处理。**
+
+### Throwable类常用方法
+
+- **public string getMessage()**:返回异常发生时的详细信息
+- **public string toString()**:返回异常发生时的简要描述
+- **public string getLocalizedMessage()**:返回异常对象的本地化信息。使用Throwable的子类覆盖这个方法，可以声称本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与getMessage（）返回的结果相同
+- **public void printStackTrace()**:在控制台上打印Throwable对象封装的异常信息
+
+### 异常处理总结
+
+- try 块：用于捕获异常。其后可接零个或多个catch块，如果没有catch块，则必须跟一个finally块。
+- catch 块：用于处理try捕获到的异常。
+- finally 块：无论是否捕获或处理异常，finally块里的语句都会被执行。当在try块或catch块中遇到return语句时，finally语句块将在方法返回之前被执行。
+
+**在以下4种特殊情况下，finally块不会被执行：**
+
+1. 在finally语句块中发生了异常。
+2. 在前面的代码中用了System.exit()退出程序。
+3. 程序所在的线程死亡。
+4. 关闭CPU。
 
 
 
@@ -613,9 +695,7 @@ Catch(Exception e){
 - StringBuilder 不是线程安全的
 - StringBuffer 是线程安全的，内部使用 synchronized 来同步
 
-> [String, StringBuffer, and StringBuilder](https://stackoverflow.com/questions/2971315/string-stringbuffer-and-stringbuilder)
-
-### **Sring 不可变的原因**
+### **String 不可变的原因**
 
 **可以缓存 hash 值**
 
@@ -634,8 +714,6 @@ String 经常作为参数，String 不可变性可以保证参数不可变。例
 **线程安全**
 
 String 不可变性天生具备线程安全，可以在多个线程中安全地使用。
-
-> [Why String is immutable in Java?](https://www.programcreek.com/2013/04/why-string-is-immutable-in-java/)
 
 ### **String.intern()**
 
@@ -661,12 +739,107 @@ System.out.println(s4 == s5);  // true
 
 在 Java 7 之前，字符串常量池被放在运行时常量池中，它属于永久代。而在 Java 7，字符串常量池被放在堆中。这是因为永久代的空间有限，在大量使用字符串的场景下会导致 OutOfMemoryError 错误。
 
-> [What is String interning?](https://stackoverflow.com/questions/10578984/what-is-string-interning) 
-> [深入解析 String#intern](https://tech.meituan.com/in_depth_understanding_string_intern.html)
 
 
+# String和StringBuffer、StringBuilder
 
+**可变性** 　
 
+简单的来说：String 类中使用 final 关键字字符数组保存字符串，`private　final　char　value[]`，所以 String 对象是不可变的。而StringBuilder 与 StringBuffer 都继承自 AbstractStringBuilder 类，在 AbstractStringBuilder 中也是使用字符数组保存字符串`char[]value` 但是没有用 final 关键字修饰，所以这两种对象都是可变的。
+
+StringBuilder 与 StringBuffer 的构造方法都是调用父类构造方法也就是 AbstractStringBuilder 实现的，大家可以自行查阅源码。
+
+AbstractStringBuilder.java
+
+```
+abstract class AbstractStringBuilder implements Appendable, CharSequence {
+    char[] value;
+    int count;
+    AbstractStringBuilder() {
+    }
+    AbstractStringBuilder(int capacity) {
+        value = new char[capacity];
+    }
+```
+
+**线程安全性**
+
+String 中的对象是不可变的，也就可以理解为常量，线程安全。AbstractStringBuilder 是 StringBuilder 与 StringBuffer 的公共父类，定义了一些字符串的基本操作，如 expandCapacity、append、insert、indexOf 等公共方法。StringBuffer 对方法加了同步锁或者对调用的方法加了同步锁，所以是线程安全的。StringBuilder 并没有对方法进行加同步锁，所以是非线程安全的。 　　
+
+**性能**
+
+每次对 String 类型进行改变的时候，都会生成一个新的 String 对象，然后将指针指向新的 String 对象。StringBuffer 每次都会对 StringBuffer 对象本身进行操作，而不是生成新的对象并改变对象引用。相同情况下使用 StirngBuilder 相比使用 StringBuffer 仅能获得 10%~15% 左右的性能提升，但却要冒多线程不安全的风险。
+
+**对于三者使用的总结：**
+
+1. 操作少量的数据 = String
+2. 单线程操作字符串缓冲区下操作大量数据 = StringBuilder
+3. 多线程操作字符串缓冲区下操作大量数据 = StringBuffer
+
+## String不可变
+
+简单来说就是String类利用了final修饰的char类型数组存储字符，源码如下图所以：
+
+```
+    /** The value is used for character storage. */
+    private final char value[];
+```
+
+**String真的是不可变的吗？**
+
+我觉得如果别人问这个问题的话，回答不可变就可以了。 下面只是给大家看两个有代表性的例子：
+
+**1) String不可变但不代表引用不可以变**
+
+```
+		String str = "Hello";
+		str = str + " World";
+		System.out.println("str=" + str);
+```
+
+结果：
+
+```
+str=Hello World
+```
+
+解析：
+
+实际上，原来String的内容是不变的，只是str由原来指向"Hello"的内存地址转为指向"Hello World"的内存地址而已，也就是说多开辟了一块内存区域给"Hello World"字符串。
+
+**2) 通过反射是可以修改所谓的“不可变”对象**
+
+```
+		// 创建字符串"Hello World"， 并赋给引用s
+		String s = "Hello World";
+
+		System.out.println("s = " + s); // Hello World
+
+		// 获取String类中的value字段
+		Field valueFieldOfString = String.class.getDeclaredField("value");
+
+		// 改变value属性的访问权限
+		valueFieldOfString.setAccessible(true);
+
+		// 获取s对象上的value属性的值
+		char[] value = (char[]) valueFieldOfString.get(s);
+
+		// 改变value所引用的数组中的第5个字符
+		value[5] = '_';
+
+		System.out.println("s = " + s); // Hello_World
+```
+
+结果：
+
+```
+s = Hello World
+s = Hello_World
+```
+
+解析：
+
+用反射可以访问私有成员， 然后反射出String对象中的value属性， 进而改变通过获得的value引用改变数组的结构。但是一般我们不会这么做，这里只是简单提一下有这个东西。
 
 String对象是不可变的。
 
@@ -752,6 +925,30 @@ Class类和java.lang.reflect类库一起对反射的概念进行了支持。
 
 调用getFileds(), getMethod()和getContructors()的方法，以返回表示字段、方法以及构造器的对象数组
 
+## 反射机制
+
+### 介绍
+
+JAVA反射机制是在运行状态中，对于任意一个类，都能够知道这个类的所有属性和方法；对于任意一个对象，都能够调用它的任意一个方法和属性；这种动态获取的信息以及动态调用对象的方法的功能称为java语言的反射机制。
+
+### 静态编译和动态编译
+
+- **静态编译：**在编译时确定类型，绑定对象
+- **动态编译：**运行时确定类型，绑定对象
+
+### 优缺点
+
+- **优点：** 运行期类型的判断，动态加载类，提高代码灵活度。
+- **缺点：** 性能瓶颈：反射相当于一系列解释操作，通知 JVM 要做的事情，性能比直接的java代码要慢很多。
+
+### 应用场景
+
+反射是框架设计的灵魂。
+
+在我们平时的项目开发过程中，基本上很少会直接使用到反射机制，但这不能说明反射机制没有用，实际上有很多设计、开发都与反射机制有关，例如模块化的开发，通过反射去调用对应的字节码；动态代理设计模式也采用了反射机制，还有我们日常使用的 Spring／Hibernate 等框架也大量使用到了反射机制。
+
+举例：①我们在使用JDBC连接数据库时使用Class.forName()通过反射加载数据库的驱动程序；②Spring框架也用到很多反射机制，最经典的就是xml的配置模式。Spring 通过 XML 配置模式装载 Bean 的过程：1) 将程序内所有 XML 或 Properties 配置文件加载入内存中; 2)Java类里面解析xml或properties里面的内容，得到对应实体类的字节码字符串以及相关的属性信息; 3)使用反射机制，根据这个字符串获得某个类的Class实例; 4)动态配置实例的属性
+
 ### **反射**
 
 每个类都有一个 **Class** 对象，包含了与类有关的信息。当编译一个新类时，会产生一个同名的 .class 文件，该文件内容保存着 Class 对象。
@@ -782,15 +979,78 @@ Reflection is powerful, but should not be used indiscriminately. If it is possib
 - **Security Restrictions** : Reflection requires a runtime permission which may not be present when running under a security manager. This is in an important consideration for code which has to run in a restricted security context, such as in an Applet.
 - **Exposure of Internals** :Since reflection allows code to perform operations that would be illegal in non-reflective code, such as accessing private fields and methods, the use of reflection can result in unexpected side-effects, which may render code dysfunctional and may destroy portability. Reflective code breaks abstractions and therefore may change behavior with upgrades of the platform.
 
-> [Trail: The Reflection API](https://docs.oracle.com/javase/tutorial/reflect/index.html) 
-> [深入解析 Java 反射（1）- 基础](http://www.sczyh30.com/posts/Java/java-reflection-1/)
-
 Java 反射主要提供以下功能：
 
 - 在运行时判断任意一个对象所属的类；
 - 在运行时构造任意一个类的对象；
 - 在运行时判断任意一个类所具有的成员变量和方法（通过反射甚至可以调用private方法）；
 - 在运行时调用任意一个对象的方法
+
+
+## 反射
+
+　　当我们的程序在运行时，需要动态的加载一些类这些类可能之前用不到所以不用加载到 JVM，而是在运行时根据需要才加载，这样的好处对于服务器来说不言而喻。
+
+　　举个例子我们的项目底层有时是用 mysql，有时用 oracle，需要动态地根据实际情况加载驱动类，这个时候反射就有用了，假设 com.java.dbtest.myqlConnection，com.java.dbtest.oracleConnection 这两个类我们要用，这时候我们的程序就写得比较动态化，通过 Class tc = Class.forName("com.java.dbtest.TestConnection"); 通过类的全类名让 JVM 在服务器中找到并加载这个类，而如果是 Oracle 则传入的参数就变成另一个了。这时候就可以看到反射的好处了，这个动态性就体现出 Java 的特性了！
+
+　　举个例子，大家如果接触过 spring，会发现当你配置各种各样的 bean 时，是以配置文件的形式配置的，你需要用到哪些 bean 就配哪些，spring 容器就会根据你的需求去动态加载，你的程序就能健壮地运行。
+
+### 什么是反射
+
+　　反射 (Reflection) 是 Java 程序开发语言的特征之一，它允许运行中的 Java 程序获取自身的信息，并且可以操作类或对象的内部属性。通过 Class 获取 class 信息称之为反射（Reflection）
+
+　　简而言之，通过反射，我们可以在运行时获得程序或程序集中每一个类型的成员和成员的信息。
+
+　　程序中一般的对象的类型都是在编译期就确定下来的，而 Java 反射机制可以动态地创建对象并调用其属性，这样的对象的类型在编译期是未知的。所以我们可以通过反射机制直接创建对象，即使这个对象的类型在编译期是未知的。
+
+　　反射的核心是 JVM 在运行时才动态加载类或调用方法/访问属性，它不需要事先（写代码的时候或编译期）知道运行对象是谁。
+
+　　**重点**：是运行时而不是编译时
+
+### 主要用途
+
+　　很多人都认为反射在实际的 Java 开发应用中并不广泛，其实不然。
+
+当我们在使用 IDE （如Eclipse，IDEA）时，当我们输入一个对象或类并想调用它的属性或方法时，一按点号，编译器就会自动列出它的属性或方法，这里就会用到反射。
+
+　　**反射最重要的用途就是开发各种通用框架**
+
+　　很多框架（比如 Spring ）都是配置化的（比如通过 XML 文件配置 JavaBean,Action 之类的），为了保证框架的通用性，它们可能需要根据配置文件加载不同的对象或类，调用不同的方法，这个时候就必须用到反射——运行时动态加载需要加载的对象。
+
+　　对与框架开发人员来说，反射虽小但作用非常大，它是各种容器实现的核心。而对于一般的开发者来说，不深入框架开发则用反射用的就会少一点，不过了解一下框架的底层机制有助于丰富自己的编程思想，也是很有益的。
+
+### 获得Class对象
+
+1. 调用运行时类本身的 `.class` 属性
+
+```
+Class clazz1 = Person.class;
+System.out.println(clazz1.getName());
+```
+
+1. 通过运行时类的对象获取 `getClass();`
+
+```
+Person p = new Person();
+Class clazz3 = p.getClass();
+System.out.println(clazz3.getName());
+```
+
+1. 使用 Class 类的 `forName` 静态方法
+
+```
+public static Class<?> forName(String className)
+// 在JDBC开发中常用此方法加载数据库驱动:
+Class.forName(driver);
+```
+
+1. （了解）通过类的加载器 ClassLoader
+
+```
+ClassLoader classLoader = this.getClass().getClassLoader();
+Class clazz5 = classLoader.loadClass(className);
+System.out.println(clazz5.getName());
+```
 
 
 
@@ -816,6 +1076,95 @@ eg：Inerface proxy = (Interface)Proxy.newProxyInstance(
 泛型方法：要定义泛型方法，只需将泛型参数列表置于返回值之前。
 
 泛型数组：在任何想要创建泛型数组的地方都使用ArrayList
+
+## 泛型
+
+### 通俗解释
+
+　　通俗的讲，泛型就是操作类型的 占位符，即：假设占位符为 T，那么此次声明的数据结构操作的数据类型为T类型。
+
+　　假定我们有这样一个需求：写一个排序方法，能够对整型数组、字符串数组甚至其他任何类型的数组进行排序，该如何实现？答案是可以使用 **Java 泛型**。
+
+　　使用 Java 泛型的概念，我们可以写一个泛型方法来对一个对象数组排序。然后，调用该泛型方法来对整型数组、浮点数数组、字符串数组等进行排序。
+
+### 泛型方法
+
+　　你可以写一个泛型方法，该方法在调用时可以接收不同类型的参数。根据传递给泛型方法的参数类型，编译器适当地处理每一个方法调用。
+
+下面是定义泛型方法的规则：
+
+- 所有泛型方法声明都有一个类型参数声明部分（由尖括号分隔），该类型参数声明部分在方法返回类型之前（在下面例子中的 <E>）。
+- 每一个类型参数声明部分包含一个或多个类型参数，参数间用逗号隔开。一个泛型参数，也被称为一个类型变量，是用于指定一个泛型类型名称的标识符。
+- 类型参数能被用来声明返回值类型，并且能作为泛型方法得到的实际参数类型的占位符。
+- 泛型方法体的声明和其他方法一样。注意类型参数 **只能代表引用型类型，不能是原始类型** （像 int,double,char 的等）。
+
+```
+public class GenericMethodTest
+{
+   // 泛型方法 printArray                         
+   public static < E > void printArray( E[] inputArray )
+   {
+      // 输出数组元素            
+         for ( E element : inputArray ){        
+            System.out.printf( "%s ", element );
+         }
+         System.out.println();
+    }
+ 
+    public static void main( String args[] )
+    {
+        // 创建不同类型数组： Integer, Double 和 Character
+        Integer[] intArray = { 1, 2, 3, 4, 5 };
+        Double[] doubleArray = { 1.1, 2.2, 3.3, 4.4 };
+        Character[] charArray = { 'H', 'E', 'L', 'L', 'O' };
+ 
+        System.out.println( "整型数组元素为:" );
+        printArray( intArray  ); // 传递一个整型数组
+ 
+        System.out.println( "\n双精度型数组元素为:" );
+        printArray( doubleArray ); // 传递一个双精度型数组
+ 
+        System.out.println( "\n字符型数组元素为:" );
+        printArray( charArray ); // 传递一个字符型数组
+    } 
+}
+```
+
+### 泛型类
+
+　　泛型类的声明和非泛型类的声明类似，除了在类名后面添加了类型参数声明部分。
+
+　　和泛型方法一样，泛型类的类型参数声明部分也包含一个或多个类型参数，参数间用逗号隔开。一个泛型参数，也被称为一个类型变量，是用于指定一个泛型类型名称的标识符。因为他们接受一个或多个参数，这些类被称为参数化的类或参数化的类型。
+
+```
+public class Box<T> {
+	private T t;
+	public void add(T t) {
+	    this.t = t;
+	}
+
+	public T get() {
+	    return t;
+	}
+
+	public static void main(String[] args) {
+	    Box<Integer> integerBox = new Box<Integer>();
+	    Box<String> stringBox = new Box<String>();
+
+	    integerBox.add(new Integer(10));
+	    stringBox.add(new String("菜鸟教程"));
+
+	    System.out.printf("整型值为 :%d\n\n", integerBox.get());
+	    System.out.printf("字符串为 :%s\n", stringBox.get());
+	}
+}
+```
+
+### 类型通配符
+
+1. 类型通配符一般是使用 `?` 代替具体的类型参数。例如 `List` 在逻辑上是 `List`，`List` 等所有 **List<具体类型实参>** 的父类。
+2. 类型通配符上限通过形如 List 来定义，如此定义就是通配符泛型值接受 Number 及其下层子类类型。
+3. 类型通配符下限通过形如 List<? super Number> 来定义，表示类型只能接受 Number 及其三层父类类型，如 Objec 类型的实例。
 
 ### 多态
 
@@ -2046,7 +2395,84 @@ XML描述文件：提供一些基本对象/关系映射功能，能够自动生�
 
 Junit单元测试
 
+## 注解
 
+### 什么是注解
+
+　　Annontation 是 Java5 开始引入的新特征，中文名称叫注解。它提供了一种安全的类似注释的机制，用来**将任何的信息或元数据（metadata）与程序元素（类、方法、成员变量等）进行关联**。为程序的元素（类、方法、成员变量）加上更直观更明了的说明，这些说明信息是与程序的业务逻辑无关，并且供指定的工具或框架使用。Annontation 像一种修饰符一样，应用于包、类型、构造方法、方法、成员变量、参数及本地变量的声明语句中。
+
+　　Java 注解是附加在代码中的一些元信息，用于一些工具在编译、运行时进行解析和使用，起到说明、配置的功能。注解不会也不能影响代码的实际逻辑，仅仅起到辅助性的作用。包含在 `java.lang.annotation` 包中。
+
+　　简单来说：注解其实就是**代码中的特殊标记**，这些标记可以**在编译、类加载、运行时被读取，并执行相对应的处理**。
+
+### 为什么要用注解
+
+传统的方式，我们是通过配置文件 `.xml` 来告诉类是如何运行的。
+
+有了注解技术以后，我们就可以通过注解告诉类如何运行
+
+例如：我们以前编写 Servlet 的时候，需要在 web.xml 文件配置具体的信息。我们使用了注解以后，可以直接在 Servlet 源代码上，增加注解...Servlet 就被配置到 Tomcat 上了。也就是说，注解可以给类、方法上注入信息。
+
+明显地可以看出，这样是非常直观的，并且 Servlet 规范是推崇这种配置方式的。
+
+### 基本Annotation
+
+在 java.lang 包下存在着5个基本的 Annotation，重点掌握前三个。
+
+1. @Override 重写注解
+   - 如果我们使用IDE重写父类的方法，我们就可以看见它了。
+   - @Override是告诉编译器要检查该方法是实现父类的，可以帮我们避免一些低级的错误。
+   - 比如，我们在实现 equals() 方法的时候，把 euqals() 打错了，那么编译器就会发现该方法并不是实现父类的，与注解 @Override 冲突，于是就会给予错误。
+2. @Deprecated 过时注解
+   - 该注解也非常常见，Java 在设计的时候，可能觉得某些方法设计得不好，为了兼容以前的程序，是不能直接把它抛弃的，于是就设置它为过时。
+   - Date对象中的 toLocalString() 就被设置成过时了
+   - 当我们在程序中调用它的时候，在 IDE 上会出现一条横杠，说明该方法是过时的。
+
+```
+@Deprecated
+public String toLocaleString() {
+    DateFormat formatter = DateFormat.getDateTimeInstance();
+    return formatter.format(this);
+}
+```
+
+1. @SuppressWarnings 抑制编译器警告注解
+   - 该注解在我们写程序的时候并不是很常见，我们可以用它来让编译器不给予我们警告
+   - 当我们在使用集合的时候，如果没有指定泛型，那么会提示安全检查的警告
+   - 如果我们在类上添加了@SuppressWarnings这个注解，那么编译器就不会给予我们警告了
+2. @SafeVarargs Java 7“堆污染”警告
+   - 什么是堆污染呢？？当把一个不是泛型的集合赋值给一个带泛型的集合的时候，这种情况就很容易发生堆污染。
+   - 这个注解也是用来抑制编译器警告的注解，用的地方并不多。
+3. @FunctionalInterface 用来指定该接口是函数式接口
+   - 用该注解显示指定该接口是一个函数式接口。
+
+### 自定义注解类编写规则
+
+1. Annotation 型定义为 @interface, 所有的 Annotation 会自动继承 java.lang.Annotation 这一接口，并且不能再去继承别的类或是接口.
+2. 参数成员只能用 public 或默认(default)这两个访问权修饰
+3. 参数成员只能用基本类型 byte,short,char,int,long,float,double,boolean 八种基本数据类型和 String、Enum、Class、annotations 等数据类型，以及这一些类型的数组
+4. 要获取类方法和字段的注解信息，必须通过 Java 的反射技术来获取 Annotation 对象，因为你除此之外没有别的获取注解对象的方法
+5. 注解也可以没有定义成员, 不过这样注解就没啥用了 PS：自定义注解需要使用到元注解
+
+### 自定义注解实例
+
+```
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+/**
+ * 水果名称注解
+ */
+@Target(FIELD)
+@Retention(RUNTIME)
+@Documented
+public @interface FruitName {
+    String value() default "";
+}
+```
 
 ## 第二十一章 并发
 
