@@ -1,4 +1,4 @@
-# springmvc学习笔记(5)-深入DispatcherServlet与初始化主线
+# springmvc学习笔记-深入DispatcherServlet与初始化主线
 
 ## DispatcherServlet的体系结构
 
@@ -135,8 +135,6 @@ downpour 写道**结论** DispatcherServlet的继承体系架起了DispatcherSe
 
 DispatcherServlet的数据结构：
 
-
-
 ![数据结构](http://dl.iteye.com/upload/attachment/0062/6933/6ea52d3d-fe87-3579-976e-d6edd1f0deb3.png)
 
 
@@ -148,7 +146,7 @@ DispatcherServlet的数据结构：
 
 可以看到，这两类数据结构都与SpringMVC中的核心要素组件有关。因此，我们可以得出这样一个结论：
 
-downpour 写道**结论** 组件是整个DispatcherServlet的灵魂所在：它不仅是初始化主线中的初始化对象，同样也是Http请求处理主线中的逻辑调度载体。
+**结论**  组件是整个DispatcherServlet的灵魂所在：它不仅是初始化主线中的初始化对象，同样也是Http请求处理主线中的逻辑调度载体。
 
 **注**：我们可以看到被我们划为配置参数的那些变量都是boolean类型的，它们将在DispatcherServlet的初始化主线中起到一定的作用，我们在之后会使用源码进行说明。而这些boolean值可以通过web.xml中的init-param值进行设定覆盖（这是由HttpServletBean的特性带来的）。
 

@@ -226,9 +226,10 @@ private Optional<UserService> userService;
 
 ```
 @RequestMapping(value="/owners/{ownerId}/pets/{petId}", method=RequestMethod.GET) 
-public String findPet(@PathVariable String ownerId, @PathVariable String petId, Model model) { 		Owner owner = ownerService.findOwner(ownerId); 
-	 Pet pet = owner.getPet(petId); model.addAttribute("pet", pet); 
-	 return "displayPet"; 
+public String findPet(@PathVariable String ownerId, @PathVariable String petId, Model model) { 		
+	Owner owner = ownerService.findOwner(ownerId); 
+	Pet pet = owner.getPet(petId); model.addAttribute("pet", pet); 
+	return "displayPet"; 
 }
 ```
 
@@ -288,7 +289,7 @@ public void displayHeaderInfo(
 
 ## RequestBody
 
-@RequestBody是指方法参数应该被绑定到HTTP请求Body上。该注解用于读取Request请求的body部分数据，根据HTTP Request Header的`content-Type`的内容,，使用系统默认配置的HttpMessageConverter进行解析，然后把相应的数据绑定到要返回的对象上；再把HttpMessageConverter返回的对象数据绑定到 controller中方法的参数上。
+@RequestBody是指方法参数应该被绑定到HTTP请求Body上。该注解用于读取Request请求的body部分数据，根据HTTP Request Header的`content-Type`的内容，使用系统默认配置的HttpMessageConverter进行解析，然后把相应的数据绑定到要返回的对象上；再把HttpMessageConverter返回的对象数据绑定到 controller中方法的参数上。
 
 ```
 @RequestMapping(value = "/something", method = RequestMethod.PUT)
@@ -299,7 +300,7 @@ public void handle(@RequestBody String body, Writer writer) throws IOException {
 
 ## ResponseBody
 
-它的作用是将返回类型直接输入到HTTP response body中。该注解用于将Controller的方法返回的对象，根据HTTP Request Header的`Accept`的内容,通过适当的`HttpMessageConverter`转换为指定格式后，写入到Response对象的body数据区。
+它的作用是将返回类型直接输入到HTTP response body中。该注解用于将Controller的方法返回的对象，根据HTTP Request Header的`Accept`的内容，通过适当的`HttpMessageConverter`转换为指定格式后，写入到Response对象的body数据区。
 
 ```
 @RequestMapping(value = "/something", method = RequestMethod.PUT)
@@ -474,9 +475,9 @@ redirectAttributes.addAttributie("prama2",value2);
 return:"redirect：/path/list" 
 ```
 
-​	以上重定向的方法等同于 return:"redirect：/path/list？prama1=value1**&**prama2=value2 "
+​	以上重定向的方法等同于 return:"redirect：/path/list?prama1=value1&prama2=value2 "
 
-- 第二种 redirectAttributes.addFlashAttributie("prama",value); 这种方法是隐藏了参数，链接地址上不直接暴露，但是能且只能在重定向的 “页面” 获取prama参数值。
+- 第二种 redirectAttributes.addFlashAttributie("prama",value); 这种方法是隐藏了参数，链接地址上不直接暴露，但是能且只能在重定向的 “页面” 获取parma参数值。
 
   其原理就是放到session中，session在跳到页面后马上移除对象。
 
@@ -506,7 +507,7 @@ Spring mvc支持如下的返回方式：
 - Map
 - View
 - String
-- void。
+- void
 
 Model 是一个接口， 其实现类为ExtendedModelMap，继承了ModelMap类。
 
@@ -581,32 +582,3 @@ values=2010-07-04,2011-07-04，把时间放入集合中。
 1. names：这是一个字符串数组。里面应写需要存储到session中数据的名称。
 2. types：根据指定参数的类型，将模型中对应类型的参数存储到session中 
 3. value：其实和names是一样的。
-
-## Repository
-
-用于注解dao层，在daoImpl类上面注解。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
