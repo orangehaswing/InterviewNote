@@ -326,25 +326,15 @@ HotSpot 虚拟机的 Eden 和 Survivor 的大小比例默认为 8:1，保证了�
 
 ### 1. Serial 收集器
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/JVM/resource/22fda4ae-4dd5-489d-ab10-9ebfdad22ae0.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/22fda4ae-4dd5-489d-ab10-9ebfdad22ae0.jpg?raw=true)
+串行收集器是最古老，最稳定以及效率高的收集器，可能会产生较长的停顿，只使用一个线程去回收。新生代、老年代使用串行回收；新生代复制算法、老年代标记-压缩；垃圾收集的过程中会Stop The World（服务暂停）
 
-Serial 翻译为串行，也就是说它以串行的方式执行。
-
-它是单线程的收集器，只会使用一个线程进行垃圾收集工作。
-
-它的优点是简单高效，对于单个 CPU 环境来说，由于没有线程交互的开销，因此拥有最高的单线程收集效率。
-
-它是 Client 模式下的默认新生代收集器，因为在该应用场景下，分配给虚拟机管理的内存一般来说不会很大。Serial 收集器收集几十兆甚至一两百兆的新生代停顿时间可以控制在一百多毫秒以内，只要不是太频繁，这点停顿是可以接受的。
+参数控制：-XX:+UseSerialGC  串行收集器
 
 ### 2. ParNew 收集器
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/JVM/resource/81538cd5-1bcf-4e31-86e5-e198df1e013b.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/81538cd5-1bcf-4e31-86e5-e198df1e013b.jpg?raw=true)
+ParNew收集器其实就是Serial收集器的多线程版本。新生代并行，老年代串行；新生代复制算法、老年代标记-压缩
 
-它是 Serial 收集器的多线程版本。
-
-是 Server 模式下的虚拟机首选新生代收集器，除了性能原因外，主要是因为除了 Serial 收集器，只有它能与 CMS 收集器配合工作。
-
-默认开启的线程数量与 CPU 数量相同，可以使用 -XX:ParallelGCThreads 参数来设置线程数。
+参数控制：-XX:+UseParNewGC  ParNew收集器		-XX:ParallelGCThreads 限制线程数量
 
 ### 3. Parallel Scavenge 收集器
 
@@ -356,11 +346,7 @@ Serial 翻译为串行，也就是说它以串行的方式执行。
 
 缩短停顿时间是以牺牲吞吐量和新生代空间来换取的：新生代空间变小，垃圾回收变得频繁，导致吞吐量下降。
 
-可以通过一个开关参数打开 GC 自适应的调节策略（GC Ergonomics），就不需要手工指定新生代的大小（-Xmn）、Eden 和 Survivor 区的比例、晋升老年代对象年龄等细节参数了。虚拟机会根据当前系统的运行情况收集性能监控信息，动态调整这些参数以提供最合适的停顿时间或者最大的吞吐量。
-
 ### 4. Serial Old 收集器
-
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/JVM/resource/08f32fd3-f736-4a67-81ca-295b2a7972f2.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/08f32fd3-f736-4a67-81ca-295b2a7972f2.jpg?raw=true)
 
 是 Serial 收集器的老年代版本，也是给 Client 模式下的虚拟机使用。如果用在 Server 模式下，它有两大用途：
 
@@ -369,15 +355,11 @@ Serial 翻译为串行，也就是说它以串行的方式执行。
 
 ### 5. Parallel Old 收集器
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/JVM/resource/278fe431-af88-4a95-a895-9c3b80117de3.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/278fe431-af88-4a95-a895-9c3b80117de3.jpg?raw=true)
+Parallel Old是Parallel Scavenge收集器的老年代版本，使用多线程和“标记－整理”算法。这个收集器是在JDK 1.6中才开始提供
 
-是 Parallel Scavenge 收集器的老年代版本。
-
-在注重吞吐量以及 CPU 资源敏感的场合，都可以优先考虑 Parallel Scavenge 加 Parallel Old 收集器。
+参数控制： -XX:+UseParallelOldGC 使用Parallel收集器+ 老年代并行
 
 ### 6. CMS 收集器
-
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/JVM/resource/62e77997-6957-4b68-8d12-bfd609bb2c68.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/62e77997-6957-4b68-8d12-bfd609bb2c68.jpg?raw=true)
 
 CMS（Concurrent Mark Sweep），Mark Sweep 指的是标记 - 清除算法。
 
@@ -412,8 +394,6 @@ G1 把堆划分成多个大小相等的独立区域（Region），新生代和�
 
 每个 Region 都有一个 Remembered Set，用来记录该 Region 对象的引用对象所在的 Region。通过使用 Remembered Set，在做可达性分析的时候就可以避免全堆扫描。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/JVM/resource/f99ee771-c56f-47fb-9148-c0036695b5fe.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/f99ee771-c56f-47fb-9148-c0036695b5fe.jpg?raw=true)
-
 如果不计算维护 Remembered Set 的操作，G1 收集器的运作大致可划分为以下几个步骤：
 
 - 初始标记
@@ -445,6 +425,28 @@ G1 把堆划分成多个大小相等的独立区域（Region），新生代和�
    | **Parallel Old**      | 并行          | 老年代       | 标记-整理        | 吞吐量优先  | 在后台运算而不需要太多交互的任务               |
    | **CMS**               | 并发          | 老年代       | 标记-清除        | 响应速度优先 | 集中在互联网站或 B/S 系统服务端上的 Java 应用   |
    | **G1**                | 并发          | both      | 标记-整理 + 复制算法 | 响应速度优先 | 面向服务端应用，将来替换 CMS               |
+
+#### CMS和G1比较
+
+CMS四步
+
+1. 初始标记：此时标记需要用户线程停下来；
+2. 并发标记：此时标记可以和用户线程一起运行；
+3. 重新标记：此时标记需要用户线程停下来，主要母的是为了对并发标记的垃圾进行审核；
+4. 并发清除：与用户线程一起与运行进行垃圾清除；
+
+缺点：
+
+1. CMS收集器对cpu资源非常敏感；
+2. CMS收集器无法清除浮动垃圾；
+3. CMS基于标记清除的算法实现的，所以内存碎片会产生过多。
+
+G1收集器的四步
+
+1. 初始标记：标记GC Root能直接关联的对象，并且修改TAMS的值，让下一阶段的用户进行并发运行是，能够正确运用Region创建新对象，这阶段需要停顿，但停顿时间很短
+2. 并发标记：从GC Root开始对堆进行可达性分析，找出存活的对象，这段耗时较长，但可以与用户线程并发执行。
+3. 最终标记是为了修正在并发标记阶段因用户程序继续运作导致标记产生变动的那一部分的标记记录，虚拟机将这部分标记记录在线程Remembered Set中，这阶段需要停顿线程，但是可并行执行。
+4. 筛选回收：首先对各个Region的回收价值和成本进行排序，根据用户所期待的GC停顿时间来制定回收计划，这个阶段也可以与用户线程并行执行，但由于只回收一部分的Region,时间是用户可控制的，而且停顿用户线程将大幅度提高收集效率。
 
 # 三、内存分配与回收策略
 

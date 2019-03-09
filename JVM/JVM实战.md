@@ -6,7 +6,9 @@
 
 堆内存中主要存放对象、数组等，只要不断地创建这些对象，并且保证 GC Roots 到对象之间有可达路径来避免垃圾收集回收机制清除这些对象，当这些对象所占空间超过最大堆容量时，就会产生 OutOfMemoryError 的异常。
 
-新产生的对象最初分配在新生代，新生代满后会进行一次 Minor GC，如果 Minor GC 后空间不足会把该对象和新生代满足条件的对象放入老年代，老年代空间不足时会进行 Full GC，之后如果空间还不足以存放新对象则抛出 OutOfMemoryError 异常。
+新产生的对象最初分配在新生代，新生代满后会进行一次 Minor GC，如果 Minor GC 后空间不足会把该对象和新生代满足条
+
+件的对象放入老年代，老年代空间不足时会进行 Full GC，之后如果空间还不足以存放新对象则抛出 OutOfMemoryError 异常。
 
 常见原因：内存中加载的数据过多如一次从数据库中取出过多数据；集合对对象引用过多且使用完后没有清空；代码中存在死循环或循环产生过多重复对象；堆内存分配不合理；网络连接问题、数据库问题等。
 
@@ -56,6 +58,39 @@ OutOfMemoryError：如果虚拟机在扩展栈时无法申请到足够的内存�
 - Minor GC 执行不频繁，约10秒一次；
 - Full GC 执行时间不到1s；
 - Full GC 执行频率不算频繁，不低于10分钟1次。
+
+
+# Jvm调优
+
+## 命令
+
+- jps: JVM Process Status Tool,显示指定系统内所有的HotSpot虚拟机进程。
+
+- jstat：jstat(JVM statistics Monitoring)是用于监视虚拟机运行时状态信息的命令，它可以显示出虚拟机进程中的类装载、内存、垃圾收集、JIT编译等运行数据。
+
+- jmap：jmap(JVM Memory Map)命令用于生成heap dump文件，如果不使用这个命令，还可以使用-XX:
+
+  HeapDumpOnOutOfMemoryError参数来让虚拟机出现OOM的时候，自动生成dump文件。 
+
+- jhat：jhat(JVM Heap Analysis Tool)命令是与jmap搭配使用，用来分析jmap生成的dump
+
+- jstack：jstack用于生成java虚拟机当前时刻的线程快照。
+
+- jinfojinfo(JVM Configuration info)这个命令作用是实时查看和调整虚拟机运行参数。 
+
+## 工具
+
+- jconsole
+
+- VisualVM
+
+- Memory Analyzer
+
+  ​
+
+
+
+
 
 
 
