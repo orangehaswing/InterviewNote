@@ -415,14 +415,11 @@ spring:
 
 可见，即使更新方法加了`@CachePut`注解，第二次查询因为Student对象更新了，其是从数据库获取数据的，所以对于Ehcache来说，更新方法加不加`@CachePut`注解，结果都一样。
 
-
-
 ## 配置
 
 ```
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="http://code.taobao.org/p/tgw/diff/3/tgw/src/ehcache.xsd">
-
 
     <!--<diskStore path="java.io.tmpdir"/>-->
     <diskStore path="C:\ehcache"/>
