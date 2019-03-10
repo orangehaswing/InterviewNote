@@ -535,13 +535,68 @@ transient Node<E> first;
 transient Node<E> last;
 ```
 
-[![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E9%9B%86%E5%90%88/resource/49495c95-52e5-4c9a-b27b-92cf235ff5ec.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/49495c95-52e5-4c9a-b27b-92cf235ff5ec.png?raw=true)
-
 ### 2. 与 ArrayList 的比较
 
 - ArrayList 基于动态数组实现，LinkedList 基于双向链表实现；
 - ArrayList 支持随机访问，LinkedList 不支持；
 - LinkedList 在任意位置添加删除元素更快。
+
+## 解决Hash冲突
+
+### 散列表(Hash table)
+
+也称为哈希表。是字典的一种抽象。这种方法直接把查找时间复杂度降到了常数。但是要牺牲一定的计算索引的时间。计算索引的那个函数称为哈希函数(散列函数)。如果两个不同的 key 算出了同一个索引，此时就要用到一定的方法来解决哈希冲突。
+
+#### 哈希函数
+
+哈希函数一般具有如下特点。
+
+- 相等的 key 产生相等的哈希值
+- 计算简单方便
+- 哈希值均匀分布(若过度集中，则容易使效率降低到o(n))
+
+### 哈希冲突
+
+若两个不相等的key产生了相等的哈希值，这时则需要采用哈希冲突。
+
+#### 拉链法
+
+Java 标准库的 HashMap基本上就是用拉链法实现的。`拉链法`的实现比较简单，将链表和数组相结合。也就是说创建一个链表数组，数组中每一格就是一个链表。若遇到哈希冲突，则将冲突的值加到链表中即可。
+
+![img](https://user-gold-cdn.xitu.io/2016/11/30/b32c08c9e0dabaa7b325589258c06b7b.jpg?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+
+**实现步骤**
+
+- 得到一个`key`
+- 计算`key`的`hashValue`
+- 根据`hashValue`值定位到`data[hashValue]`。(`data[hashValue]`是一条链表)
+- 若`data[hashValue]`为空则直接插入
+- 不然则添加到链表末尾
+
+这里需要注意的是，`哈希函数`必须保证`哈希值`的`均匀分布`，若全部集中在一条链表中，则`时间复杂度`和顺序链表相同。
+
+还有一点则是数组的大小，若你能估计数据的大小，则直接指定即可，否则就需要`动态扩充`数组。
+
+#### 线性探测
+
+`线性探测`直接使用数组来存储数据。可以想象成一个停车问题。若当前车位已经有车，则你就继续往前开，直到找到下一个为空的车位。
+
+![img](https://user-gold-cdn.xitu.io/2016/11/29/bda7ff8635fb4981e83646d711b7a11d.jpg?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+
+**实现步骤**
+
+- 得到`key`
+- 计算得`hashValue`
+- 若不冲突，则直接填入数组
+- 若冲突，则使`hashValue++`，也就是往后找，直到找到第一个`data[hashValue]`为空的情况,则填入。若到了尾部可循环到前面。
+
+### 性能比较
+
+一般来说，使用`散列表`会比`红黑树`快很多。但具体还是要看`哈希函数`的计算效率。但是`散列表`无法保证顺序，所以如果你需要进行有关顺序的操作，应该使用`红黑树`或者`二叉搜索树`。
+
+对于`线性探测`来说动态调整数组大小是必要的，不然会产生死循环。
+
+`拉链法`的删除操作比较方便，直接链表修改地址即可。而`线性探测`删除操作很复杂，而且`线性探测`耗费的内存比拉链法要多。
 
 ## HashMap
 

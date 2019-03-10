@@ -1,6 +1,6 @@
 # RabbitMQ
 
-消息队列可以实现流量削峰、降低系统耦合度、提高系统性能等。
+消息队列可以实现流量削峰、降低系统耦合度、最终一致性、广播、提高系统性能等。
 
 **RabbitMQ**是一个实现了AMQP协议（Advanced Message Queue Protocol）的消息队列。
 
@@ -105,7 +105,7 @@ Note： 消息是不能直接到达队列(Queue)的
 
 - topic：允许实现有趣的消息通信场景，使得5不同源头的消息能够达到同一个队列。topic队列名称有两个特殊的关键字。
 
-- - `*` 可以替换一个单词
+  - `*` 可以替换一个单词
   - `#` 可以替换所有的单词
 
 可以理解，direct为1v1, fanout为1v所有，topic比较灵活，可以1v任意。
@@ -127,7 +127,6 @@ rabbitmqctl add vhost [vhost_name]
 rabbitmqctl delete vhost [vhost_name]
 #列出虚拟主机
 rabbitmqctl list_vhosts
-
 ```
 
 ![img](https://pic3.zhimg.com/v2-f3bf1f8652dd507a5430f175796f93ae_b.jpg)
@@ -168,14 +167,12 @@ channel.addConfirmListener(new ConfirmListener() {
 				System.err.println("-------ack!-----------");
 			}
 		});
-
 ```
 
 消费端可以确认消息状态：
 
 ```
 public class MyConsumer extends DefaultConsumer {
-
 
 	private Channel channel ;
 	
@@ -199,7 +196,6 @@ public class MyConsumer extends DefaultConsumer {
 			channel.basicAck(envelope.getDeliveryTag(), false);
 		}
 	}}
-
 ```
 
 channel.basicAck与basicNack最后一个参数指定消息是否重回队列。
@@ -310,3 +306,50 @@ RabbitMQ 集群中可以共享 user、vhost、exchange等，所有的数据和�
 当在集群中声明队列、交换器、绑定的时候，这些操作会直到所有集群节点都成功提交元数据变更后才返回。集群中有内存节点和磁盘节点两种类型，内存节点虽然不写入磁盘，但是它的执行比磁盘节点要好。内存节点可以提供出色的性能，磁盘节点能保障配置信息在节点重启后仍然可用，那集群中如何平衡这两者呢？
 
 RabbitMQ 只要求集群中至少有一个磁盘节点，所有其他节点可以是内存节点，当节点加入火离开集群时，它们必须要将该变更通知到至少一个磁盘节点。如果只有一个磁盘节点，刚好又是该节点崩溃了，那么集群可以继续路由消息，但不能创建队列、创建交换器、创建绑定、添加用户、更改权限、添加或删除集群节点。换句话说集群中的唯一磁盘节点崩溃的话，集群仍然可以运行，但知道该节点恢复，否则无法更改任何东西。
+
+## 特点
+
+具体特点包括：
+
+1. 可靠性（Reliability）
+
+   RabbitMQ 使用一些机制来保证可靠性，如持久化、传输确认、发布确认。
+
+2. 灵活的路由（Flexible Routing）
+
+   在消息进入队列之前，通过 Exchange 来路由消息的。对于典型的路由功能，RabbitMQ 已经提供了一些内置的 Exchange 来实现。针对更复杂的路由功能，可以将多个 Exchange 绑定在一起，也通过插件机制实现自己的 Exchange 。
+
+3. 消息集群（Clustering）
+
+   多个 RabbitMQ 服务器可以组成一个集群，形成一个逻辑 Broker 。
+
+4. 高可用（Highly Available Queues）
+
+   队列可以在集群中的机器上进行镜像，使得在部分节点出问题的情况下队列仍然可用。
+
+5. 多种协议（Multi-protocol）
+
+   RabbitMQ 支持多种消息队列协议，比如 STOMP、MQTT 等等。
+
+6. 多语言客户端（Many Clients）
+
+   RabbitMQ 几乎支持所有常用语言，比如 Java、.NET、Ruby 等等。
+
+7. 管理界面（Management UI）
+
+   RabbitMQ 提供了一个易用的用户界面，使得用户可以监控和管理消息 Broker 的许多方面。
+
+8. 跟踪机制（Tracing）
+
+   如果消息异常，RabbitMQ 提供了消息跟踪机制，使用者可以找出发生了什么。
+
+9. 插件机制（Plugin System）
+
+   RabbitMQ 提供了许多插件，来从多方面进行扩展，也可以编写自己的插件。
+
+
+
+
+
+
+
