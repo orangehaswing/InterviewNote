@@ -279,11 +279,6 @@ public class AccessWithInnerClassExample {
 }
 ```
 
-### **覆盖与重载**
-
-- 覆盖（Override）存在于继承体系中，指子类实现了一个与父类在方法声明上完全相同的一个方法；
-- 重载（Overload）存在于同一个类中，指一个方法与已经存在的方法名称上相同，但是参数类型、个数、顺序至少有一个不同。应该注意的是，返回值不同，其它都相同不算是重载。
-
 ### **static**
 
 **1. 静态变量**
@@ -416,9 +411,6 @@ public class Box<T> {
     public T get() { return t; }
 }
 ```
-
-> [Java 泛型详解](https://www.ziwenxie.site/2017/03/01/java-generic/)
-> [10 道 Java 泛型面试题](https://cloud.tencent.com/developer/article/1033693)
 
 ## 第九章 接口
 
