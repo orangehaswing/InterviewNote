@@ -10,6 +10,9 @@
 - **exchange**：producer 并不会直接将消息发送到 queue 上，而是将消息发送给 exchange，由 exchange 按照一定规则转发给指定queue
 - **queue**： queue 用来存储 producer 发送的消息
 - **consumer**： consumer是接收并处理消息的应用
+- **Broker:** 消息队列服务器的实体，负责接收生产者消息，然后将消息发送至消息接受者或其他Broker
+- **Binding：** 绑定，把exchange和queue按照规定绑定起来。
+- **Virtual host：** 虚拟主机，Broker的虚拟划分，将消费者，生产者和它们的依赖的AMQP结构隔离。
 
 ![img](https://pic1.zhimg.com/v2-0b0ff0ad543efd323f5cdd1cd7d95774_b.jpg)
 
@@ -61,6 +64,15 @@ RabbitMQ消息传递（多个队列）：
 
 headers 也是根据规则匹配, 相较于 direct 和 topic 固定地使用 routing_key , headers 则是一个自定义匹配规则的类型.
 在队列与交换器绑定时, 会设定一组键值对规则, 消息中也包括一组键值对( headers 属性), 当这些键值对有一对, 或全部匹配时, 消息被投送到对应队列。
+
+## 消息投递
+
+- 客户端连接到消息队列服务器，打开一个Channel；
+- 客户端声明一个Exchange，并设置相关属性
+- 客户端声明一个Queue，并设置相关属性
+- 客户端使用Routing Key，在Exchange和Queue之间建立好绑定关系
+- 客户端投递消息到Exchange
+- Exchange接收消息后，根据消息的Key和已经设置的Binding，进行消息路由，将消息投递到一个或多个queue
 
 ## 控制台
 
@@ -139,7 +151,7 @@ rabbitmqctl list_vhosts
 
 - 投递模式设置2，来标记消息为持久化
 - 发送到持久化的交换机
-- 到到持久化的队列
+- 发送到持久化的队列
 
 缺点：消息写入磁盘性能差很多。除非特别关键的消息会使用
 
@@ -236,8 +248,10 @@ channel.addReturnListener(new ReturnListener() {
 RabbitMQ提供了一种Qos(服务质量保证)功能，即在非自动确认消息的前提下，在一定数量的消息未被消费前，不进行消费新的消息。
 
 ```
-// prefetchSize消息的限制大小，一般设置为0，在生产端限制// prefetchCount 我们一次最多消费多少条消息，一般设置为1// global，一般设置为false，在消费端进行限制channel.basicQos(int prefetchSize, int prefetchCount, boolean global) // 使用channel.basicQos(0, 1, false);channel.basicConsume(queueName, false, new MyConsumer(channel));    
-
+// prefetchSize消息的限制大小，一般设置为0，在生产端限制
+// prefetchCount 我们一次最多消费多少条消息，一般设置为1
+// global，一般设置为false，在消费端进行限制channel.basicQos(int prefetchSize, int prefetchCount, boolean global) 
+// 使用channel.basicQos(0, 1, false);channel.basicConsume(queueName, false, new MyConsumer(channel));  
 ```
 
 Note： autoAck设置为false, 一定要手工签收消息
@@ -277,7 +291,6 @@ Note： autoAck设置为false, 一定要手工签收消息
 		channel.exchangeDeclare("dlx.exchange", "topic", true, false, null);
 		channel.queueDeclare("dlx.queue", true, false, false, null);
 		channel.queueBind("dlx.queue", "dlx.exchange", "#");
-
 ```
 
 ## RabbitMQ 集群
@@ -346,10 +359,4 @@ RabbitMQ 只要求集群中至少有一个磁盘节点，所有其他节点可�
 9. 插件机制（Plugin System）
 
    RabbitMQ 提供了许多插件，来从多方面进行扩展，也可以编写自己的插件。
-
-
-
-
-
-
 

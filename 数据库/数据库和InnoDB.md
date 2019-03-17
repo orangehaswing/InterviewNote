@@ -1,13 +1,13 @@
-# Mysql和InnoDB
+# 数据库和InnoDB
 
-## 数据库的定义
+# 数据库
+
+## 定义
 
 很多开发者在最开始时其实都对数据库有一个比较模糊的认识，觉得数据库就是一堆数据的集合，但是实际却比这复杂的多，数据库领域中有两个词非常容易混淆，也就是数据库和实例：
 
 - 数据库：物理操作文件系统或其他形式文件类型的集合；
 - 实例：MySQL 数据库由后台线程以及一个共享内存区组成；
-
-> 对于数据库和实例的定义都来自于 [MySQL 技术内幕：InnoDB 存储引擎](https://book.douban.com/subject/24708143/) 一书，想要了解 InnoDB 存储引擎的读者可以阅读这本书籍。
 
 ### 数据库和实例
 
@@ -61,8 +61,6 @@ CREATE TABLE test_frm(
 
 ![frm-file-hex](https://raw.githubusercontent.com/Draveness/Analyze/master/contents/Database/images/mysql/frm-file-hex.png)
 
-> MySQL 官方文档中的 [11.1 MySQL .frm File Format](https://dev.mysql.com/doc/internals/en/frm-file-format.html) 一文对于 `.frm` 文件格式中的二进制的内容有着非常详细的表述，在这里就不展开介绍了。
-
 #### .ibd 文件
 
 InnoDB 中用于存储数据的文件总共有两个部分，一是系统表空间文件，包括 `ibdata1`、`ibdata2` 等文件，其中存储了 InnoDB 系统信息和用户数据库表数据和索引，是所有表公用的。
@@ -95,9 +93,7 @@ Compact 和 Redundant 格式最大的不同就是记录格式的第一个部分�
 
 ![Row-Overflow-in-Barracuda](https://raw.githubusercontent.com/Draveness/Analyze/master/contents/Database/images/mysql/Row-Overflow-in-Barracuda.jpg)
 
-当然在实际存储中，可能会对不同长度的 TEXT 和 BLOB 列进行优化，不过这就不是本文关注的重点了。
-
-> 想要了解更多与 InnoDB 存储引擎中记录的数据格式的相关信息，可以阅读 [InnoDB Record Structure](https://dev.mysql.com/doc/internals/en/innodb-record-structure.html)
+当然在实际存储中，可能会对不同长度的 TEXT 和 BLOB 列进行优化
 
 ### 数据页结构
 
@@ -366,11 +362,130 @@ CREATE TABLE test(
 
 `REPEATABLE READ` 和 `READ UNCOMMITED` 其实是矛盾的，如果保证了前者就看不到已经提交的事务，如果保证了后者，就会导致两次查询的结果不同，MySQL 为我们提供了一种折中的方式，能够在 `REPEATABLE READ` 模式下加锁访问已经提交的数据，其本身并不能解决幻读的问题，而是通过文章前面提到的 Next-Key 锁来解决。
 
-## 总结
+# InnoDB索引原理
 
-> 文章中的内容大都来自于 [高性能 MySQL](https://book.douban.com/subject/23008813/)、[MySQL 技术内幕：InnoDB 存储引擎](https://book.douban.com/subject/24708143/)、[数据库索引设计与优化](https://book.douban.com/subject/26419771/)以及 MySQL 的 [官方文档](https://dev.mysql.com/doc/)。
+## 索引
 
-这是文章 [链接](https://draveness.me/mysql-innodb)
+有两种常见的方法可以解决多个B+树访问同一套表数据的问题，
+
+- 聚簇索引（clustered index ）：行数据和主键B+树存储在一起，辅助键B+树只存储辅助键和主键，主键和非主键B+树几乎是两种类型的树。
+- 非聚簇索引（secondary index）：主键B+树在叶子节点存储指向真正数据行的指针，而非主键。
+
+　InnoDB使用的是聚簇索引，将主键组织到一棵B+树中，而行数据就储存在叶子节点上，若使用"where id = 14"这样的条件查找主键，则按照B+树的检索算法即可查找到对应的叶节点，之后获得行数据。若对Name列进行条件搜索，则需要两个步骤：第一步在辅助索引B+树中检索Name，到达其叶子节点获取对应的主键。第二步使用主键在主索引B+树种再执行一次B+树检索操作，最终到达叶子节点即可获取整行数据。
+
+　　MyISM使用的是非聚簇索引，非聚簇索引的两棵B+树看上去没什么不同，节点的结构完全一致只是存储的内容不同而已，主键索引B+树的节点存储了主键，辅助键索引B+树存储了辅助键。表数据存储在独立的地方，这两颗B+树的叶子节点都使用一个地址指向真正的表数据，对于表数据来说，这两个键没有任何差别。由于索引树是独立的，通过辅助键检索无需访问主键的索引树。
+
+​	假想一个表如下图存储了4行数据。其中Id作为主索引，Name作为辅助索引。图示清晰的显示了聚簇索引和非聚簇索引的差异。
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091453469704.PNG)
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091503903957.PNG)
+
+　
+
+1. 由于行数据和叶子节点存储在一起，这样主键和行数据是一起被载入内存的，找到叶子节点就可以立刻将行数据返回了，如果按照主键Id来组织数据，获得数据更快。
+2. 辅助索引使用主键作为"指针" 而不是使用地址值作为指针的好处是，减少了当出现行移动或者数据页分裂时辅助索引的维护工作，使用主键值当作指针会让辅助索引占用更多的空间，换来的好处是InnoDB在移动行时无须更新辅助索引中的这个"指针"。也就是说行的位置（实现中通过16K的Page来定位，后面会涉及）会随着数据库里数据的修改而发生变化（前面的B+树节点分裂以及Page的分裂），使用聚簇索引就可以保证不管这个主键B+树的节点如何变化，辅助索引树都不受影响。
+
+## Page结构
+
+　　Page是整个InnoDB存储的最基本构件，与数据库相关的所有内容都存储在这种Page结构里。
+
+​	Page分为几种类型，
+
+- 数据页（B-tree Node）
+- Undo页（Undo Log Page）
+- 系统页（System Page） 
+- 事务数据页（Transaction System Page）
+
+单个Page的大小是16K，每个Page使用一个32位的int值来唯一标识，这也正好对应InnoDB最大64TB的存储容量（16Kib * 2^32 = 64Tib）。一个Page的基本结构如下图所示：
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091512695110.PNG)
+
+　　每个Page都有通用的头和尾，但是中部的内容根据Page的类型不同而发生变化。
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091523976520.PNG)
+
+ 	Page的头部保存了两个指针，分别指向前一个Page和后一个Page，头部还有Page的类型信息和用来唯一标识Page的编号。根据这两个指针我们很容易想象出Page链接起来就是一个双向链表的结构。
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091532199537.PNG)
+
+​	Page的主体内容，我们主要关注行数据和索引的存储。
+
+​	他们都位于Page的User Records部分，User Records由一条一条的Record组成，每条记录代表索引树上的一个节点（非叶子节点和叶子节点）。
+
+​	在一个Page内部，单链表的头尾由固定内容的两条记录来表示，字符串形式的"Infimum"代表开头，"Supremum"代表结尾。这两个用来代表开头结尾的Record存储在System Records的段里，这个System Records和User Records是两个平行的段。
+
+​	InnoDB存在4种不同的Record，
+
+1. 主键索引树非叶节点 
+2. 主键索引树叶子节点 
+3. 辅助键索引树非叶节点 
+4. 辅助键索引树叶子节点。
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091541081339.PNG)
+
+　　User Record在Page内以单链表的形式存在，最初数据是按照插入的先后顺序排列的，但是随着新数据的插入和旧数据的删除，数据物理顺序会变得混乱，但他们依然保持着逻辑上的先后顺序。
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091551111655.PNG)
+
+　　把User Record的组织形式和若干Page组合起来，就看到了稍微完整的形式。
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091600910753.PNG)
+
+　　现在看下如何定位一个Record：
+
+1. 通过根节点开始遍历一个索引的B+树，通过各层非叶子节点最终到达一个Page，这个Page里存放的都是叶子节点。
+2. 在Page内从"Infimum"节点开始遍历单链表（这种遍历往往会被优化），如果找到该键则成功返回。如果记录到达了"supremum"，说明当前Page里没有合适的键，这时要借助Page的Next Page指针，跳转到下一个Page继续从"Infimum"开始逐个查找。
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091608678237.PNG)
+
+　User Record可以被分成四种格式，下图种按照颜色予以区分。
+
+　　**1 主索引树非叶节点（绿色）**
+
+　　1 子节点存储的主键里最小的值（Min Cluster Key on Child），这是B+树必须的，作用是在一个Page里定位到具体的记录的位置。
+
+　　2 最小的值所在的Page的编号（Child Page Number），作用是定位Record。
+
+　　**2 主索引树叶子节点（黄色）**
+
+　　1 主键（Cluster Key Fields），B+树必须的，也是数据行的一部分
+
+　　2 除去主键以外的所有列（Non-Key Fields），这是数据行的除去主键的其他所有列的集合。
+
+　　这里的1和2两部分加起来就是一个完整的数据行。
+
+　　**3 辅助索引树非叶节点非（蓝色）**
+
+　　1 子节点里存储的辅助键值里的最小的值（Min Secondary-Key on Child），这是B+树必须的，作用是在一个Page里定位到具体的记录的位置。
+
+　　2 主键值（Cluster Key Fields），非叶子节点为什么要存储主键呢？因为辅助索引是可以不唯一的，但是B+树要求键的值必须唯一，所以这里把辅助键的值和主键的值合并起来作为在B+树中的真正键值，保证了唯一性。但是这也导致在辅助索引B+树中非叶节点反而比叶子节点多了4个字节。（即下图中蓝色节点反而比红色多了4字节）
+
+　　3 最小的值所在的Page的编号（Child Page Number），作用是定位Record。
+
+　　**4 辅助索引树叶子节点（红色）**
+
+　　1 辅助索引键值（Secondary Key Fields），这是B+树必须的。
+
+　　2 主键值（Cluster Key Fields），用来在主索引树里再做一次B+树检索来找到整条记录。
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091620754769.PNG)
+
+　　下面是本篇最重要的部分了，结合B+树的结构和前面介绍的4种Record的内容，我们终于可以画出一幅全景图。由于辅助索引的B+树与主键索引有相似的结构，这里只画出了主键索引树的结构图，只包含了"主键非叶节点"和"主键叶子节点"两种节点，也就是上图的的绿色和黄色的部分。
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091631948071.PNG)
+
+　　把上图还原成下面这个更简洁的树形示意图，这就是B+树的一部分。注意Page和B+树节点之间并没有一一对应的关系，Page只是作为一个Record的保存容器，它存在的目的是便于对磁盘空间进行批量管理，上图中的编号为47的Page在树形结构上就被拆分成了两个独立节点。
+
+![img](http://www.admin10000.com/UploadFiles/Document/201410/27/20141027091642165340.PNG)
+
+　　至此本篇就算结束了，本篇只是对InnoDB索引相关的数据结构和实现进行了一些梳理总结，并未涉及到Mysql的实战经验。这主要是基于几点原因：
+
+　　1 原理是基石，只有充分了解InnoDB索引的工作方式，我们才有能力高效的使用好它。
+
+　　2 原理性知识特别适合使用图示，我个人非常喜欢这种表达方式。
+
+　　3 关于InnoDB优化，在《高性能Mysql》里有更加全面的介绍，对优化Mysql感兴趣的同学完全可以自己获取相关知识，我自己的积累还未达到能分享这些内容的地步。
 
 # MyISAM与InnoDB区别
 
@@ -399,12 +514,4 @@ InnoDB和MyISAM是许多人在使用MySQL时最常用的两个表类型，这两
 5. 还有就是经常有很多应用部门需要我给他们定期某些表的数据，MyISAM的话很方便，只要发给他们对应那表的frm.MYD,MYI的文件，让他们自己在对应版本的数据库启动就行，而Innodb就需要导出xxx.sql了，因为光给别人文件，受字典数据文件的影响，对方是无法使用的。
 6. 如果和MyISAM比insert写操作的话，Innodb还达不到MyISAM的写性能，如果是针对基于索引的update操作，虽然MyISAM可能会逊色Innodb,但是那么高并发的写，从库能否追的上也是一个问题，还不如通过多实例分库分表架构来解决。
 7. 如果是用MyISAM的话，merge引擎可以大大加快应用部门的开发速度，他们只要对这个merge表做一些select count(*)操作，非常适合大项目总量约几亿的rows某一类型(如日志，调查统计)的业务表。
-
-　　当然Innodb也不是绝对不用，用事务的项目就用Innodb的。另外，可能有人会说你MyISAM无法抗太多写操作，但是可以通过架构来弥补。
-
-
-
-
-
-
 
