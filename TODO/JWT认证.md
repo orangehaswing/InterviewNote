@@ -95,4 +95,102 @@ JWT 是由 . 连接的三部分组成。
 
 如你所见，服务端最终只是为了验证 Signature 是否仍是自己当时下发给 client 的那个，如果验证通过，则说明该 JWT 有效并且来自可靠来源，否则说明可能是对应用程序的潜在攻击，以此完成认证。
 
- 
+ JWT是什么？
+
+JWT (JSON Web Token)是一个开放标准（[RFC 7519](https://tools.ietf.org/html/rfc7519)），指基于JSON的、用于在网络上声明某种主张的令牌（token），以保证各方之间安全的传输信息。
+
+JWT通过将用户信息加密到token中，服务端不需要保存任何用户信息。服务端只需要通过保存的密钥来验证token正确性，如果正确即通过验证。
+
+## JWT的组成
+
+JWS实际上就是一个字符串，由三部分组成，头部(Header)、载荷(Payload)、签名(Signature)，并以`.`进行拼接。其中头部和载荷都是以JSON格式存放数据，只是进行了编码。
+
+![jwt](https://img1.wangjunfeng.com/images/201808/jwt.png)
+
+### 1. 头部(Header)
+
+每个JWT都会带有头部信息，这里主要声明使用的算法。声明算法的字段名为`alg`，同时还有一个`typ`的字段，默认`JWT`即可。以下示例中算法为HS256。
+
+| `1234` | `{  "alg": "HS256",  "typ": "JWT"}` |
+| ------ | ----------------------------------- |
+|        |                                     |
+
+因为JWT是字符串，所以我们还需要对以上内容进行Base64编码，编码后字符串如下：
+
+| `1`  | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9` |
+| ---- | -------------------------------------- |
+|      |                                        |
+
+### 2. 载荷(Payload)
+
+载荷即消息体，这里会存放实际的内容，也就是Token的数据声明(Claim)。这一段有一些是标准字段，当然也可以根据自己需要添加自己需要的字段。标准字段如下：
+
+- `iss`: Token签发者。格式是区分大小写的字符串或者uri，用于唯一标识签发token的一方。
+- `sub`: Token的主体，即它的所有人。格式是区分大小写的字符串或者uri。
+- `aud`: 接收Token的一方。格式为区分大小写的字符串或uri，或者这两种的数组。
+- `exp`: Token的过期时间，格式为时间戳。
+- `nbf`: 指定Token在nbf时间之前不能使用，即token开始生效的时间，格式为时间戳。
+- `iat`: Token的签发时间，格式为时间戳。
+- `jti`: 指此Token的唯一标识符字符串。主要用于实现唯一性保证，防止重放。
+
+下面是一个示例：
+
+| `12345` | `{  "sub": "1234567890",  "name": "John Doe",  "iat": 1516239022}` |
+| ------- | ---------------------------------------- |
+|         |                                          |
+
+同样进行Base64编码后，字符串如下：
+
+| `1`  | `eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ` |
+| ---- | ---------------------------------------- |
+|      |                                          |
+
+### 3. 签名(Signature)
+
+签名是对头部和载荷内容进行签名，一旦前面两部分数据被篡改，只要服务器加密用的密钥没有泄露，得到的签名肯定和之前的签名不一致。
+
+签名的过程：
+
+1. 对header的json数据进行Base64URL编码，得到一个字符串str1
+2. 对payload的json数据进行Base64URL编码，得到一个字符串str2
+3. 使用`.`对以上两个字符串进行拼接，得到字符串str3
+4. 使用header中声明的算法，以及服务端的密钥，对拼接字符串进行加密，生成签名
+
+如果用伪代码表示就是(以HS256为例)：
+
+| `12345` | `HMACSHA256(    base64UrlEncode(header) + "." +    base64UrlEncode(payload),    secret)` |
+| ------- | ---------------------------------------- |
+|         |                                          |
+
+将三组字符串，以`.`相连，就得到了一个完整的token，例如：
+
+| `1`  | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.OFHM3R8PSyHDT_vuzRF5fYkYWdhExM_9pE81kG05qAk` |
+| ---- | ---------------------------------------- |
+|      |                                          |
+
+## 如何使用JWT？
+
+在之前的传统的方法时在服务端存储一个session，并给客户端返回一个cookie。而如果是使用jwt来做身份鉴定的话，当用户登录成功，会给用户一个token，前端只需要在本地保存该token即可(通常使用localStorage，也可以使用cookie)。
+
+当用户需要访问一个受保护的资源时，需要再Header中使用Bearer模式的Authorization头。其内容看起来是下面这样：
+
+| `1`  | `Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.OFHM3R8PSyHDT_vuzRF5fYkYWdhExM_9pE81kG05qAk` |
+| ---- | ---------------------------------------- |
+|      |                                          |
+
+## JWT的优缺点
+
+优点：
+
+- json具有通用性，所以可以跨语言。
+- 组成简单，字节占用小，便于传输
+- 服务端无需保存会话信息，很容易进行水平扩展
+- 一处生成，多处使用，可以在分布式系统中，解决单点登录问题
+- 可防护CSRF攻击
+
+缺点：
+
+- payload部分仅仅是进行简单编码，所以只能用于存储逻辑必需的非敏感信息
+- 需要保护好加密密钥，一旦泄露后果不堪设想
+- 为避免token被劫持，最好使用https协议
+- 针对已经办法的令牌，无法作废，不容易应对数据过期的问题。

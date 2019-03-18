@@ -1,0 +1,452 @@
+# springcloud学习笔记-服务提供与调用(Eureka) 
+
+案例中有三个角色：服务注册中心、服务提供者、服务消费者，其中服务注册中心就是我们上一篇的 Eureka 单节点启动既可。
+流程如下：
+
+1. 启动注册中心
+2. 服务提供者生产服务并注册到服务中心中
+3. 消费者从服务中心中获取服务并执行
+   [![img](https://ws2.sinaimg.cn/large/006tNc79ly1fqdhgdesulj30fa08hjrj.jpg)](https://ws2.sinaimg.cn/large/006tNc79ly1fqdhgdesulj30fa08hjrj.jpg)
+
+# 服务提供者
+
+我们假设服务提供者有一个 `hello()` 方法，可以根据传入的参数，提供输出 “hello xxx + 当前时间” 的服务。
+
+## POM 包配置
+
+创建一个基本的 Spring Boot 应用，命名为`eureka-producer`，在 pom.xml 中添加如下配置：
+
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+
+```
+
+## 配置文件
+
+application.yml 配置如下
+
+```
+spring:
+  application:
+    name: eureka-producer
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:7000/eureka/
+server:
+  port: 8000
+
+```
+
+通过`spring.application.name`属性，我们可以指定微服务的名称后续在调用的时候只需要使用该名称就可以进行服务的访问。`eureka.client.serviceUrl.defaultZone`属性对应服务注册中心的配置内容，指定服务注册中心的位置。为了在本机上测试区分服务提供方和服务注册中心，使用`server.port`属性设置不同的端口。
+
+## 启动类
+
+保持默认生成的即可， Finchley.RC1 这个版本的 Spring Cloud 已经无需添加`@EnableDiscoveryClient`注解了。（那么如果我引入了相关的 jar 包又想禁用服务注册与发现怎么办？设置`eureka.client.enabled=false`）
+
+> `@EnableDiscoveryClient` is no longer required. You can put a `DiscoveryClient` implementation on the classpath to cause the Spring Boot application to register with the service discovery server.
+> [Spring Cloud - @EnableDiscoveryClient](http://cloud.spring.io/spring-cloud-static/Finchley.RC1/single/spring-cloud.html#__enablediscoveryclient)
+
+```
+@SpringBootApplication
+public class EurekaProducerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaProducerApplication.class, args);
+    }
+
+}
+
+```
+
+## Controller
+
+提供 hello 服务
+
+```
+@RestController
+@RequestMapping("/hello")
+public class HelloController {
+
+    @GetMapping("/")
+    public String hello(@RequestParam String name) {
+        return "Hello, " + name + " " + new Date();
+    }
+
+}
+
+```
+
+启动工程后，就可以在注册中心 [Eureka](http://localhost:7000/) 的页面看到 EUERKA-PRODUCER 服务。
+[![img](https://ws3.sinaimg.cn/large/006tKfTcly1fr2lk7o8mhj30sg044wfd.jpg)](https://ws3.sinaimg.cn/large/006tKfTcly1fr2lk7o8mhj30sg044wfd.jpg)
+
+我们模拟一个请求试一下 Producer 能否正常工作
+[http://localhost:8000/hello/?name=windmt](http://localhost:8000/hello/?name=windmt)
+
+```
+Hello, windmt Fri Apr 13 18:36:36 CST 2018
+
+```
+
+OK， 直接访问时没有问题的，到此服务提供者配置就完成了。
+
+# 服务消费者
+
+创建服务消费者根据使用 API 的不同，大致分为三种方式。虽然大家在实际使用中用的应该都是 Feign，但是这里还是把这三种都介绍一下吧，如果你只关心 Feign，可以直接跳到最后。
+
+三种方式均使用同一配置文件，不再单独说明了
+
+```
+spring:
+  application:
+    name: eureka-consumer
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:7000/eureka/ # 指定 Eureka 注册中心的地址
+server:
+  port: 9000 # 分别为 9000、9001、9002
+
+```
+
+## 使用 LoadBalancerClient
+
+从`LoadBalancerClient`接口的命名中，我们就知道这是一个负载均衡客户端的抽象定义，下面我们就看看如何使用 Spring Cloud 提供的负载均衡器客户端接口来实现服务的消费。
+
+### POM 包配置
+
+我们先来创建一个服务消费者工程，命名为：`eureka-consumer`。pom.xml 同 Producer 的，不再赘述。
+
+### 启动类
+
+初始化`RestTemplate`，用来发起 REST 请求。
+
+```
+@SpringBootApplication
+public class EurekaConsumerApplication {
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaConsumerApplication.class, args);
+    }
+}
+
+```
+
+### Controller
+
+创建一个接口用来消费 eureka-producer 提供的接口：
+
+```
+@RequestMapping("/hello")
+@RestController
+public class HelloController {
+
+    @Autowired
+    private LoadBalancerClient client;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @GetMapping("/")
+    public String hello(@RequestParam String name) {
+        name += "!";
+        ServiceInstance instance = client.choose("eureka-producer");
+        String url = "http://" + instance.getHost() + ":" + instance.getPort() + "/hello/?name=" + name;
+        return restTemplate.getForObject(url, String.class);
+    }
+
+}
+
+```
+
+可以看到这里，我们注入了`LoadBalancerClient`和`RestTemplate`，并在`hello`方法中，先通过`loadBalancerClient`的`choose`方法来负载均衡的选出一个`eureka-producer`的服务实例，这个服务实例的基本信息存储在`ServiceInstance`中，然后通过这些对象中的信息拼接出访问服务调用者的`/hello/`接口的详细地址，最后再利用`RestTemplate`对象实现对服务提供者接口的调用。
+
+另外，为了在调用时能从返回结果上与服务提供者有个区分，在这里我简单处理了一下，`name+="!"`，即服务调用者的 response 中会比服务提供者的多一个感叹号（!）。
+
+访问 [http://localhost:9000/hello/?name=windmt](http://localhost:9000/hello/?name=windmt) 以验证是否调用成功
+
+```
+Hello, windmt! Fri Apr 13 18:44:55 CST 2018
+
+```
+
+## Spring Cloud Ribbon
+
+之前已经介绍过 Ribbon 了，它是一个基于 HTTP 和 TCP 的客户端负载均衡器。它可以通过在客户端中配置 ribbonServerList 来设置服务端列表去轮询访问以达到均衡负载的作用。
+
+当 Ribbon 与 Eureka 联合使用时，ribbonServerList 会被 DiscoveryEnabledNIWSServerList 重写，扩展成从 Eureka 注册中心中获取服务实例列表。同时它也会用 NIWSDiscoveryPing 来取代 IPing，它将职责委托给 Eureka 来确定服务端是否已经启动。
+
+### POM 包配置
+
+将之前的 eureka-consumer 工程复制一份，并命名为 eureka-consumer-ribbon。
+
+pom.xml 文件还用之前的就行。至于 spring-cloud-starter-ribbon，因为我使用的 Spring Cloud 版本是 Finchley.RC1，spring-cloud-starter-netflix-eureka-client 里边已经包含了 spring-cloud-starter-netflix-ribbon 了。
+
+```
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+
+```
+
+### 启动类
+
+修改应用主类，为`RestTemplate`添加`@LoadBalanced`注解
+
+```
+@LoadBalanced
+@Bean
+public RestTemplate restTemplate() {
+    return new RestTemplate();
+}
+
+```
+
+### Controller
+
+修改 controller，去掉`LoadBalancerClient`，并修改相应的方法，直接用 `RestTemplate`发起请求
+
+```
+@GetMapping("/")
+public String hello(@RequestParam String name) {
+    name += "!";
+    String url = "http://eureka-producer/hello/?name=" + name;
+    return restTemplate.getForObject(url, String.class);
+}
+
+```
+
+可能你已经注意到了，这里直接用服务名`eureka-producer`取代了之前的具体的`host:port`。那么这样的请求为什么可以调用成功呢？因为 Spring Cloud Ribbon 有一个拦截器，它能够在这里进行实际调用的时候，自动的去选取服务实例，并将这里的服务名替换成实际要请求的 IP 地址和端口，从而完成服务接口的调用。
+
+访问 [http://localhost:9001/hello/?name=windmt](http://localhost:9001/hello/?name=windmt) 以验证是否调用成功
+
+```
+Hello, windmt! Fri Apr 13 22:24:14 CST 2018
+
+```
+
+也可以通过启动多个 eureka-producer 服务来观察其负载均衡的效果。
+
+## Spring Cloud Feign
+
+在实际工作中，我们基本上都是使用 Feign 来完成调用的。我们通过一个例子来展现 Feign 如何方便的声明对 eureka-producer 服务的定义和调用。
+
+### POM 包配置
+
+创建一个基本的 Spring Boot 应用，命名为`eureka-producer-feign`，在 pom.xml 中添加如下配置：
+
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+
+```
+
+### 启动类
+
+在启动类上加上`@EnableFeignClients`
+
+```
+@EnableFeignClients
+@SpringBootApplication
+public class EurekaConsumerFeignApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaConsumerFeignApplication.class, args);
+    }
+}
+
+```
+
+### Feign 调用实现
+
+创建一个 Feign 的客户端接口定义。使用`@FeignClient`注解来指定这个接口所要调用的服务名称，接口中定义的各个函数使用 Spring MVC 的注解就可以来绑定服务提供方的 REST 接口，比如下面就是绑定 eureka-producer 服务的`/hello/`接口的例子：
+
+```
+@FeignClient(name = "eureka-producer")
+public interface HelloRemote {
+
+    @GetMapping("/hello/")
+    String hello(@RequestParam(value = "name") String name);
+
+}
+
+```
+
+此类中的方法和远程服务中 Contoller 中的方法名和参数需保持一致。
+
+> 这里有几个坑，后边有详细说明。
+
+### Controller
+
+修改 Controller，将 HelloRemote 注入到 controller 层，像普通方法一样去调用即可
+
+```
+@RequestMapping("/hello")
+@RestController
+public class HelloController {
+
+    @Autowired
+    HelloRemote helloRemote;
+
+    @GetMapping("/{name}")
+    public String index(@PathVariable("name") String name) {
+        return helloRemote.hello(name + "!");
+    }
+
+}
+
+```
+
+通过 Spring Cloud Feign 来实现服务调用的方式非常简单，通过`@FeignClient`定义的接口来统一的声明我们需要依赖的微服务接口。而在具体使用的时候就跟调用本地方法一点的进行调用即可。由于 Feign 是基于 Ribbon 实现的，所以它自带了客户端负载均衡功能，也可以通过 Ribbon 的 IRule 进行策略扩展。另外，Feign 还整合的 Hystrix 来实现服务的容错保护，这个在后边会详细讲。（在 Finchley.RC1 版本中，Feign 的 Hystrix 默认是关闭的。参考 [Spring Cloud OpenFeign](https://github.com/spring-cloud/spring-cloud-openfeign/blob/30d92458218067dfc84f529d8bb519450b268297/docs/src/main/asciidoc/spring-cloud-openfeign.adoc) 和 [Disable HystrixCommands For FeignClients By Default](https://github.com/spring-cloud/spring-cloud-netflix/issues/1277)）。
+
+在我的 IDEA 里，这里会有错误提示，如下
+[![img](https://ws2.sinaimg.cn/large/006tKfTcly1fqbit59dlyj30qo05emy9.jpg)](https://ws2.sinaimg.cn/large/006tKfTcly1fqbit59dlyj30qo05emy9.jpg)
+这个其实不用管，运行的时候会被正确注入。如果嫌这个提示烦，可以在`HelloRemote`这个接口上边加`@Component`注解。
+
+访问 [http://localhost:9002/hello/windmt](http://localhost:9002/hello/windmt) 以验证是否调用成功
+
+```
+Hello, windmt! Sat Apr 14 01:03:56 CST 2018
+
+```
+
+### 踩坑记录
+
+#### 问题一：not have available server
+
+```
+com.netflix.client.ClientException: Load balancer does not have available server for client: eureka-producer
+
+```
+
+这个问题刚开始困扰了我好长时间，最后发现原来是因为我没加入 eureka-client 这个依赖，只加了 spring-boot-starter-web 和 spring-cloud-starter-openfeign。只有后两者的话，启动的时候其实是不会有任何异常被抛出的，
+但是如果细心地查看了启动 log 的话，其中有这么一条可以看出实际上确实是没有获取到任何服务的
+
+```
+c.netflix.loadbalancer.BaseLoadBalancer  : Client: eureka-producer instantiated a LoadBalancer: DynamicServerListLoadBalancer:{NFLoadBalancer:name=eureka-producer,current list of Servers=[],Load balancer stats=Zone stats: {},Server stats: []}ServerList:null
+
+```
+
+所以，要想使用 Feign，至少需要以下三个依赖
+
+- spring-boot-starter-web
+- spring-cloud-starter-openfeign
+- spring-cloud-starter-netflix-eureka-client
+
+#### 问题二：Request method ‘POST’ not supported
+
+```
+feign.FeignException: status 405 reading HelloRemote#hello(String); content:
+{"timestamp":"2018-04-13T16:29:12.453+0000","status":405,"error":"Method Not Allowed","message":"Request method 'POST' not supported","path":"/hello/"}
+
+```
+
+`HelloRemote`中的代码是这样的，出现上边的异常
+
+```
+@GetMapping("/hello/")
+String hello(String name);
+
+```
+
+改成这样，还是同样的异常
+
+```
+@RequestMapping(value = "/hello/", method = RequestMethod.GET)
+String hello(String name);
+
+```
+
+再改，这次 OK 了
+
+```
+@GetMapping("/hello/")
+String hello(@RequestParam(value = "name") String name);
+
+```
+
+这个问题挺奇葩的的，不加`@RequestParam`就变成了 POST 请求，不论我是用`@GetMapping`还是`method = RequestMethod.GET`，也是无语了。
+至于怎么想到的加了个`@RequestParam(value = "name")`，说来话长。一开始我没加 eureka-client 依赖，也没加`@RequestParam`注解，一启动就报异常：
+
+```
+Caused by: java.lang.IllegalStateException: PathVariable annotation was empty on param 0.
+
+```
+
+所以就加了`@RequestParam`，算是歪打正着吧。
+
+至于为什么出现这个 GET 变 POST 的情况，个人猜测应该是当参数没有被`@RequestParam`注解修饰时，会自动被当做 request body 来处理。只要有 body，就会被 Feign 认为是 POST 请求，所以整个服务是被当作带有 request parameter 和 body 的 POST 请求发送出去的。
+
+## 负载均衡
+
+以上三种方式都能实现负载均衡，都是以轮询访问的方式实现的。这个以大家常用的 Feign 的方式做一个测试。
+
+以上面 eureka-producer 为例子修改，将其中的 controller 改动如下：
+
+```
+@RestController
+@RequestMapping("/hello")
+public class HelloController {
+
+    @Value("${config.producer.instance:0}")
+    private int instance;
+
+    @GetMapping("/")
+    public String hello(@RequestParam String name) {
+        return "[" + instance + "]" + "Hello, " + name + " " + new Date();
+    }
+
+}
+
+```
+
+打包启动
+
+```
+// 打包
+mvn clean package  -Dmaven.test.skip=true
+
+// 分别以 8000 和 8001 启动实例 1 和 实例 2
+java -jar target/eureka-producer-0.0.1-SNAPSHOT.jar --config.producer.instance=1 --server.port=8000
+java -jar target/eureka-producer-0.0.1-SNAPSHOT.jar --config.producer.instance=2 --server.port=8001
+
+// 在端口 9002 上启动 eureka-consumer-feign
+java -jar target/eureka-eureka-consumer-feign-0.0.1-SNAPSHOT.jar --server.port=9002
+
+```
+
+访问 [http://localhost:9002/hello/windmt](http://localhost:9002/hello/windmt) 进行测试。在不断的测试下去会发现两种结果交替出现
+
+```
+[1]Hello, , windmt Sun Apr 15 19:37:15 CST 2018
+[2]Hello, , windmt Sun Apr 15 19:37:17 CST 2018
+[1]Hello, , windmt Sun Apr 15 19:37:19 CST 2018
+[2]Hello, , windmt Sun Apr 15 19:37:24 CST 2018
+[1]Hello, , windmt Sun Apr 15 19:37:27 CST 2018
+
+```
+
+这说明两个服务中心自动提供了服务均衡负载的功能。如果我们将服务提供者的数量在提高为 N 个，测试结果一样，请求会自动轮询到每个服务端来处理。
