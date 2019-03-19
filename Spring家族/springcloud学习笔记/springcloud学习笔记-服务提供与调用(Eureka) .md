@@ -6,7 +6,9 @@
 1. 启动注册中心
 2. 服务提供者生产服务并注册到服务中心中
 3. 消费者从服务中心中获取服务并执行
-   [![img](https://ws2.sinaimg.cn/large/006tNc79ly1fqdhgdesulj30fa08hjrj.jpg)](https://ws2.sinaimg.cn/large/006tNc79ly1fqdhgdesulj30fa08hjrj.jpg)
+
+
+[![img](https://ws2.sinaimg.cn/large/006tNc79ly1fqdhgdesulj30fa08hjrj.jpg)](https://ws2.sinaimg.cn/large/006tNc79ly1fqdhgdesulj30fa08hjrj.jpg)
 
 # 服务提供者
 
@@ -450,3 +452,110 @@ java -jar target/eureka-eureka-consumer-feign-0.0.1-SNAPSHOT.jar --server.port=9
 ```
 
 这说明两个服务中心自动提供了服务均衡负载的功能。如果我们将服务提供者的数量在提高为 N 个，测试结果一样，请求会自动轮询到每个服务端来处理。
+
+# Server源码分析
+
+## 服务注册
+
+当Eureka客户端向Eureka Server注册时，它提供自身的元数据，比如IP地址、端口，运行状况指示符URL，主页
+
+## 服务续约 
+
+Eureka客户会每隔30秒发送一次心跳来续约。 Eureka Server在90秒没有收到Eureka客户的续约，它会将实例从其注册表中删除。 
+
+## 服务下线
+
+Eureka客户端在程序关闭时向Eureka服务器发送取消请求。 发送请求后，该客户端实例信息将从服务器的实例注册表中删除。
+
+## 服务剔除
+
+当Eureka客户端连续90秒没有向Eureka服务器发送服务续约，即心跳，Eureka服务器会将该服务实例从服务注册列表删除。
+
+## 源码分析
+
+@EnableDiscoveryClient注解启动DiscoveryClient实例。客户端依次加载了Region，Zone两个内容。从加载逻辑看，Region与Zone是一对多的关系。
+
+当使用Ribbon来实现服务调用时，对于Zone的设置可以在负载均衡时实现区域亲和。默认策略会优先访问同一个客户端处于一个Zone中的服务端实例。
+
+## 配置详解
+
+Eureka客户端配置：
+
+- 服务注册相关：注册中心的地址，服务获取的间隔时间，可用区域
+- 服务实例相关，服务实例的名称，IP，端口号，健康检查路径
+
+
+# Ribbon负载均衡
+
+基于HTTP和TCP的客户端负载均衡工具，基于Netflix Ribbon实现。
+
+- 软负载均衡：在一台机器上安装附加的某种软件，如nginx负载均衡
+- 硬负载均衡：负载均衡器，F5负载均衡器
+
+## 配置
+
+- 服务提供者只需启动多个服务实例并注册到一个注册中心
+- 服务消费者直接通过被@LoadBalanced注解修饰过的RestTemplate来实现接口调用
+
+## 详解 RestTemplate
+
+RestTemplate针对几种不同请求类型和参数类型的服务调用实现。
+
+- GET：getForEntity函数，getForObject函数
+- POST：postForEntity函数，postForObject函数，postForLocation函数。
+- PUT
+- DELETE
+
+## @LoadBalanced注解
+
+@LoadBalanced注解用来给RestTemplate标记，以使用负载均衡的客户端（LoadBalancerClient）来配置它。
+
+客户端负载均衡器中应具备能力：
+
+- **ServiceInstance ：**根据传入的服务名serviceId，从负载均衡器中挑选一个对应服务的实例
+- **execute** ：使用从负载均衡器中挑选出的服务实例来执行请求内容。
+- **reconstructURI ：** 为系统构建一个合适的host:port形式的URI
+
+它是如何通过LoadBalancerInterceptor拦截器对RequestTemplate的请求进行拦截，并利用Spring Cloud的负载均衡器LoadBalancerClient将以服务名为host的URI转换成具体的服务实例地址的过程。
+
+使用Ribbon实现负载均衡器的时候，实际使用的还是Ribbon中定义ILoadBalancer接口的实现，自动化配置会采用ZoneAwareLoadBalancer的实例来实现客户端负载均衡。
+
+## 负载均衡器
+
+六个组件：
+
+- ServerList，负载均衡使用的服务器列表。这个列表会缓存在负载均衡器中，并定期更新。当 Ribbon 与 Eureka 结合使用时，ServerList 的实现类就是 DiscoveryEnabledNIWSServerList，它会保存 Eureka Server 中注册的服务实例表。
+- ServerListFilter，服务器列表过滤器。这是一个接口，主要用于对 Service Consumer 获取到的服务器列表进行预过滤，过滤的结果也是 ServerList。Ribbon 提供了多种过滤器的实现。
+- IPing，探测服务实例是否存活的策略。
+- IRule，负载均衡策略，其实现类表述的策略包括：轮询、随机、根据响应时间加权等。
+- ILoadBalancer，负载均衡器。这也是一个接口，Ribbon 为其提供了多个实现，比如 ZoneAwareLoadBalancer。而上层代码通过调用其 API 进行服务调用的负载均衡选择。一般 ILoadBalancer 的实现类中会引用一个 IRule。
+- RestClient，服务调用器。顾名思义，这就是负载均衡后，Ribbon 向 Service Provider 发起 REST 请求的工具。
+
+Ribbon 工作时会做四件事情：
+
+1. 优先选择在同一个 Zone 且负载较少的 Eureka Server；
+2. 定期从 Eureka 更新并过滤服务实例列表；
+3. 根据用户指定的策略，在从 Server 取到的服务注册列表中选择一个实例的地址；
+4. 通过 RestClient 进行服务调用
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

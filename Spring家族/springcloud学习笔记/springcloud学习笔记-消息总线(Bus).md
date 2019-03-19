@@ -304,3 +304,16 @@ destination 参数也可以用来定位特定的微服务。例如：`/actuator/
 这个日志显示了`customers:8001`发出了 RefreshRemoteApplicationEvent 事件，广播给所有的服务，被`customers:9000`和`stores:8081`接受到了。想要对接受到的消息自定义自己的处理方式的话，可以添加`@EventListener`注解的 AckRemoteApplicationEvent 和 SentApplicationEvent 类型到你自己的应用中。或者到 TraceRepository 类中，直接处理数据。
 
 这样，我们就可清晰地知道事件的传播细节。
+
+
+
+
+
+
+
+
+
+
+
+
+

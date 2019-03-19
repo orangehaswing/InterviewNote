@@ -11,7 +11,11 @@
 ## 定义
 
 服务雪崩效应是一种因 **服务提供者** 的不可用导致 **服务调用者** 的不可用，并将不可用 **逐渐放大** 的过程。如果所示:
+
+
 [![img](https://ws4.sinaimg.cn/large/006tNc79ly1fqdrhznd6yj30ak0cyaep.jpg)](https://ws4.sinaimg.cn/large/006tNc79ly1fqdrhznd6yj30ak0cyaep.jpg)
+
+
 上图中，A 为服务提供者，B 为 A 的服务调用者，C 和 D 是 B 的服务调用者。当 A 的不可用，引起 B 的不可用，并将不可用逐渐放大 C 和 D 时，服务雪崩就形成了。
 
 ## 形成的原因
@@ -91,6 +95,13 @@
 不可用服务的调用快速失败一般通过 **超时机制**, **熔断器** 和熔断后的 **降级方法** 来实现。
 
 # 使用 Hystrix 预防服务雪崩
+
+因为一个接口的异常，有可能导制线程阻塞，影响到其它接口的服务，甚至整个系统的服务给拖跨。Hystrix提供了几种解决方案，分别为：
+
+- 线程池隔离
+- 信号量隔离
+- 熔断
+- 降级回退
 
 ## 服务降级（Fallback）
 
@@ -239,4 +250,71 @@ public interface HelloRemote {
 返回：`[0]Hello, windmt! Sun Apr 15 23:14:52 CST 2018`
 
 根据返回结果说明熔断成功。
+
+# 原理分析
+
+## 处理流程
+
+![img](https://upload-images.jianshu.io/upload_images/7378149-8821119882b0fcec.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000/format/webp)
+
+
+
+1. 构造HystrixCommand或HystrixObservableCommand对象
+
+2. 执行Command 命令
+
+   execute(): 同步阻塞直至从依赖服务返回结果或抛出异常
+
+   queue(): 异步模式，返回Future，Future封装返回的内容
+
+   observe() : 直接订阅Observable ，此对象包含了从依赖服务返回的结果
+
+   toObservable() : 返回Observable 对象，当你订阅他时，它会执行Hystrix命令并返回结果
+
+3. 判断结束是否有缓存
+   如果请求缓存功能开启，并且请求在缓存命中，那么返回一个Observable，此对象包含请求的结束
+
+4. 判断短路器是否开启
+
+5. 判断线程池/队列/信号资源是否满了
+
+6. 执行HystrixObservableCommand.construct()或HystrixCommand.run()
+
+7. Calculate Circuit Health
+
+   Hystrix向断路器报告成功、失败、拒绝和超时。断路器维护一组计数器来统计执行数据。
+
+8. 获取 Fallback逻辑
+
+   在执行时construct() or run() ，跑出异常 (发生在步骤6.)
+
+   断路器打开时，命令被断路 (发生在步骤4.)
+
+   当执行命令时，依赖的线程池、队列或信号量满(发生在步骤5.)
+
+9. 执行命令超时
+
+10. 返回执行结束或者Observable
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
