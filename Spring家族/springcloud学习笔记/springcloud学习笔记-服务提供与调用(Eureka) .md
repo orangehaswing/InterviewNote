@@ -1,6 +1,7 @@
 # springcloud学习笔记-服务提供与调用(Eureka) 
 
-案例中有三个角色：服务注册中心、服务提供者、服务消费者，其中服务注册中心就是我们上一篇的 Eureka 单节点启动既可。
+案例中有三个角色：服务注册中心、服务提供者、服务消费者
+
 流程如下：
 
 1. 启动注册中心
@@ -52,9 +53,6 @@ server:
 ## 启动类
 
 保持默认生成的即可， Finchley.RC1 这个版本的 Spring Cloud 已经无需添加`@EnableDiscoveryClient`注解了。（那么如果我引入了相关的 jar 包又想禁用服务注册与发现怎么办？设置`eureka.client.enabled=false`）
-
-> `@EnableDiscoveryClient` is no longer required. You can put a `DiscoveryClient` implementation on the classpath to cause the Spring Boot application to register with the service discovery server.
-> [Spring Cloud - @EnableDiscoveryClient](http://cloud.spring.io/spring-cloud-static/Finchley.RC1/single/spring-cloud.html#__enablediscoveryclient)
 
 ```
 @SpringBootApplication
@@ -322,85 +320,13 @@ public class HelloController {
 
 ```
 
-通过 Spring Cloud Feign 来实现服务调用的方式非常简单，通过`@FeignClient`定义的接口来统一的声明我们需要依赖的微服务接口。而在具体使用的时候就跟调用本地方法一点的进行调用即可。由于 Feign 是基于 Ribbon 实现的，所以它自带了客户端负载均衡功能，也可以通过 Ribbon 的 IRule 进行策略扩展。另外，Feign 还整合的 Hystrix 来实现服务的容错保护，这个在后边会详细讲。（在 Finchley.RC1 版本中，Feign 的 Hystrix 默认是关闭的。参考 [Spring Cloud OpenFeign](https://github.com/spring-cloud/spring-cloud-openfeign/blob/30d92458218067dfc84f529d8bb519450b268297/docs/src/main/asciidoc/spring-cloud-openfeign.adoc) 和 [Disable HystrixCommands For FeignClients By Default](https://github.com/spring-cloud/spring-cloud-netflix/issues/1277)）。
-
-在我的 IDEA 里，这里会有错误提示，如下
-[![img](https://ws2.sinaimg.cn/large/006tKfTcly1fqbit59dlyj30qo05emy9.jpg)](https://ws2.sinaimg.cn/large/006tKfTcly1fqbit59dlyj30qo05emy9.jpg)
-这个其实不用管，运行的时候会被正确注入。如果嫌这个提示烦，可以在`HelloRemote`这个接口上边加`@Component`注解。
+通过 Spring Cloud Feign 来实现服务调用的方式非常简单，通过`@FeignClient`定义的接口来统一的声明我们需要依赖的微服务接口。而在具体使用的时候就跟调用本地方法一点的进行调用即可。由于 Feign 是基于 Ribbon 实现的，所以它自带了客户端负载均衡功能，也可以通过 Ribbon 的 IRule 进行策略扩展。另外，Feign 还整合的 Hystrix 来实现服务的容错保护，这个在后边会详细讲。（在 Finchley.RC1 版本中，Feign 的 Hystrix 默认是关闭的。
 
 访问 [http://localhost:9002/hello/windmt](http://localhost:9002/hello/windmt) 以验证是否调用成功
 
 ```
 Hello, windmt! Sat Apr 14 01:03:56 CST 2018
-
 ```
-
-### 踩坑记录
-
-#### 问题一：not have available server
-
-```
-com.netflix.client.ClientException: Load balancer does not have available server for client: eureka-producer
-
-```
-
-这个问题刚开始困扰了我好长时间，最后发现原来是因为我没加入 eureka-client 这个依赖，只加了 spring-boot-starter-web 和 spring-cloud-starter-openfeign。只有后两者的话，启动的时候其实是不会有任何异常被抛出的，
-但是如果细心地查看了启动 log 的话，其中有这么一条可以看出实际上确实是没有获取到任何服务的
-
-```
-c.netflix.loadbalancer.BaseLoadBalancer  : Client: eureka-producer instantiated a LoadBalancer: DynamicServerListLoadBalancer:{NFLoadBalancer:name=eureka-producer,current list of Servers=[],Load balancer stats=Zone stats: {},Server stats: []}ServerList:null
-
-```
-
-所以，要想使用 Feign，至少需要以下三个依赖
-
-- spring-boot-starter-web
-- spring-cloud-starter-openfeign
-- spring-cloud-starter-netflix-eureka-client
-
-#### 问题二：Request method ‘POST’ not supported
-
-```
-feign.FeignException: status 405 reading HelloRemote#hello(String); content:
-{"timestamp":"2018-04-13T16:29:12.453+0000","status":405,"error":"Method Not Allowed","message":"Request method 'POST' not supported","path":"/hello/"}
-
-```
-
-`HelloRemote`中的代码是这样的，出现上边的异常
-
-```
-@GetMapping("/hello/")
-String hello(String name);
-
-```
-
-改成这样，还是同样的异常
-
-```
-@RequestMapping(value = "/hello/", method = RequestMethod.GET)
-String hello(String name);
-
-```
-
-再改，这次 OK 了
-
-```
-@GetMapping("/hello/")
-String hello(@RequestParam(value = "name") String name);
-
-```
-
-这个问题挺奇葩的的，不加`@RequestParam`就变成了 POST 请求，不论我是用`@GetMapping`还是`method = RequestMethod.GET`，也是无语了。
-至于怎么想到的加了个`@RequestParam(value = "name")`，说来话长。一开始我没加 eureka-client 依赖，也没加`@RequestParam`注解，一启动就报异常：
-
-```
-Caused by: java.lang.IllegalStateException: PathVariable annotation was empty on param 0.
-
-```
-
-所以就加了`@RequestParam`，算是歪打正着吧。
-
-至于为什么出现这个 GET 变 POST 的情况，个人猜测应该是当参数没有被`@RequestParam`注解修饰时，会自动被当做 request body 来处理。只要有 body，就会被 Feign 认为是 POST 请求，所以整个服务是被当作带有 request parameter 和 body 的 POST 请求发送出去的。
 
 ## 负载均衡
 
@@ -537,25 +463,5 @@ Ribbon 工作时会做四件事情：
 2. 定期从 Eureka 更新并过滤服务实例列表；
 3. 根据用户指定的策略，在从 Server 取到的服务注册列表中选择一个实例的地址；
 4. 通过 RestClient 进行服务调用
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

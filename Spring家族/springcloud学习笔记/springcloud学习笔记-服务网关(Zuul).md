@@ -2,7 +2,7 @@
 
 # 请求路由
 
-通过之前几篇 Spring Cloud 中几个核心组件的介绍，我们已经可以构建一个简略的微服务架构了，可能像下图这样：
+构建一个简略的微服务架构，可能像下图这样：
 
 [![img](https://ws2.sinaimg.cn/large/006tNc79ly1fqmei2skktj30ma0k2myr.jpg)](https://ws2.sinaimg.cn/large/006tNc79ly1fqmei2skktj30ma0k2myr.jpg)
 
@@ -33,8 +33,6 @@
 [![img](https://ws1.sinaimg.cn/large/006tNc79ly1fqmduv84imj30v20hejta.jpg)](https://ws1.sinaimg.cn/large/006tNc79ly1fqmduv84imj30v20hejta.jpg)
 
 在 Spring Cloud 体系中， Spring Cloud Zuul 就是提供负载均衡、反向代理、权限认证的一个 API Gateway。
-
-> 我们这篇说的 Zuul 是 Zuul 1，实际上 Netflix 已经发布了 Zuul 2，不过 Spring 好像并没有将 Zuul 2 整合到 Spring Cloud 生态中的意思，因为它自己做了一个 Spring Cloud Gateway（估计是因为之前 Zuul 2 一直跳票导致等不及了吧）。关于 Spring Cloud Gateway 这个高性能的网关我们以后再说。
 
 ## Spring Cloud Zuul
 
