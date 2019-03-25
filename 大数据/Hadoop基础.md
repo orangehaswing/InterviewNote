@@ -302,7 +302,34 @@ MapReduce 流程图：
 - 拷贝作业运行必备的资源，包括作业 JAR 文件，配置文件以及计算的输入分片，到一个以作业 ID 命名的共享文件系统目录中`(step 3)`。作业 JAR 文件以一个高副本因子（a high replication factor）进行拷贝（由 mapreduce.client.submit.file.replication 属性控制，默认值为 10），所以在作业任务运行时，在集群中有很多的作业 JAR 副本供节点管理器来访问
 - 通过在资源管理器上调用 submitApplication 来提交作业`(step 4)`
 
-------
+### 输入格式
+
+1. 输入分片与记录 
+2. 文件输入 
+3. 文本输入 
+4. 二进制输入 
+5. 多文件输入 
+6. 数据库格式输入
+
+![img](https://img-blog.csdn.net/20150610173108636)
+
+### 输出格式
+
+- 文本输出
+- 二进制输出
+- 多文件输出
+- 数据库格式输出
+
+![img](https://img-blog.csdn.net/20150610215643330)
+
+### 特性
+
+- 提交作业到队列：队列是作业的集合，允许系统添加特定的功能
+- Counters：全局计数器
+- DistributedCache：将具体应用相关的，Size大的、只读的文件有效地分布放置。可以缓存应用程序所需的文件
+- Profiling：Profiling是一个工具，它使用内置的java profiler工具进行分析获得（2-3个）map和reduce样例运行分析报告。
+- 数据压缩：工具可以为map输出的中间数据和作业结果输出数据（例如reduce的输出）提供支持。
+- Skipping Bad Records：在处理map输入的时候，允许跳过一定数量的记录集。有时map任务一遇到某些特定的输入集合就会崩溃，这主要是map函数的一些BUG导致的。
 
 ### Shuffle 和排序（Shuffle and Sort）
 
