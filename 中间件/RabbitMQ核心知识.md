@@ -4,6 +4,16 @@
 
 **RabbitMQ**是一个实现了AMQP协议（Advanced Message Queue Protocol）的消息队列。
 
+AMQP协议：
+
+- Functional Layer
+
+  ​ 功能层，位于协议上层主要定义了一组命令（基于功能的逻辑分类），用于应用程序调用实现自身所需的业务逻辑。例如：应用程序可以通过功能层定义队列名称，生产消息到指定队列，消费指定队列消息等基于（Message queues 模型）
+
+- Transport Layer
+
+  ​ 传输层，基于二进制数据流传输，用于将应用程序调用的指令传回服务器，并返回结果，同时可以处理信道复用，帧处理，内容编码，心跳传输，数据传输和异常处理。
+
 ## 概念
 
 - **producer**： producer 是一个发送消息的应用
@@ -87,13 +97,12 @@ RabbitMQ控制台可以：
 
 ![img](https://pic4.zhimg.com/v2-de6d821388d33124d2e61b4ac21ef19f_b.gif)
 
+# 客户端开发导向
 
+## 消息消费
 
-## 生产者与消费者
-
-生产者： 创建消息，然后发送到代理服务器(RabbitMQ)的程序
-
-消费者：连接到代理服务器，并订阅到队列上接收消息
+- 推送模式：可以注册一个消费者后，RabbitMQ会在消息可用时，自动将消息进行推送给消费者。
+- 拉取模式：属于一种轮询模型，发送一次get请求，获得一个消息。如果此时RabbitMQ中没有消息，会获得一个表示空的回复。
 
 ## 消息流程
 
@@ -143,27 +152,13 @@ rabbitmqctl list_vhosts
 
 ![img](https://pic3.zhimg.com/v2-f3bf1f8652dd507a5430f175796f93ae_b.jpg)
 
-## 消息投递策略
-
-默认情况下RabbitMQ的队列和交换机在RabbitMQ服务器重启之后会消失，原因在于队列和交换机的durable属性，该属性默认情况下为false.
-
-能从AMQP服务器崩溃中恢复的消息称为持久化消息，如果想要从崩溃中恢复那么消息必须
-
-- 投递模式设置2，来标记消息为持久化
-- 发送到持久化的交换机
-- 发送到持久化的队列
-
-缺点：消息写入磁盘性能差很多。除非特别关键的消息会使用
-
-## 关键API
-
-以上都是概念性的内容，实际我们还是要通过编程来实现我们的目的，RabbitMQ的客户端api提供了很多功能，通过看代码，来了解它的强大之处。
-
-基本步骤之前的[RabbitMQ快速入门](http://link.zhihu.com/?target=https%3A//www.jianshu.com/p/7f47bd851c9a)已经提过了，Channel类是关键的部分：包含了很多我们想要的功能
-
-![img](https://pic1.zhimg.com/v2-f731a1bddbdc867b89f9e2c6901768d4_b.jpg)
-
 ## 消息确认
+
+消息确认模式有：
+
+- AcknowledgeMode.NONE：自动确认
+- AcknowledgeMode.AUTO：根据情况确认
+- AcknowledgeMode.MANUAL：手动确认
 
 生成端可以添加监听事件：
 
@@ -212,32 +207,90 @@ public class MyConsumer extends DefaultConsumer {
 
 channel.basicAck与basicNack最后一个参数指定消息是否重回队列。
 
-## 监听不可达消息
+basicAck 方法需要传递两个参数
 
-我们的消息生产者通过指定交换机和路由键来把消息送到队列中，但有时候指定的路由键不存在，或者交换机不存在，那么消息就会return，我们可以通过添加return listener来实现：
+- **deliveryTag（唯一标识 ID）**：当一个消费者向 RabbitMQ 注册后，会建立起一个 Channel ，RabbitMQ 会用 basic.deliver 方法向消费者推送消息，这个方法携带了一个 delivery tag， **它代表了 RabbitMQ 向该 Channel 投递的这条消息的唯一标识 ID**，是一个单调递增的正整数，delivery tag 的范围仅限于 Channel
+- **multiple**：为了减少网络流量，手动确认可以被批处理，**当该参数为 true 时，则可以一次性确认 delivery_tag 小于等于传入值的所有消息**
 
-```
-channel.addReturnListener(new ReturnListener() {
-			@Override
-			public void handleReturn(int replyCode, String replyText, String exchange,
-					String routingKey, BasicProperties properties, byte[] body) throws IOException {
-				
-				System.err.println("---------handle  return----------");
-				System.err.println("replyCode: " + replyCode);
-				System.err.println("replyText: " + replyText);
-				System.err.println("exchange: " + exchange);
-				System.err.println("routingKey: " + routingKey);
-				System.err.println("properties: " + properties);
-				System.err.println("body: " + new String(body));
-			}
-		});
-		
+# 进阶开发
 
-		channel.basicPublish(exchange, routingKeyError, true, null, msg.getBytes());
+## mandatory和immediate
 
-```
+mandatory
+当mandatory标志位设置为true时，如果exchange根据自身类型和消息routeKey无法找到一个符合条件的queue，那么会调用basic.return方法将消息返回给生产者（Basic.Return + Content-Header + Content-Body）；当mandatory设置为false时，出现上述情形broker会直接将消息扔掉。
 
-在basicPublish中的Mandatory要设置为true才会生效，否则broker会删除该消息
+immediate
+当immediate标志位设置为true时，如果exchange在将消息路由到queue(s)时发现对于的queue上么有消费者，那么这条消息不会放入队列中。当与消息routeKey关联的所有queue（一个或者多个）都没有消费者时，该消息会通过basic.return方法返还给生产者。
+
+## 备份交换器
+
+生产者在发送消息的时候如果不设置mandatory参数，那么消息在未被路由的情况下将会丢失；如果设置了mandatory参数，那么需要添加ReturnListener的编程逻辑，生产者的代码将变得复杂。如果既不想复杂化生产者的编程逻辑，又不想消息丢失，那么可以使用备份交换器，这样可以将未被路由的消息存储在RabbitMQ中，再在需要的时候去处理这些消息。
+
+![img](http://download.broadview.com.cn/Original/1712a3a7a532e1cde9c5)
+
+## TTL（Time-To-Live 过期时间）
+
+- 通过队列属性设置，队列中所有消息都有相同的过期时间。
+- 对消息进行单独设置，每条消息TTL可以不同。
+
+如果上述两种方法同时使用，则消息的过期时间以两者之间TTL较小的那个数值为准。消息在队列的生存时间一旦超过设置的TTL值，就称为dead message， 消费者将无法再收到该消息。
+
+## 队列
+
+### 死信队列(DLX)
+
+当消息在队列中变成死信，没有消费者进行消费的时候，消息可能会被重新发布到另外一个队列中，这个队列就是死信队列。
+
+以下情况会导致消息进入死信队列：
+
+- basic.reject/basic.nack 并且 requeue为false(不重回队列)的时候，消息就是死信
+- 消息TTL过期
+- 队列达到最大的长度
+
+死信队列也是正常的Exchange，和一般的Exchange没什么区别，不过要做一点操作。
+
+设置死信队列包括：
+
+- 设置Exchange(dlx.exchange名称随意),设置Queue(dlx.queue),设置RoutingKey(#)
+- 创建正常的交换机，队列，绑定，只不过加上一个参数 arguments.put(“x-dead-letter-exchange”,“dlx.exchange”)
+
+### 优先级队列
+
+具有更高优先级的队列具有较高的优先权，优先级高的消息具备优先被消费的特权。
+
+### 延迟队列
+
+延迟队列存储的对象肯定是对应的延迟消息，所谓”延迟消息”是指当消息被发送以后，并不想让消费者立即拿到消息，而是等待指定时间后，消费者才拿到这个消息进行消费。
+
+### 镜像队列
+
+将queue镜像到cluster中其他的节点之上。在该实现下，如果集群中的一个节点失效了，queue能自动地切换到镜像中的另一个节点以保证服务的可用性。
+
+## 消息确认机制
+
+### 事务机制
+
+- txSelect用于将当前channel设置成transaction模式
+- txCommit用于提交事务
+- txRollback用于回滚事务
+
+### Confirm模式
+
+一旦信道进入confirm模式，所有在该信道上面发布的消息都会被指派一个唯一的ID(从1开始)，一旦消息被投递到所有匹配的队列之后，broker就会发送一个确认给生产者（包含消息的唯一ID）,这就使得生产者知道消息已经正确到达目的队列了。
+
+如果消息和队列是可持久化的，那么确认消息会将消息写入磁盘之后发出，broker回传给生产者的确认消息中deliver-tag域包含了确认消息的序列号，此外broker也可以设置basic.ack的multiple域，表示到这个序列号之前的所有消息都已经得到了处理。
+
+## 持久化
+
+默认情况下RabbitMQ的队列和交换机在RabbitMQ服务器重启之后会消失，原因在于队列和交换机的durable属性，该属性默认情况下为false.
+
+能从AMQP服务器崩溃中恢复的消息称为持久化消息，如果想要从崩溃中恢复那么消息必须
+
+- 投递模式设置2，来标记消息为持久化
+- 发送到持久化的交换机
+- 发送到持久化的队列
+
+缺点：消息写入磁盘性能差很多。除非特别关键的消息会使用
 
 ## 消费端限流
 
@@ -256,48 +309,11 @@ RabbitMQ提供了一种Qos(服务质量保证)功能，即在非自动确认消�
 
 Note： autoAck设置为false, 一定要手工签收消息
 
-## 死信队列(DLX)
-
-当消息在队列中变成死信，没有消费者进行消费的时候，消息可能会被重新发布到另外一个队列中，这个队列就是死信队列。
-
-以下情况会导致消息进入死信队列：
-
-- basic.reject/basic.nack 并且 requeue为false(不重回队列)的时候，消息就是死信
-- 消息TTL过期
-- 队列达到最大的长度
-
-死信队列也是正常的Exchange，和一般的Exchange没什么区别，不过要做一点操作。
-
-设置死信队列包括：
-
-- 设置Exchange(dlx.exchange名称随意),设置Queue(dlx.queue),设置RoutingKey(#)
-- 创建正常的交换机，队列，绑定，只不过加上一个参数 arguments.put(“x-dead-letter-exchange”,“dlx.exchange”)
-
-```
-      // 这就是一个普通的交换机 和 队列 以及路由
-		String exchangeName = "test_dlx_exchange";
-		String routingKey = "dlx.#";
-		String queueName = "test_dlx_queue";
-		
-		channel.exchangeDeclare(exchangeName, "topic", true, false, null);
-		
-		Map<String, Object> agruments = new HashMap<String, Object>();
-		agruments.put("x-dead-letter-exchange", "dlx.exchange");
-		//这个agruments属性，要设置到声明队列上
-		channel.queueDeclare(queueName, true, false, false, agruments);
-		channel.queueBind(queueName, exchangeName, routingKey);
-		
-		//要进行死信队列的声明:
-		channel.exchangeDeclare("dlx.exchange", "topic", true, false, null);
-		channel.queueDeclare("dlx.queue", true, false, false, null);
-		channel.queueBind("dlx.queue", "dlx.exchange", "#");
-```
-
-## RabbitMQ 集群
+# RabbitMQ 集群与网络分区
 
 RabbitMQ 最优秀的功能之一就是内建集群，这个功能设计的目的是允许消费者和生产者在节点崩溃的情况下继续运行，以及通过添加更多的节点来线性扩展消息通信吞吐量。RabbitMQ 内部利用 Erlang 提供的分布式通信框架 OTP 来满足上述需求，使客户端在失去一个 RabbitMQ 节点连接的情况下，还是能够重新连接到集群中的任何其他节点继续生产、消费消息。
 
-### 概念
+## 概念
 
 RabbitMQ 会始终记录以下四种类型的内部元数据：
 
@@ -319,6 +335,15 @@ RabbitMQ 集群中可以共享 user、vhost、exchange等，所有的数据和�
 当在集群中声明队列、交换器、绑定的时候，这些操作会直到所有集群节点都成功提交元数据变更后才返回。集群中有内存节点和磁盘节点两种类型，内存节点虽然不写入磁盘，但是它的执行比磁盘节点要好。内存节点可以提供出色的性能，磁盘节点能保障配置信息在节点重启后仍然可用，那集群中如何平衡这两者呢？
 
 RabbitMQ 只要求集群中至少有一个磁盘节点，所有其他节点可以是内存节点，当节点加入火离开集群时，它们必须要将该变更通知到至少一个磁盘节点。如果只有一个磁盘节点，刚好又是该节点崩溃了，那么集群可以继续路由消息，但不能创建队列、创建交换器、创建绑定、添加用户、更改权限、添加或删除集群节点。换句话说集群中的唯一磁盘节点崩溃的话，集群仍然可以运行，但知道该节点恢复，否则无法更改任何东西。
+
+## 负载均衡
+
+- **轮询法**
+- **随机法**
+- **源地址哈希法**
+- **加权轮询法**
+- **加权随机法**
+- **最小连接数法**
 
 ## 特点
 

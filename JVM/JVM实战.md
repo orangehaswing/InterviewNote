@@ -60,6 +60,14 @@ OutOfMemoryError：如果虚拟机在扩展栈时无法申请到足够的内存�
 - Full GC 执行频率不算频繁，不低于10分钟1次。
 
 
+## 调优步骤
+
+步骤A   **新生代调优：** 测量新生代GC的频率和持续时间，然后调整-Xmn和-XX:ParallelGCThreads以满足应用程序响应时间的服务水平协议(SLA)
+
+步骤B   **老年代调优：** 测量CMS GC周期的频率和持续时间，调整-Xmn和-XX:CMSInitiatingOccupancyFraction值满足工作负载在响应时间方面的SLA
+
+步骤C   **Survivor：** 优化Survivor空间的细化步骤。增加Survivor空间的大小，能够延迟对象从新生代转移到老年代，或者减少Survivor空间的大小，使Minor GC的持续时间减少并加速对象从新生代转移到老年代。
+
 # Jvm调优
 
 ## 命令
@@ -84,6 +92,28 @@ OutOfMemoryError：如果虚拟机在扩展栈时无法申请到足够的内存�
 
 - VisualVM
 
-- Memory Analyzer​
+- Memory Analyzer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
