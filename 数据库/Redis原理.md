@@ -370,62 +370,6 @@ rehash 操作不是一次性完成，而是采用渐进方式，这是为了避�
 
 采用渐进式 rehash 会导致字典中的数据分散在两个 dictht 上，因此对字典的查找操作也需要到对应的 dictht 去执行。
 
-```
-/* Performs N steps of incremental rehashing. Returns 1 if there are still
- * keys to move from the old to the new hash table, otherwise 0 is returned.
- *
- * Note that a rehashing step consists in moving a bucket (that may have more
- * than one key as we use chaining) from the old to the new hash table, however
- * since part of the hash table may be composed of empty spaces, it is not
- * guaranteed that this function will rehash even a single bucket, since it
- * will visit at max N*10 empty buckets in total, otherwise the amount of
- * work it does would be unbound and the function may block for a long time. */
-int dictRehash(dict *d, int n) {
-    int empty_visits = n * 10; /* Max number of empty buckets to visit. */
-    if (!dictIsRehashing(d)) return 0;
-
-    while (n-- && d->ht[0].used != 0) {
-        dictEntry *de, *nextde;
-
-        /* Note that rehashidx can't overflow as we are sure there are more
-         * elements because ht[0].used != 0 */
-        assert(d->ht[0].size > (unsigned long) d->rehashidx);
-        while (d->ht[0].table[d->rehashidx] == NULL) {
-            d->rehashidx++;
-            if (--empty_visits == 0) return 1;
-        }
-        de = d->ht[0].table[d->rehashidx];
-        /* Move all the keys in this bucket from the old to the new hash HT */
-        while (de) {
-            uint64_t h;
-
-            nextde = de->next;
-            /* Get the index in the new hash table */
-            h = dictHashKey(d, de->key) & d->ht[1].sizemask;
-            de->next = d->ht[1].table[h];
-            d->ht[1].table[h] = de;
-            d->ht[0].used--;
-            d->ht[1].used++;
-            de = nextde;
-        }
-        d->ht[0].table[d->rehashidx] = NULL;
-        d->rehashidx++;
-    }
-
-    /* Check if we already rehashed the whole table... */
-    if (d->ht[0].used == 0) {
-        zfree(d->ht[0].table);
-        d->ht[0] = d->ht[1];
-        _dictReset(&d->ht[1]);
-        d->rehashidx = -1;
-        return 0;
-    }
-
-    /* More to rehash... */
-    return 1;
-}
-```
-
 ## 跳跃表
 
 是有序集合的底层实现之一。
@@ -497,12 +441,6 @@ Memcached 仅支持字符串类型，而 Redis 支持五种不同的数据类型
 ## 数据持久化
 
 Redis 支持两种持久化策略：RDB 快照和 AOF 日志，而 Memcached 不支持持久化。
-
-## 分布式
-
-Memcached 不支持分布式，只能通过在客户端使用一致性哈希来实现分布式存储，这种方式在存储和查询时都需要先在客户端计算一次数据所在的节点。
-
-Redis Cluster 实现了分布式的支持。
 
 ## 内存管理机制
 
@@ -641,7 +579,7 @@ def main():
 
 # 十一、复制
 
-通过使用 slaveof host port 命令来让一个服务器成为另一个服务器的从服务器。
+通过使用 slave of host port 命令来让一个服务器成为另一个服务器的从服务器。
 
 一个从服务器只能有一个主服务器，并且不支持主主复制。
 
@@ -697,7 +635,7 @@ def main():
 private static final String SET_IF_NOT_EXIST = "NX";
 private static final String SET_WITH_EXPIRE_TIME = "PX";
 public  boolean tryLock(String key, String request) {
-    String result = this.jedis.set(LOCK_PREFIX + key, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, 10 * TIME);
+String result = this.jedis.set(LOCK_PREFIX + key, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, 10 * TIME);
     if (LOCK_MSG.equals(result)){
         return true ;
     }else {
@@ -959,7 +897,7 @@ Sentinel会以一定频率向主服务器发送`Info`命令获取信息，包括
 
 ### 向服务器订阅和发布消息
 
-在**如何保障集群高可用**小节留下了一个疑问：用如何保证监视服务器的高可用？ 在这里我们可以先给出简单回答：用一个监视服务器集群（也就是Sentinel集群）。如何实现，如何保证监视服务器的一致性暂且先不说，我们只要记住需要用若干台Sentinel来保障高可用，那一个Sentinel是如何感知其他的Sentinel的呢？
+用一个监视服务器集群（也就是Sentinel集群）。如何实现，如何保证监视服务器的一致性暂且先不说，我们只要记住需要用若干台Sentinel来保障高可用，那一个Sentinel是如何感知其他的Sentinel的呢？
 
 前面说过，Sentinel在与服务器建立连接时，会建立两个连接，其中一个是订阅连接。Sentinel会定时的通过订阅连接向`_sentinel_:hello`频道频道发送消息（对Redis发布订阅功能不太了解的同学可以去去了解下），其中包括：
 
@@ -1033,8 +971,6 @@ Sentinel会统计发出的所有`Sentinel is-master-down-by-addr`命令的回复
 
 
 6. 如果上一步的服务器还有多个，则选取id最小的那个
-
-
 
 
 
