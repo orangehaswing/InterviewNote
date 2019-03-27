@@ -320,7 +320,7 @@ BIO模型中通过 **Socket** 和 **ServerSocket** 完成套接字通道的�
 
 [![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/java-bio2.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/java-bio2.png)
 
-为了改进这种一连接一线程的模型，我们可以使用线程池来管理这些线程（需要了解更多请参考前面提供的文章），实现1个或多个线程处理N个客户端的模型（但是底层还是使用的同步阻塞I/O），通常被称为“**伪异步I/O模型**“。
+为了改进这种一连接一线程的模型，我们可以使用线程池来管理这些线程，实现1个或多个线程处理N个客户端的模型（但是底层还是使用的同步阻塞I/O），通常被称为“**伪异步I/O模型**“。
 
 [![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/java-bio-threadpool.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/java-bio-threadpool.png)
 
@@ -371,7 +371,7 @@ AIO 并没有采用NIO的多路复用器，而是使用异步通道的概念。�
 
 [![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/java-io-compare.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/java-io-compare.png)
 
-**另外，**I/O属于底层操作，需要操作系统支持，并发也需要操作系统的支持，所以性能方面不同操作系统差异会比较明显。
+**另外，** I/O属于底层操作，需要操作系统支持，并发也需要操作系统的支持，所以性能方面不同操作系统差异会比较明显。
 
 ## 7、BIO，NIO，AIO区别
 
@@ -381,7 +381,7 @@ AIO 并没有采用NIO的多路复用器，而是使用异步通道的概念。�
 
 ## IO多路复用
 
-I/O多路复用可以监视多个描述符，一旦某个描述符就绪（一般是读就绪或者写就绪），能够通知程序进行相应的读写操作。
+单个线程通过记录跟踪每一个Sock(I/O流)的状态来同时管理多个I/O流 。I/O多路复用可以监视多个描述符，一旦某个描述符就绪（一般是读就绪或者写就绪），能够通知程序进行相应的读写操作。
 
 适用场景
 
@@ -391,19 +391,13 @@ I/O多路复用可以监视多个描述符，一旦某个描述符就绪（一�
 - 如果一个服务器即要处理TCP，又要处理UDP，一般要使用I/O复用。
 - 如果一个服务器要处理多个服务或多个协议，一般要使用I/O复用。
 
-**select函数** ：该函数准许进程指示内核等待多个事件中的任何一个发送，并只在有一个或多个事件发生或经历一段指定的时间后才唤醒。
+具体实现
 
-**poll函数 ** ：poll的机制与select类似，与select在本质上没有多大差别，管理多个描述符也是进行轮询，根据描述符的状态进行处理，但是poll没有最大文件描述符数量的限制。
+**select函数** ：select 会修改传入的参数数组；如果任何一个sock(I/O stream)出现了数据，select 仅仅会返回，但是并不会告诉你是那个sock上有数据；只能监视1024个链接；不是线程安全的
 
-**epoll函数：**epoll是在2.6内核中提出的，是之前的select和poll的增强版本。相对于select和poll来说，epoll更加灵活，没有描述符限制。epoll使用一个文件描述符管理多个描述符，将用户关系的文件描述符的事件存放到内核的一个事件表中，这样在用户空间和内核空间的copy只需一次。
+**poll函数 **  poll的机制与select类似，管理多个描述符也是进行轮询，去掉了1024个链接的限制；但是poll仍然不是线程安全的
 
-
-
-
-
-
-
-
+**epoll函数：** epoll是之前的select和poll的增强版本。epoll 现在是线程安全的，不仅告诉你sock组里面数据，还会告诉你具体哪个sock有数据。epoll只支持linux，BSD上面对应的实现是kqueue。
 
 ## 8、Stock通信的伪代码实现流程
 
@@ -473,7 +467,19 @@ Socket是进程通讯的一种方式，即调用这个网络库的一些API函�
 
 socket是网络编程的基础，本文用打电话来类比socket通信中建立TCP连接的过程。
 
-**socket函数**：表示你买了或者借了一部手机。 **bind函数**：告诉别人你的手机号码，让他们给你打电话。 **listen函数**：打开手机的铃声，而不是静音，这样有电话时可以立马反应。listen函数的第二个参数，最大连接数，表示最多有几个人可以同时拨打你的号码。不过我们的手机，最多只能有一个人打进来，要不然就提示占线。 **connect函数**：你的朋友知道了你的号码，通过这个号码来联系你。在他等待你回应的时候，不能做其他事情，所以connect函数是阻塞的。 **accept函数**：你听到了电话铃声，接电话，accept it！然后“喂”一声，你的朋友听到你的回应，知道电话已经打进去了。至此，一个TCP连接建立了。 **read/write函数**：连接建立后，TCP的两端可以互相收发消息，这时候的连接是全双工的。对应打电话中的电话煲。 **close函数**：通话完毕，一方说“我挂了”，另一方回应"你挂吧"，然后将连接终止。实际的close(sockfd)有些不同，它不止是终止连接，还把手机也归还，不在占有这部手机，就当是公用电话吧。
+**socket函数**：表示你买了或者借了一部手机。
+
+ **bind函数**：告诉别人你的手机号码，让他们给你打电话。
+
+ **listen函数**：打开手机的铃声，而不是静音，这样有电话时可以立马反应。listen函数的第二个参数，最大连接数，表示最多有几个人可以同时拨打你的号码。不过我们的手机，最多只能有一个人打进来，要不然就提示占线。
+
+ **connect函数**：你的朋友知道了你的号码，通过这个号码来联系你。在他等待你回应的时候，不能做其他事情，所以connect函数是阻塞的。
+
+ **accept函数**：你听到了电话铃声，接电话，accept it！然后“喂”一声，你的朋友听到你的回应，知道电话已经打进去了。至此，一个TCP连接建立了。
+
+ **read/write函数**：连接建立后，TCP的两端可以互相收发消息，这时候的连接是全双工的。对应打电话中的电话煲。
+
+ **close函数**：通话完毕，一方说“我挂了”，另一方回应"你挂吧"，然后将连接终止。实际的close(sockfd)有些不同，它不止是终止连接，还把手机也归还，不在占有这部手机，就当是公用电话吧。
 
 注意到，上述连接是阻塞的，你一次只能响应一个用户的连接请求，但在实际网络编程中，一个服务器服务于多个客户，上述方案也就行不通了，怎么办？想一想10086，移动的声讯服务台，也是只有一个号码，它怎么能同时服务那么多人呢？可以这样理解，在你打电话到10086时，总服务台会让一个接线员来为你服务，而它自己却继续监听有没有新的电话接入。在网络编程中，这个过程类似于fork一个子进程，建立实际的通信连接，而主进程继续监听。10086的接线员是有限的，所以当连接的人数达到上线时，它会放首歌给你听，忙等待，直到有新的空闲接线员为止。 实际网络编程中，处理并发的方式还有select/poll/epoll等。
 

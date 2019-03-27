@@ -1,6 +1,6 @@
 # springcloud学习笔记-Hystrix 监控面板
 
-在上一篇 Hystrix的介绍中，我们提到断路器是根据一段时间窗内的请求情况来判断并操作断路器的打开和关闭状态的。而这些请求情况的指标信息都是 HystrixCommand 和 HystrixObservableCommand 实例在执行过程中记录的重要度量信息，它们除了 Hystrix 断路器实现中使用之外，对于系统运维也有非常大的帮助。这些指标信息会以 “滚动时间窗” 与 “桶” 结合的方式进行汇总，并在内存中驻留一段时间，以供内部或外部进行查询使用，Hystrix Dashboard 就是这些指标内容的消费者之一。
+断路器是根据一段时间窗内的请求情况来判断并操作断路器的打开和关闭状态的。而这些请求情况的指标信息都是 HystrixCommand 和 HystrixObservableCommand 实例在执行过程中记录的重要度量信息，它们除了 Hystrix 断路器实现中使用之外，对于系统运维也有非常大的帮助。这些指标信息会以 “滚动时间窗” 与 “桶” 结合的方式进行汇总，并在内存中驻留一段时间，以供内部或外部进行查询使用。
 
 下面我们基于之前的示例来结合 Hystrix Dashboard 实现 Hystrix 指标数据的可视化面板，这里我们将用到下之前实现的几个应用，包括：
 
@@ -67,10 +67,10 @@ server:
 
 前两者都对集群的监控，需要整合 Turbine 才能实现。这一部分我们先实现对单体应用的监控，这里的单体应用就用我们之前使用 Feign 和 Hystrix 实现的服务消费者——eureka-consumer-feign-hystrix。
 
-> 页面上的另外两个参数：
->
-> - Delay：控制服务器上轮询监控信息的延迟时间，默认为 2000 毫秒，可以通过配置该属性来降低客户端的网络和 CPU 消耗。
-> - Title：该参数可以展示合适的标题。
+页面上的另外两个参数：
+
+- Delay：控制服务器上轮询监控信息的延迟时间，默认为 2000 毫秒，可以通过配置该属性来降低客户端的网络和 CPU 消耗。
+- Title：该参数可以展示合适的标题。
 
 # 为服务实例添加 endpoint
 
@@ -122,7 +122,7 @@ management:
 
 ```
 
-`management.endpoints.web.exposure.include`这个是用来暴露 endpoints 的。由于 endpoints 中会包含很多敏感信息，除了 health 和 info 两个支持 web 访问外，其他的默认不支持 web 访问。详情请看 [50. Endpoints](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html)
+`management.endpoints.web.exposure.include`这个是用来暴露 endpoints 的。由于 endpoints 中会包含很多敏感信息，除了 health 和 info 两个支持 web 访问外，其他的默认不支持 web 访问。
 
 ## 测试
 
@@ -133,7 +133,7 @@ management:
 这时候访问一下 [http://localhost:9004/hello/windmt](http://localhost:9004/hello/windmt)，可以看到 Hystrix Dashboard 中出现了类似下面的效果
 [![img](https://ws2.sinaimg.cn/large/006tKfTcly1fr2mou2nhfj30sg0brwgm.jpg)](https://ws2.sinaimg.cn/large/006tKfTcly1fr2mou2nhfj30sg0brwgm.jpg)
 
-> 如果在这个页面看到报错：`Unable to connect to Command Metric Stream.`，可以参考这个 [Issue](https://github.com/Netflix/Hystrix/issues/1566) 解决。
+如果在这个页面看到报错：`Unable to connect to Command Metric Stream.`，可以参考这个 [Issue](https://github.com/Netflix/Hystrix/issues/1566) 解决。
 
 # 界面解读
 
@@ -149,7 +149,7 @@ management:
 
 # Hystrix 监控数据聚合 Turbine
 
-通过 Hystrix Dashboard，我们可以方便的查看服务实例的综合情况，比如：服务调用次数、服务调用延迟等。但是仅通过 Hystrix Dashboard 我们只能实现对服务当个实例的数据展现，在生产环境我们的服务是肯定需要做高可用的，那么对于多实例的情况，我们就需要将这些度量指标数据进行聚合。下面，在本篇中，我们就来介绍一下另外一个工具：Turbine。
+通过 Hystrix Dashboard，我们可以查看服务调用次数、服务调用延迟等。在生产环境我们的服务是肯定需要做高可用的，那么对于多实例的情况，我们就需要将这些度量指标数据进行聚合。
 
 # 准备工作
 
@@ -166,7 +166,7 @@ management:
 
 # 创建 Turbine
 
-下面，我们将在上述架构基础上，引入 Turbine 来对服务的 Hystrix 数据进行聚合展示。 这里我们将分别介绍两种聚合方式。
+在上述架构基础上，引入 Turbine 来对服务的 Hystrix 数据进行聚合展示两种聚合方式。
 
 ## 通过 HTTP 收集聚合
 
@@ -257,21 +257,11 @@ Spring Cloud 在封装 Turbine 的时候，还实现了基于消息代理的收�
 
 [![img](https://ws4.sinaimg.cn/large/006tNc79ly1fqeklbqeg5j31310ewdhe.jpg)](https://ws4.sinaimg.cn/large/006tNc79ly1fqeklbqeg5j31310ewdhe.jpg)
 
-从图中我们可以看到，这里多了一个重要元素：RabbitMQ。对于 RabbitMQ 的安装与基本时候我们可以查看之前的 [MQ 系列](https://windmt.com/2018/04/12/rabbitmq-1-hello-world/)，这里不做过多的说明。下面，我们可以来构建一个新的应用来实现基于消息代理的 Turbine 聚合服务。
-
-关于通过 MQ 的聚合，在 Finchley.RC1 版本下有好多坑，好在最后能正常运行了。
+从图中我们可以看到，这里多了一个重要元素：RabbitMQ。我们可以来构建一个新的应用来实现基于消息代理的 Turbine 聚合服务。
 
 ### Turbine Stream
 
-**UPDATED：2018-06-01**
-Finchley.RC2 已经出了，下边提到的 bug 都已经被修复了，直接添加 `@EnableTurbineStream` 就可以正常使用了。最新代码实例请看：[https://github.com/zhaoyibo/spring-cloud-study/tree/master/turbine-stream](https://github.com/zhaoyibo/spring-cloud-study/tree/master/turbine-stream)
-
-[![img](https://src.windmt.com/img/hystrix-dashboard.png)](https://src.windmt.com/img/hystrix-dashboard.png)
-
 需要注意一点的是，Turbine Stream 默认的端口已经从 8989 改为 8080 了。
-
-**UPDATED：2018-05-18**
-**以下关于 Turbine Stream 的内容仅适用于 Finchley.RC1 版本。今天尝试一下最新的 Finchley.BUILD-SNAPSHOT 发现 netty 的默认端口已经从 8989 改到 8080，并且需要依赖spring-cloud-starter-netflix-hystrix，因为目前 BUILD-SNAPSHOT 依旧有 bug 不确定他们会怎么改，我就暂时先不更新了。等到 RC2 release 的时候再来更新一发。**
 
 创建一个标准的 Spring Boot 工程，命名为：turbine-stream-rabbitmq
 

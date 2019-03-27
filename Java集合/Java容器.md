@@ -158,6 +158,12 @@ Arraylist不是同步的，所以在不需要保证线程安全时时建议使�
 
 我们首先可能会想到采用%取余的操作来实现。但是，重点来了：**“取余(%)操作中如果除数是2的幂次则等价于与其除数减一的与(&)操作（也就是说 hash%length==hash&(length-1)的前提是 length 是2的 n 次方；）。”** 并且 **采用二进制位操作 &，相对于%能够提高运算效率，这就解释了 HashMap 的长度为什么是2的幂次方。**
 
+### HashMap 线程不安全性
+
+1. 假如A线程和B线程同时对同时个数组位置调用addEntry ，写入操作数据覆盖
+2. 多个线程同时对Node数组进行扩容 ，只有一个线程扩容后，其他线程数据会丢失
+3. 底层table扩容时还可能形成环状链表，造成死循环
+
 ### HashSet 和 HashMap 区别
 
 如果你看过 HashSet 源码的话就应该知道：HashSet 底层就是基于 HashMap 实现的。（HashSet 的源码非常非常少，因为除了 clone() 方法、writeObject()方法、readObject()方法是 HashSet 自己不得不实现之外，其他方法都是直接调用 HashMap 中的方法。）
@@ -244,7 +250,7 @@ JDK1.8的ConcurrentHashMap（TreeBin: 红黑二叉树节点 Node: 链表节点�
 - LinkedHashSet：链表和哈希表组成 。 由链表保证元素的排序 ， 由哈希表证元素的唯一性
 - TreeSet（有序，唯一）：红黑树(自平衡的排序二叉树。)
 
-#### - Map
+#### Map
 
 - HashMap：基于哈希表的Map接口实现（哈希表对键进行散列，Map结构即映射表存放键值对）
 - LinkedHashMap:HashMap 的基础上加上了链表数据结构

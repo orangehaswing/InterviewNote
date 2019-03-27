@@ -10,12 +10,6 @@ Spring Cloud Bus 被国内很多都翻译为消息总线，也挺形象的。大
 
 # 实战
 
-我们选择上一篇文章 [Spring Cloud（八）：配置中心（服务化与高可用）](https://windmt.com/2018/04/19/spring-cloud-8-config-with-eureka/) 版本的示例代码来改造, MQ 我们使用 RabbitMQ 来做示例。
-
-因为用的是 Spring Boot 2.0.1 + Spring Cloud Finchley.RC1，更新较多，坑也比较多，这里就把代码再贴一遍了。
-
-示例代码：[GitHub](https://github.com/zhaoyibo/spring-cloud-study/tree/master/config-eureka-bus)
-
 ## 服务端
 
 ### POM 配置

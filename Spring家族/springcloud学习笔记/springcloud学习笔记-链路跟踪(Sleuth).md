@@ -2,8 +2,6 @@
 
 随着业务发展，系统拆分导致系统调用链路愈发复杂一个前端请求可能最终需要调用很多次后端服务才能完成，当整个请求变慢或不可用时，我们是无法得知该请求是由某个或某些后端服务引起的，这时就需要解决如何快读定位服务故障点，以对症下药。于是就有了分布式系统调用跟踪的诞生。
 
-现今业界分布式服务跟踪的理论基础主要来自于 Google 的一篇论文[《Dapper, a Large-Scale Distributed Systems Tracing Infrastructure》](https://research.google.com/pubs/pub36356.html)，使用最为广泛的开源实现是 Twitter 的 Zipkin，为了实现平台无关、厂商无关的分布式服务跟踪，CNCF 发布了布式服务跟踪标准 Open Tracing。国内，淘宝的 “鹰眼”、京东的 “Hydra”、大众点评的 “CAT”、新浪的 “Watchman”、唯品会的 “Microscope”、窝窝网的 “Tracing” 都是这样的系统。
-
 Spring Cloud Sleuth 也为我们提供了一套完整的解决方案。在本章中，我们将详细介绍如何使用 Spring Cloud Sleuth + Zipkin 来为我们的微服务架构增加分布式服务跟踪的能力。
 
 # Spring Cloud Sleuth
