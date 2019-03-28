@@ -369,3 +369,14 @@ MySQL 提供了 FROM_UNIXTIME() 函数把 UNIX 时间戳转换为日期，并提
 
 [![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/master-slave-proxy.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/master-slave-proxy.png?raw=true)
 
+# MySQL Router
+
+![img](https://upload-images.jianshu.io/upload_images/732352-3f96b994ff6a72a8.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000/format/webp)
+
+1. MySQL Router是处于应用client和dbserver之间的轻量级代理程序，它能检测，分析和转发查询到后端数据库实例，并把结果返回给client。是mysql-proxy的一个替代品。
+2. Router实现读写分离，程序不是直接连接数据库IP，而是固定连接到mysql router。MySQL Router对前端应用是透明的。应用程序把MySQL Router当作是普通的mysql实例，把查询发给MySQL Router,而MySQL Router会把查询结果返回给前端的应用程序。
+3. 从数据库服务器故障，业务可以正常运行。由MySQL Router来进行自动下线不可用服务器。程序配置不需要任何修改。
+4. 主数据库故障，由MySQL Router来决定主从自动切换，业务可以正常访问。程序配置不需要做任何修改。
+
+
+
