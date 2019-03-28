@@ -1,6 +1,6 @@
 # Redis原理
 
-# 一、概述
+# 概述
 
 Redis 是速度非常快的非关系型（NoSQL）内存键值数据库，可以存储键和五种不同类型的值之间的映射。
 
@@ -33,7 +33,7 @@ Redis 支持很多特性，例如将内存中的数据持久化到硬盘中，�
 - 主从复制
 - 高可用，分布式
 
-# 二、数据类型
+# 数据类型
 
 [![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/pics/redis-data-structure-types.jpeg)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/pics/redis-data-structure-types.jpeg)
 
@@ -320,7 +320,7 @@ OK
 
 - [Chapter 1: Getting to know Redis | Redis Labs](https://redislabs.com/ebook/part-1-getting-started/chapter-1-getting-to-know-redis/)
 
-# 三、数据结构
+# 数据结构
 
 ## 字典
 
@@ -388,7 +388,7 @@ rehash 操作不是一次性完成，而是采用渐进方式，这是为了避�
 - 更容易实现；
 - 支持无锁操作。
 
-# 四、使用场景
+# 使用场景
 
 ## 计数器
 
@@ -430,7 +430,7 @@ Set 可以实现交集、并集等操作，从而实现共同好友等功能。
 
 ZSet 可以实现有序性操作，从而实现排行榜等功能。
 
-# 五、Redis 与 Memcached
+# Redis 与 Memcached
 
 两者都是非关系型内存键值数据库，主要有以下不同：
 
@@ -447,13 +447,13 @@ Redis 支持两种持久化策略：RDB 快照和 AOF 日志，而 Memcached 不
 - 在 Redis 中，并不是所有数据都一直存储在内存中，可以将一些很久没用的 value 交换到磁盘，而 Memcached 的数据则会一直在内存中。
 - Memcached 将内存分割成特定长度的块来存储数据，以完全解决内存碎片的问题。但是这种方式会使得内存的利用率不高，例如块的大小为 128 bytes，只存储 100 bytes 的数据，那么剩下的 28 bytes 就浪费掉了。
 
-# 六、键的过期时间
+# 键的过期时间
 
 Redis 可以为每个键设置过期时间，当键过期时，会自动删除该键。
 
 对于散列表这种容器，只能为整个键设置过期时间（整个散列表），而不能为键里面的单个元素设置过期时间。
 
-# 七、数据淘汰策略
+# 数据淘汰策略
 
 可以设置内存最大使用量，当内存使用量超出时，会施行数据淘汰策略。
 
@@ -474,7 +474,7 @@ Reids 具体有 6 种淘汰策略：
 
 Redis 4.0 引入了 volatile-lfu 和 allkeys-lfu 淘汰策略，LFU 策略通过统计访问频率，将访问频率最少的键值对淘汰。
 
-# 八、持久化
+# 持久化
 
 Redis 是内存型数据库，为了保证数据在断电后不会丢失，需要将内存中的数据持久化到硬盘上。
 
@@ -506,7 +506,7 @@ Redis 是内存型数据库，为了保证数据在断电后不会丢失，需�
 
 随着服务器写请求的增多，AOF 文件会越来越大。Redis 提供了一种将 AOF 重写的特性，能够去除 AOF 文件中的冗余写命令。
 
-# 十、事件
+# 事件
 
 Redis 服务器是一个事件驱动程序。
 
@@ -577,7 +577,7 @@ def main():
 
 [![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png)
 
-# 十一、复制
+# 复制
 
 通过使用 slave of host port 命令来让一个服务器成为另一个服务器的从服务器。
 
@@ -873,7 +873,7 @@ ASK和MOVED的区别主要是ASK是一次性的，MOVED是永久性的，有点�
 8. 因为在每一个配置纪元里面，每个具有投票权的主节点只能投一次票，所以如果有N个主节点进行投票，那么具有大于等于N/2+1张支持票的从节点只会有一个，这确保了新的主节点只会有一个。
 9. 如果在一个配置纪元里面没有从节点能收集到足够多的支持票，那么集群进入一个新的配置纪元，并再次进行选举，知道选出新的主节点为止。
 
-# 十二、Sentinel
+# Sentinel
 
 Sentinel（哨兵）可以监听集群中的服务器，并在主服务器进入下线状态时，自动从从服务器中选举出新的主服务器。
 
@@ -974,7 +974,7 @@ Sentinel会统计发出的所有`Sentinel is-master-down-by-addr`命令的回复
 
 
 
-# 十三、分片
+# 分片
 
 分片是将数据划分为多个部分的方法，可以将数据存储到多台机器里面，这种方法在解决某些问题时可以获得线性级别的性能提升。
 
@@ -997,7 +997,7 @@ Sentinel会统计发出的所有`Sentinel is-master-down-by-addr`命令的回复
 - 多版本控制：适合在更新的场景中，比如我们要更新商品的名字，这时我们就可以在更新的接口中增加一个版本号，来做幂等
 - 状态机控制：有状态机流转的情况下，比如就会订单的创建和付款，订单的付款肯定是在之前，这时我们可以通过在设计状态字段时，使用int类型，并且通过值类型的大小来做幂等，比如订单的创建为0，付款成功为100。付款失败为99。
 
-# 十四、一个简单的论坛系统分析
+# 一个简单的论坛系统分析
 
 该论坛系统功能如下：
 

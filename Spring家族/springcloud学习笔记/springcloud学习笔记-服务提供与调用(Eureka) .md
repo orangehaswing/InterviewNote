@@ -438,7 +438,7 @@ RestTemplate针对几种不同请求类型和参数类型的服务调用实现�
 
 客户端负载均衡器中应具备能力：
 
-- **ServiceInstance ：**根据传入的服务名serviceId，从负载均衡器中挑选一个对应服务的实例
+- **ServiceInstance ：** 根据传入的服务名serviceId，从负载均衡器中挑选一个对应服务的实例
 - **execute** ：使用从负载均衡器中挑选出的服务实例来执行请求内容。
 - **reconstructURI ：** 为系统构建一个合适的host:port形式的URI
 
@@ -463,5 +463,79 @@ Ribbon 工作时会做四件事情：
 2. 定期从 Eureka 更新并过滤服务实例列表；
 3. 根据用户指定的策略，在从 Server 取到的服务注册列表中选择一个实例的地址；
 4. 通过 RestClient 进行服务调用
+
+
+# 负载均衡源码分析
+
+从`@LoadBalanced` 注解源码的注释中，我们可以知道该注解用来给`RestTemplate`标记，以使用负载均衡的客户端`LoadBalancerClient` 来配置它。
+
+从该接口中，我们可以通过定义的抽象方法来了解到客户端负载均衡器中应具备的几种能力：
+
+- `ServiceInstance choose(String serviceId)`：根据传入的服务名`serviceId`，从负载均衡器中挑选一个对应服务的实例。
+- `T execute(String serviceId, LoadBalancerRequest request) throws IOException`：使用从负载均衡器中挑选出的服务实例来执行请求内容。
+- `URI reconstructURI(ServiceInstance instance, URI original)`：为系统构建一个合适的“host:port”形式的URI。在分布式系统中，我们使用逻辑上的服务名称作为host来构建URI（替代服务实例的“host:port”形式）进行请求
+
+`LoadBalancerClient`接口关系
+
+![img](http://blog.didispace.com/assets/ribbon-code-1.png)
+
+`LoadBalancerAutoConfiguration`为实现客户端负载均衡器的自动化配置类。
+
+Ribbon实现的负载均衡自动化配置需要满足下面两个条件：
+
+- `@ConditionalOnClass(RestTemplate.class)`：`RestTemplate`类必须存在于当前工程的环境中。
+- `@ConditionalOnBean(LoadBalancerClient.class)`：在Spring的Bean工程中有必须有`LoadBalancerClient`的实现Bean。
+
+在该自动化配置类中，主要做了下面三件事：
+
+- 创建了一个`LoadBalancerInterceptor`的Bean，用于实现对客户端发起请求时进行拦截，以实现客户端负载均衡。
+- 创建了一个`RestTemplateCustomizer`的Bean，用于给`RestTemplate`增加`LoadBalancerInterceptor`拦截器。
+- 维护了一个被`@LoadBalanced`注解修饰的`RestTemplate`对象列表，并在这里进行初始化，通过调用`RestTemplateCustomizer`的实例来给需要客户端负载均衡的`RestTemplate`增加`LoadBalancerInterceptor`拦截器。
+
+当一个被`@LoadBalanced`注解修饰的`RestTemplate`对象向外发起HTTP请求时，会被`LoadBalancerInterceptor`类的`intercept`函数所拦截。由于我们在使用RestTemplate时候采用了服务名作为host，所以直接从`HttpRequest`的URI对象中通过getHost()就可以拿到服务名，然后调用`execute`函数去根据服务名来选择实例并发起实际的请求。
+
+定义了一个软负载均衡器需要的一系列抽象操作
+
+- `addServers`：向负载均衡器中维护的实例列表增加服务实例。
+- `chooseServer`：通过某种策略，从负载均衡器中挑选出一个具体的服务实例。
+- `markServerDown`：用来通知和标识负载均衡器中某个具体实例已经停止服务，不然负载均衡器在下一次获取服务实例清单前都会认为服务实例均是正常服务的。
+- `getReachableServers`：获取当前正常服务的实例列表。
+- `getAllServers`：获取所有已知的服务实例列表，包括正常服务和停止服务的实例。
+
+![img](http://blog.didispace.com/assets/ribbon-code-2.png)
+
+## 负载均衡器
+
+**AbstractLoadBalancer** ：在该抽象类中定义了一个关于服务实例的分组枚举类`ServerGroup`
+
+- ALL-所有服务实例
+- STATUS_UP-正常服务的实例
+- STATUS_NOT_UP-停止服务的实例；
+
+**BaseLoadBalancer** ：是Ribbon负载均衡器的基础实现类
+
+- 定义并维护了两个存储服务实例`Server`对象的列表。一个用于存储所有服务实例的清单，一个用于存储正常服务的实例清单。
+- 定义用来存储负载均衡器各服务实例属性和统计信息的`LoadBalancerStats`对象。
+- 定义检查服务实例是否正常服务的`IPing`对象
+- 定义检查服务实例操作的执行策略对象`IPingStrategy`
+- 定义负载均衡的处理规则`IRule`对象，
+- 启动ping任务：在`BaseLoadBalancer`的默认构造函数中，会直接启动一个用于定时检查`Server`是否健康的任务。该任务默认的执行间隔为：10秒。
+
+**ServerList**  ：它定义了两个抽象方法：`getInitialListOfServers`用于获取初始化的服务实例清单，而`getUpdatedListOfServers`用于获取更新的服务实例清单。
+
+**ServerListFilter** ：从Eureka Server中获取服务可用实例的列表。在获得了服务实例列表之后，这里又将引入一个新的对象`filter`
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -61,7 +61,7 @@ public static ExecutorService newCachedThreadPool(){
 
 所以，使用该线程池时，一定要注意控制并发的任务数，否则创建大量的线程可能导致严重的性能问题。
 
-newFixedThreadPool: 
+#### newFixedThreadPool: 
 
 ```
 public static ExecutorService newFixedThreadPool(int nThreads){
@@ -87,6 +87,21 @@ public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactor
 ```
 
 初始化的线程池中只有一个线程，如果该线程异常结束，会重新创建一个新的线程继续执行任务，唯一的线程可以保证所提交任务的顺序执行，内部使用LinkedBlockingQueue作为阻塞队列。
+
+#### newWorkStealingPool(JDK8新增)
+
+```
+public static ExecutorService newWorkStealingPool(int parallelism) {
+    return new ForkJoinPool
+        (parallelism,
+         ForkJoinPool.defaultForkJoinWorkerThreadFactory,
+         null, true);
+}
+```
+
+会根据所需的并发数来动态创建和关闭线程。能够合理的使用CPU进行对任务进行并发操作，所以适合使用在很耗时的任务。
+
+返回的是ForkJoinPool对象，使用一个无限队列来保存需要执行的任务，可以传入线程的数量；不传入，则默认使用当前计算机中可用的cpu数量；使用分治法来解决问题，使用fork()和join()来进行调用。
 
 #### newScheduledThreadPool:
 

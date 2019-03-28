@@ -255,3 +255,112 @@ java -jar target/eureka-server-0.0.1-SNAPSHOT.jar  --spring.profiles.active=peer
 [![img](https://ws2.sinaimg.cn/large/006tKfTcly1fr2labbofmj30sg0kqtcf.jpg)](https://ws2.sinaimg.cn/large/006tKfTcly1fr2labbofmj30sg0kqtcf.jpg)
 
 可以在 peer1 中看到了 peer2、peer3 的相关信息，至此 Eureka 集群也已经完成了。
+
+# 源码分析
+
+首先，服务注册中心、服务提供者、服务消费者这三个主要元素来说，后两者（也就是Eureka客户端）在整个运行机制中是大部分通信行为的主动发起者，而注册中心主要是处理请求的接收者。
+
+所以，我们可以从Eureka的客户端作为入口看看它是如何完成这些主动通信行为的。
+
+将一个普通的Spring Boot应用注册到Eureka Server中，或是从Eureka Server中获取服务列表时，主要就做了两件事：
+
+- 在应用主类中配置了`@EnableDiscoveryClient`注解
+- 在`application.properties`中用`eureka.client.serviceUrl.defaultZone`参数指定了服务注册中心的位置
+
+顺着上面的线索，我们先查看`@EnableDiscoveryClient`的源码如下：
+
+```
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+@Import(EnableDiscoveryClientImportSelector.class)
+public @interface EnableDiscoveryClient {
+
+}
+```
+
+从该注解的注释我们可以知道：该注解用来开启`DiscoveryClient`的实例。通过梳理可以得到如下图的关系：
+
+![img](http://blog.didispace.com/assets/eureka-code-1.png)
+
+DiscoveryClient是Spring Cloud的接口，它定义了用来发现服务的常用抽象方法，而EurekaDiscoveryClient是对该接口的实现，它实现的是对Eureka发现服务的封装。
+
+所以EurekaDiscoveryClient依赖了Eureka的EurekaClient接口，EurekaClient继承了LookupService接口，他们都是Netflix开源包中的内容，它主要定义了针对Eureka的发现服务的抽象方法，而真正实现发现服务的则是Netflix包中的DiscoveryClient类。
+
+对Eureka Server的URL列表配置，在serviceUrl我们找到该属性相关的加载属性
+
+### Region、Zone
+
+客户端依次加载了两个内容，第一个是Region，第二个是Zone，从其加载逻上我们可以判断他们之间的关系：
+
+- 通过`getRegion`函数，我们可以看到它从配置中读取了一个Region返回，所以一个微服务应用只可以属于一个Region，如果不特别配置，就默认为default。若我们要自己设置，可以通过`eureka.client.region`属性来定义。
+- 通过`getAvailabilityZones`函数，我们可以知道当我们没有特别为Region配置Zone的时候，将默认采用defaultZone，这也是我们之前配置参数`eureka.client.serviceUrl.defaultZone`的由来。若要为应用指定Zone，我们可以通过`eureka.client.availability-zones`属性来进行设置。
+
+### ServiceUrls
+
+在获取了Region和Zone信息之后，才开始真正加载Eureka Server的具体地址。它根据传入的参数按一定算法确定加载位于哪一个Zone配置的serviceUrls。对于Zone和Region遵循这样的规则：优先访问同自己一个Zone中的实例，其次才访问其他Zone中的实例。
+
+### 服务注册
+
+DiscoveryClient 类实现“服务注册”行为，通过查看它的构造类，可以找到它调用了下面这个函数：
+
+discoveryClient.register()
+
+```
+boolean register() throws Throwable {
+    logger.info(PREFIX + appPathIdentifier + ": registering service...");
+    EurekaHttpResponse<Void> httpResponse;
+    try {
+        httpResponse = eurekaTransport.registrationClient.register(instanceInfo);
+    } catch (Exception e) {
+        logger.warn("{} - registration failed {}", PREFIX + appPathIdentifier, e.getMessage(), e);
+        throw e;
+    }
+    if (logger.isInfoEnabled()) {
+        logger.info("{} - registration status: {}", PREFIX + appPathIdentifier, httpResponse.getStatusCode());
+    }
+    return httpResponse.getStatusCode() == 204;
+}
+```
+
+注册操作也是通过REST请求的方式进行的。同时，这里我们也能看到发起注册请求的时候，传入了一个`InstanceInfo`对象，该对象就是注册时候客户端给服务端的服务的元数据。
+
+### 服务获取与服务续约
+
+`DiscoveryClient`的`initScheduledTasks`函数，其中还有两个定时任务，分别是“服务获取”和“服务续约”：
+
+服务注册到Eureka Server后，自然需要一个心跳去续约，防止被剔除，所以他们肯定是成对出现的。对于服务续约相关的时间控制参数：
+
+```
+eureka.instance.lease-renewal-interval-in-seconds=30
+eureka.instance.lease-expiration-duration-in-seconds=90
+```
+
+其中“服务续约”的实现较为简单，直接以REST请求的方式进行续约
+
+而“服务获取”会根据是否第一次获取发起不同的REST请求和相应的处理
+
+### 服务注册中心处理
+
+所有的交互都是通过REST的请求来发起的。Eureka Server对于各类REST请求的定义都位于：com.netflix.eureka.resources包下。
+
+- 对注册信息进行了校验
+- 调用InstanceRegistry对象中的register(InstanceInfo info, int leaseDuration, boolean isReplication)函数来进行服务注册
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
