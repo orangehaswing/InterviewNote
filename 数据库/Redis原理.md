@@ -408,9 +408,7 @@ Redis 这种内存型数据库的读写性能非常高，很适合存储频繁�
 
 ## 消息队列
 
-List 是一个双向链表，可以通过 lpop 和 lpush 写入和读取消息。
-
-不过最好使用 Kafka、RabbitMQ 等消息中间件。
+List 是一个双向链表，可以通过 lpop 和 lpush 写入和读取消息。不过最好使用 Kafka、RabbitMQ 等消息中间件。
 
 ## 会话缓存
 
@@ -426,9 +424,7 @@ List 是一个双向链表，可以通过 lpop 和 lpush 写入和读取消息�
 
 ## 其它
 
-Set 可以实现交集、并集等操作，从而实现共同好友等功能。
-
-ZSet 可以实现有序性操作，从而实现排行榜等功能。
+Set 可以实现交集、并集等操作，从而实现共同好友等功能。ZSet 可以实现有序性操作，从而实现排行榜等功能。
 
 # Redis 与 Memcached
 
@@ -576,6 +572,8 @@ def main():
 从事件处理的角度来看，服务器运行流程如下：
 
 [![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png)
+
+Redis事务相关的命令: MULTI、EXEC、DISCARD、WATCH
 
 # 复制
 

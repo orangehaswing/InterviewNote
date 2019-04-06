@@ -43,7 +43,7 @@ Spring的IoC容器是Spring的核心，Spring AOP是spring框架的重要组成�
     - JDK代理是不需要以来第三方的库，只要JDK环境就可以进行代理
     - cglib必须依赖于cglib的类库，但是它需要类来实现任何接口代理的是指定的类生成一个子类，覆盖其中的方法，是一种继承
     - CGLib创建的动态代理对象性能比JDK创建的动态代理对象的性能高不少，但是CGLib在创建代理对象时所花费的时间却比JDK多得多，所以对于单例的对象，因为无需频繁创建对象，用CGLib合适
--  **优点**
+- **优点**
   - 各个步骤之间的良好隔离性
   - 源代码无关性
   - 松耦合
@@ -470,3 +470,18 @@ Spring实现了一种能够通过额外的方法调用完成任务的设计模�
 ## 17. IOC和AOP用到的设计模式
 
 用过spring的朋友都知道spring的强大和高深，都觉得深不可测，其实当你真正花些时间读一读源码就知道它的一些技术实现其实是建立在一些最基本的技术之上而已；例如AOP(面向方面编程)的实现是建立在CGLib提供的类代理和jdk提供的接口代理，IOC(控制反转)的实现建立在工厂模式、Java反射机制和jdk的操作XML的DOM解析方式。
+
+## 18. Spring中Bean的五个作用域
+
+Spring支持如下5种作用域：
+
+- singleton：单例模式，在整个Spring IoC容器中，使用singleton定义的Bean将只有一个实例
+- prototype：原型模式，每次通过容器的getBean方法获取prototype定义的Bean时，都将产生一个新的Bean实例
+- request：对于每次HTTP请求，使用request定义的Bean都将产生一个新实例，即每次HTTP请求将会产生不同的Bean实例。只有在Web应用中使用Spring时，该作用域才有效
+- session：对于每次HTTP Session，使用session定义的Bean豆浆产生一个新实例。同样只有在Web应用中使用Spring时，该作用域才有效
+- globalsession：每个全局的HTTP Session，使用session定义的Bean都将产生一个新实例。典型情况下，仅在使用portlet context的时候有效。同样只有在Web应用中使用Spring时，该作用域才有效
+
+
+
+
+

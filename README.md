@@ -1,17 +1,6 @@
 # InterviewNote
 笔记内容：
 
-```
-​```
-
-aaa
-dd = z
-​```
-
-```
-
-
-
 - [JVM](https://github.com/orangehaswing/OrdinaryNote/tree/master/JVM)
 - [Java基础](https://github.com/orangehaswing/OrdinaryNote/tree/master/Java%E5%9F%BA%E7%A1%80)
 - [Java集合](https://github.com/orangehaswing/OrdinaryNote/tree/master/Java%E9%9B%86%E5%90%88)

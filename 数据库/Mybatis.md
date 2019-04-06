@@ -1,5 +1,31 @@
 # Mybatis
 
+## 分页机制
+
+在学习mybatis等持久层框架的时候，会经常对数据进行增删改查操作，使用最多的是对数据库进行查询操作，如果查询大量数据的时候，我们往往使用分页进行查询，也就是每次处理小部分数据，这样对数据库压力就在可控范围内。
+
+**分页的几种方式**
+
+**1. 内存分页**：一次性查询数据库中所有满足条件的记录，将这些数据临时保存在集合中，再通过List的subList方法，获取到满足条件的记录
+
+**2. 物理分页**： 借助sql语句进行分页，比如mysql是通过limit关键字，oracle是通过rownum等
+
+**3. 拦截器分页** ：选择被拦截的方法执行前后加上某些逻辑，也可以在执行这些被拦截的方法时执行自己的逻辑而不再执行被拦截的方法。Mybatis拦截器设计的一个初衷就是为了供用户在某些时候可以实现自己的逻辑而不必去动Mybatis固有的逻辑。
+
+## Executor执行器
+
+**SimpleExecutor：**每执行一次update或select，就开启一个Statement对象，用完立刻关闭Statement对象。
+
+**ReuseExecutor：**执行update或select，以sql作为key查找Statement对象，存在就使用，不存在就创建，用完后，不关闭Statement对象，而是放置于Map内，供下一次使用。简言之，就是重复使用Statement对象。
+
+**BatchExecutor：**执行update（没有select，JDBC批处理不支持select），将所有sql都添加到批处理中（addBatch()），等待统一执行（executeBatch()），它缓存了多个Statement对象，每个Statement对象都是addBatch()完毕后，等待逐一执行executeBatch()批处理。与JDBC批处理相同。
+
+作用范围：Executor的这些特点，都严格限制在SqlSession生命周期范围内。
+
+Q:Mybatis中如何指定使用哪一种Executor执行器？
+
+A：在Mybatis配置文件中，可以指定默认的ExecutorType执行器类型，也可以手动给DefaultSqlSessionFactory的创建SqlSession的方法传递ExecutorType类型参数。
+
 ## 缓存机制
 
 MyBatis将数据缓存设计成两级结构，分为一级缓存、二级缓存：
