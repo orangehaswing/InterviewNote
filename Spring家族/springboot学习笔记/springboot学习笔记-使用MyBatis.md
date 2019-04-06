@@ -387,3 +387,38 @@ Q: 使用 `@Autowire` 出现 `Could not autowire. No beans of 'xxxx' type found`
 
 A: 在注入的接口上加上 `@Service`
 
+## Dao接口和XML文件建立关系
+
+### 解析XML
+
+首先，Mybatis在初始化SqlSessionFactoryBean的时候，找到mapperLocations路径去解析里面所有的XML文件
+
+**创建SqlSource**
+
+Mybatis会把每个SQL标签封装成SqlSource对象。然后根据SQL语句的不同，又分为动态SQL和静态SQL。其中，静态SQL包含一段String类型的sql语句；而动态SQL则是由一个个SqlNode组成。
+
+**创建MappedStatement**
+
+XML文件中的每一个SQL标签就对应一个MappedStatement对象，这里面有两个属性很重要。
+
+- id  全限定类名+方法名组成的ID。
+
+
+- sqlSource  当前SQL标签对应的SqlSource对象。
+
+创建完MappedStatement对象，将它缓存到Configuration#mappedStatements中。当我们执行Mybatis方法的时候，就通过全限定类名+方法名找到MappedStatement对象，然后解析里面的SQL内容，执行即可。
+
+### Dao接口代理
+
+我们的Dao接口并没有实现类，MapperScan("com.xxx.dao")，将包路径下的所有类注册到Spring Bean中，并且将它们的beanClass设置为MapperFactoryBean。
+
+通过JDK动态代理，返回了一个Dao接口的代理对象，这个代理对象的处理器是MapperProxy对象。所有，我们通过@Autowired注入Dao接口的时候，注入的就是这个代理对象，我们调用到Dao接口的方法时，则会调用到MapperProxy对象的invoke方法。
+
+
+
+
+
+
+
+
+
