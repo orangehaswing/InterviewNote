@@ -1,5 +1,7 @@
 # Java IO
 
+[TOC]
+
 Java 的 I/O 大概可以分成以下几类：
 
 - 磁盘操作：File
