@@ -190,7 +190,164 @@ public List<String> binaryTreePaths(TreeNode root) {
     }
 ```
 
+LeetCode 494 Target Sum
 
+本题使用DFS的方法寻找sum值，结构是二叉树路径和。
+
+题意：给定一串不包含负数的list。只能用+ -两种符号，找出所有运算sum等于target的路径数。
+
+```
+Input: nums is [1, 1, 1, 1, 1], S is 3. 
+Output: 5
+Explanation: 
+-1+1+1+1+1 = 3
++1-1+1+1+1 = 3
++1+1-1+1+1 = 3
++1+1+1-1+1 = 3
++1+1+1+1-1 = 3
+There are 5 ways to assign symbols to make the sum of nums be target 3.
+```
+
+```
+	int result = 0;
+    public int findTargetSumWays(int[] nums, int S) {
+        if (nums == null || nums.length == 0) return result;
+        helper(nums, S, 0, 0);
+        return result;
+    }
+    
+    public void helper(int[] nums, int target, int pos, long eval){
+        if (pos == nums.length) {
+            if (target == eval) result++;
+            return;
+        }
+        helper(nums, target, pos + 1, eval + nums[pos]);
+        helper(nums, target, pos + 1, eval - nums[pos]);
+    }
+```
+
+LeetCode 404 Sum of Left Leaves
+
+给定二叉树，计算所有左叶子的和
+
+```
+ 	3
+   / \
+  9  20
+    /  \
+   15   7
+There are two left leaves in the binary tree, with values 9 and 15 respectively. Return 24.
+```
+
+DFS+ArrayList保存左叶子节点值
+
+```
+	public int sumOfLeftLeaves(TreeNode root) {
+         ArrayList<Integer> arr = new ArrayList<>();
+        if(root == null){
+            return 0;
+        }
+        dfs(root,arr);
+
+        int sum = 0;
+        for(Integer i:arr){
+            sum += i;
+        }
+
+        return sum;
+    }
+    
+    private void dfs(TreeNode root, ArrayList arr){
+        if (root == null){
+            return;
+        }
+
+        if (root.left != null){
+            if (root.left.left == null && root.left.right == null){
+                arr.add(root.left.val);
+            }
+        }
+
+        dfs(root.left,arr);
+        dfs(root.right,arr);
+    }
+```
+
+LeetCode 337 House Robber III
+
+抢劫位置只能隔一层抢劫一层
+
+```
+Input: [3,2,3,null,3,null,1]
+
+     3
+    / \
+   2   3
+    \   \ 
+     3   1
+
+Output: 7 
+Explanation: Maximum amount of money the thief can rob = 3 + 3 + 1 = 7.
+```
+
+```
+	public int rob(TreeNode root) {
+       if (root == null){
+            return 0;
+        }
+
+        int val = 0;
+        if (root.left != null){
+            val += rob(root.left.left) + rob(root.left.right);
+        }
+        if (root.right != null){
+            val += rob(root.right.left) + rob(root.right.right);
+        }
+
+        return Math.max(val + root.val,rob(root.left)+rob(root.right));
+    }
+```
+
+LeetCode 100 Same Tree
+
+判断二叉树是否相等
+
+```
+Input:     1         1
+          / \       / \
+         2   3     2   3
+
+        [1,2,3],   [1,2,3]
+
+Output: true
+Input:     1         1
+          /           \
+         2             2
+
+        [1,2],     [1,null,2]
+
+Output: false
+```
+
+用DFS
+
+```
+public boolean isSameTree(TreeNode p, TreeNode q) {
+        if(p == null && q == null){
+            return true;
+        }
+
+        if (p == null || q == null){
+            return false;
+        }
+
+        if (p.val != q.val){
+            return false;
+        }
+
+        return isSameTree(p.left,q.left) && isSameTree(p.right,q.right);
+    }
+```
 
 
 
