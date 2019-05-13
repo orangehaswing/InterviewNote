@@ -34,6 +34,11 @@ MavenProjectRoot(项目根目录)
    |----target ——项目输出位置
    |----pom.xml ----用于标识该项目是一个Maven项目
 
+- groupId：组织标识（包名）
+- artifactId：项目名称
+- version：项目的当前版本
+- packaging：项目的打包方式，最为常见的jar和war两种
+
 ## 命令
 
 - 编译：mvn clean compile
@@ -79,23 +84,3 @@ MavenProjectRoot(项目根目录)
 - 不对子工程递归执行，有时候只想install最外层的父pom至本地仓库，可使用-N参数
 
   mvn -N install
-
-## 坐标
-
-- groupId：组织标识（包名）
-- artifactId：项目名称
-- version：项目的当前版本
-- packaging：项目的打包方式，最为常见的jar和war两种
-
-拥有了统一规范，就可以把查找工作交给机器。
-
-
-
-
-
-
-
-
-
-
-

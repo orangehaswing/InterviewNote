@@ -1,10 +1,6 @@
 # 分布式协调服务 ZooKeeper
 
-在 2006 年，Google 发表了一篇名为 [The Chubby lock service for loosely-coupled distributed systems](https://static.googleusercontent.com/media/research.google.com/en//archive/chubby-osdi06.pdf) 的论文，其中描述了一个分布式锁服务 Chubby 的设计理念和实现原理；作为 Google 内部的一个基础服务，虽然 Chubby 与 GFS、Bigtable 和 MapReduce 相比并没有那么大的名气，不过它在 Google 内部也是非常重要的基础设施。
-
-![zookeeper-banner](https://img.draveness.me/2018-09-22-zookeeper-banner.png)
-
-相比于名不见经传的 Chubby，作者相信 Zookeeper 更被广大开发者所熟知，作为非常出名的分布式协调服务，Zookeeper 有非常多的应用，包括发布订阅、命名服务、分布式协调和分布式锁，这篇文章主要会介绍 Zookeeper 的实现原理以及常见的应用，但是在具体介绍 Zookeeper 的功能和原理之前，我们会简单介绍一下分布式锁服务 Chubby 以及它与 Zookeeper 之间的异同。
+作为非常出名的分布式协调服务，Zookeeper 有非常多的应用，包括发布订阅、命名服务、分布式协调和分布式锁，这篇文章主要会介绍 Zookeeper 的实现原理以及常见的应用，但是在具体介绍 Zookeeper 的功能和原理之前，我们会简单介绍一下分布式锁服务 Chubby 以及它与 Zookeeper 之间的异同。
 
 ## Chubby
 
@@ -34,17 +30,13 @@ Chubby 总共由两部分组成，一部分是用于提供数据的读写接口�
 
 主节点会不停地轮询 DNS 表获取集群中最新的配置，每次 DNS 表更新时，主节点都会将新的配置下发给 Chubby 集群中其他的副本节点。
 
-由于这篇文章我们主要介绍的是 Zookeeper，所以对于 Chubby 就介绍到这里了，感兴趣的读者可以查看 [The Chubby lock service for loosely-coupled distributed systems](https://ai.google/research/pubs/pub27897) 了解更多相关的内容。
-
 ## Zookeeper
 
 很多人都会说 Zookeeper 是 Chubby 的一个开源实现，这其实是有问题的，它们两者只不过都提供了具有层级结构的命名空间：
 
 ![hierachical-namespace](https://img.draveness.me/2018-09-22-hierachical-namespace.png)
 
-Chubby 和 Zookeeper 从最根本的设计理念上就有着非常明显的不同，在上文中我们已经提到了 Chubby 被设计成一个分布式的锁服务，它能够为分布式系统提供松耦合、粗粒度的分布式锁功能，然而我们并不能依赖于它来做一些重量的数据存储，而 Zookeeper 的论文在摘要中介绍到，它是一个能够为分布式系统提供**协调**功能的服务：
-
-> In this paper, we describe ZooKeeper, a service for co- ordinating processes of distributed applications.
+Chubby 和 Zookeeper 从最根本的设计理念上就有着非常明显的不同，在上文中我们已经提到了 Chubby 被设计成一个分布式的锁服务，它能够为分布式系统提供松耦合、粗粒度的分布式锁功能，然而我们并不能依赖于它来做一些重量的数据存储，而 Zookeeper 是一个能够为分布式系统提供**协调**功能的服务
 
 Zookeeper 的目的是为客户端构建复杂的协调功能提供简单、高效的核心 API，相比于 Chubby 对外提供已经封装好的更上层的功能，Zookeeper 提供了更抽象的接口以便于客户端自行实现想要完成的功能。
 

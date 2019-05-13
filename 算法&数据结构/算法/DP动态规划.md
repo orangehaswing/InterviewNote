@@ -34,6 +34,100 @@ class Solution {
 }
 ```
 
+LeetCode 62 Unique Paths
+
+在M*N的方格中，机器人在左上角，终点在右下角。机器人只能向右或者向下。总共有多少条路
+
+```
+Input: m = 3, n = 2
+Output: 3
+Explanation:
+From the top-left corner, there are a total of 3 ways to reach the bottom-right corner:
+1. Right -> Right -> Down
+2. Right -> Down -> Right
+3. Down -> Right -> Right
+```
+
+转移方程`dp[i][j] = dp[i-1][j] + dp[i][j-1]`
+
+```
+public int uniquePaths(int m, int n) {
+        int[][] dp = new int[m][n];
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == 0 || j== 0){
+                    dp[i][j] = 1;
+                }else {
+                    dp[i][j] = dp[i-1][j] + dp[i][j-1];
+                }
+            }
+        }
+
+        return dp[m-1][n-1];
+    }
+```
+
+LeetCode 63 Unique Paths II
+
+在62的基础上，增加障碍物。判断有多少路
+
+```
+Input:
+[
+  [0,0,0],
+  [0,1,0],
+  [0,0,0]
+]
+Output: 2
+Explanation:
+There is one obstacle in the middle of the 3x3 grid above.
+There are two ways to reach the bottom-right corner:
+1. Right -> Right -> Down -> Down
+2. Down -> Down -> Right -> Right
+```
+
+参考62，当在第一行或者第一列时，如果存在障碍物，该行或列之后的值都为0。所以只要增加上第一行或第一列判断就可
+
+```
+    public int uniquePathsWithObstacles(int[][] obstacleGrid) {
+        int m = obstacleGrid.length;
+        int n = obstacleGrid[0].length;
+        int[][] dp = new int[m][n];
+
+        for (int i = 0; i < m; i++) {
+            if (obstacleGrid[i][0] == 1){
+                dp[i][0] = 0;
+                break;
+            }else {
+                dp[i][0] = 1;
+            }
+        }
+
+        for (int j = 0; j < n; j++) {
+            if (obstacleGrid[0][j] == 1){
+                dp[0][j] = 0;
+                break;
+            }else {
+                dp[0][j] = 1;
+            }
+        }
+
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                if (obstacleGrid[i][j] == 1){
+                    dp[i][j] = 0;
+                }else {
+                    dp[i][j] = dp[i-1][j] + dp[i][j-1];
+                }
+            }
+
+        }
+        
+        return dp[m-1][n-1];
+    }
+```
+
 
 
 

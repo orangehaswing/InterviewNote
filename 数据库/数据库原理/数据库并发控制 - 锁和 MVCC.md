@@ -1,9 +1,5 @@
 # 数据库并发控制 - 锁和 MVCC
 
-
-
-
-
 在学习几年编程之后，你会发现所有的问题都没有简单、快捷的解决方案，很多问题都需要权衡和妥协，而本文介绍的就是数据库在并发性能和可串行化之间做的权衡和妥协 - 并发控制机制。
 
 ![tradeoff-between-performance-and-serializability](https://img.draveness.me/2017-10-02-tradeoff-between-performance-and-serializability.png)

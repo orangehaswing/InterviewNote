@@ -1,4 +1,6 @@
-# 计算器算法题
+# Stack
+
+## 计算器算法题
 
 LeetCode 224. Basic Calculator
 
@@ -171,6 +173,66 @@ public int calculate(String s) {
 ```
 
 LeetCode 770 Basic Calculator IV
+
+
+
+## 字符串编码解码
+
+**LeetCode 394 Decode String**
+
+给出字符串编码形式，求解码。保证字符串有效
+
+```
+s = "3[a]2[bc]", return "aaabcbc".
+s = "3[a2[c]]", return "accaccacc".
+s = "2[abc]3[cd]ef", return "abcabccdcdcdef".
+```
+
+用两个Stack，其中一个保存数字，另一个保存字符串结果
+
+```
+	public String decodeString(String s) {
+        Stack<Integer> stack = new Stack<>();
+        Stack<String> res = new Stack<>();
+
+        res.push("");
+        int i = 0;
+        while (i < s.length()) {
+            char c = s.charAt(i);
+			//保存数字
+            if (c >= '0' && c <= '9'){
+                int start = i;
+                while (s.charAt(i+1) >= '0' && s.charAt(i+1) <= '9') i++;
+
+                int num = Integer.parseInt(s.substring(start,i+1));
+                stack.push(num);
+            }else if (c == '['){
+                res.push("");
+            // 对‘]’之前的string 和 num做处理，并且将结果与res拼接。
+            }else if (c == ']'){
+                String str = res.pop();
+                StringBuilder sb = new StringBuilder();
+                int times = stack.pop();
+                for (int j = 0; j < times; j++) {
+                    sb.append(str);
+                }
+                res.push(res.pop()+sb.toString());
+            //在‘[’ 和‘]’之间的字符串相加
+            }else {
+                res.push(res.pop() + c);
+            }
+            i++;
+        }
+
+        return res.pop();
+    }
+```
+
+
+
+
+
+
 
 
 
