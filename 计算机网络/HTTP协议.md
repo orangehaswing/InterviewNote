@@ -14,6 +14,20 @@ URI 包含 URL 和 URN，目前 WEB 只有 URL 比较流行，所以见到的基
 
 ## 请求和响应报文
 
+## request message
+
+- A request line to get a required resource, for example a request GET /content/page1.html is requesting a resource called /content/page1.html from the server.
+- Headers (Example – Accept-Language: EN).
+- An empty line.
+- A message body which is optional.
+
+## response message
+
+- HTTP Status Code (For example HTTP/1.1 301 Moved Permanently, means the requested resource was permanently moved and redirecting to some other resource).
+- Headers (Example – Content-Type: html)
+- An empty line.
+- A message body which is optional.
+
 ### 1. 请求报文
 
 [![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/resource/HTTP_RequestMessageExample.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/HTTP_RequestMessageExample.png?raw=true)
@@ -181,6 +195,10 @@ CONNECT www.example.com:443 HTTP/1.1
 | Upgrade           | 升级为其他协议               |
 | Via               | 代理服务器的相关信息            |
 | Warning           | 错误通知                  |
+
+编码方式 Transfer-Encoding：
+
+- chunked：数据分解成一系列数据块，并以一个或多个块发送，这样服务器可以发送数据而不需要预先知道发送内容的总大小。每个分块包含十六进制的长度值和数据，长度值独占一行，最后一个分块长度值必须为 0，对应的分块数据没有内容，表示实体结束。
 
 ## 请求首部字段
 
