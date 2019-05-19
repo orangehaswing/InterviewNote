@@ -1,6 +1,8 @@
-# 二叉树路径
+# DFS
 
-LeetCode 112 Path Sum
+## 二叉树路径和
+
+**LeetCode 112 Path Sum**
 
 给定一棵二叉树，判断是否存在从根节点到叶子节点和等于sum的路径，返回true或者false
 
@@ -346,6 +348,134 @@ public boolean isSameTree(TreeNode p, TreeNode q) {
         }
 
         return isSameTree(p.left,q.left) && isSameTree(p.right,q.right);
+    }
+```
+
+**LeetCode 671  Second Minimum Node In a Binary Tree**
+
+找二叉树中的第二小的值。
+
+```
+Input: 
+    2
+   / \
+  2   5
+     / \
+    5   7
+
+Output: 5
+Explanation: The smallest value is 2, the second smallest value is 5.
+Input: 
+    2
+   / \
+  2   2
+
+Output: -1
+Explanation: The smallest value is 2, but there isn't any second smallest value.
+```
+
+在不考虑题中的条件设置，直接使用DFS遍历，HashSet记录值。在记录值中找到第二小
+
+```
+	public int findSecondMinimumValue(TreeNode root) {
+        HashSet<Integer> hashSet = new HashSet<>();
+
+        dfs(root,hashSet);
+
+        int min = Integer.MAX_VALUE;
+        int minres = Integer.MAX_VALUE;
+
+        if (hashSet.size() < 2){
+            return -1;
+        }
+        for (Integer i: hashSet){
+            if (minres > i){
+                if (min > i){
+                    minres = min;
+                    min = i;
+                }else {
+                    minres = i;
+                }
+            }
+
+        }
+
+        return minres;
+    }
+    private void dfs(TreeNode root, HashSet<Integer> hashSet){
+        if (root == null){
+            return;
+        }
+
+        hashSet.add(root.val);
+
+        if (root.left != null){
+            dfs(root.left,hashSet);
+        }
+
+        if (root.right != null){
+            dfs(root.right,hashSet);
+        }
+    }
+```
+
+LeetCode 572 Subtree of Another Tree
+
+二叉树s，t，判断t是s的子树
+
+```
+Given tree s:
+
+     3
+    / \
+   4   5
+  / \
+ 1   2
+Given tree t:
+   4 
+  / \
+ 1   2
+Return true, because t has the same structure and node values with a subtree of s.
+Given tree s:
+
+     3
+    / \
+   4   5
+  / \
+ 1   2
+    /
+   0
+Given tree t:
+   4
+  / \
+ 1   2
+```
+
+深度优先遍历，需要遍历s，t；s.left，t；s.right，t；
+
+```
+public boolean isSubtree(TreeNode s, TreeNode t) {
+        if (s == null){
+            return false;
+        }
+        return dfs(s,t)||isSubtree(s.left,t)||isSubtree(s.right,t);
+
+    }
+
+    private boolean dfs(TreeNode s, TreeNode t){
+        if (t == null && s==null){
+            return true;
+        }
+
+        if (s == null || t == null){
+            return false;
+        }
+
+        if (s.val != t.val){
+            return false;
+        }
+
+        return dfs(s.right,t.right) && dfs(s.left,t.left);
     }
 ```
 

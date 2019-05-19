@@ -54,8 +54,6 @@ public static ExecutorService newCachedThreadPool(){
 }
 ```
 
-​
-
 1. 初始化一个可以缓存线程的线程池，可以根据实际情况调整线程数量的线程池。默认缓存60s，线程池的线程数可达到Integer.MAX_VALUE，即2147483647，内部使用SynchronousQueue作为阻塞队列；
 2. 和newFixedThreadPool创建的线程池不同，newCachedThreadPool在没有任务执行时，当线程的空闲时间超过keepAliveTime，会自动释放线程资源，当提交新任务时，如果没有空闲线程，则创建新线程执行任务，会导致一定的系统开销；
 

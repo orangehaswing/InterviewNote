@@ -1,7 +1,5 @@
 # Java IO
 
-[TOC]
-
 Java 的 I/O 大概可以分成以下几类：
 
 - 磁盘操作：File
@@ -33,7 +31,7 @@ public static void listAllFiles(File dir)
 }
 ```
 
-## 2、字节操作（*Stream）
+## 2、字节操作（Stream）
 
 使用字节流操作进行文件复制：
 
@@ -67,7 +65,7 @@ BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStrea
 
 DataInputStream 装饰者提供了对更多数据类型进行输入的操作，比如 int、double 等基本类型。
 
-## 3、字符操作（*Reader | *Writer）
+## 3、字符操作（Reader | Writer）
 
 不管是磁盘还是网络传输，最小的存储单元都是字节，而不是字符。**但是在程序中操作的通常是字符形式的数据，因此需要提供对字符进行操作的方法。**
 
@@ -322,7 +320,7 @@ BIO模型中通过 **Socket** 和 **ServerSocket** 完成套接字通道的�
 
 [![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/java-bio2.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/java-bio2.png)
 
-为了改进这种一连接一线程的模型，我们可以使用线程池来管理这些线程，实现1个或多个线程处理N个客户端的模型（但是底层还是使用的同步阻塞I/O），通常被称为“**伪异步I/O模型**“。
+为了改进这种一连接一线程的模型，我们可以使用线程池来管理这些线程，实现1个或多个线程处理N个客户端的模型（但是底层还是使用的同步阻塞I/O），通常被称为“ **伪异步I/O模型** “。
 
 [![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/java-bio-threadpool.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/java-bio-threadpool.png)
 

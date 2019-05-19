@@ -1,6 +1,8 @@
 # DP动态规划
 
-LeetCode 343 Integer Break
+## Number
+
+**LeetCode 343 Integer Break**
 
 给定一个整数，可以由多个数相加，求多个数乘机的最大值
 
@@ -34,7 +36,9 @@ class Solution {
 }
 ```
 
-LeetCode 62 Unique Paths
+## Matrix
+
+**LeetCode 62 Unique Paths**
 
 在M*N的方格中，机器人在左上角，终点在右下角。机器人只能向右或者向下。总共有多少条路
 
@@ -68,7 +72,7 @@ public int uniquePaths(int m, int n) {
     }
 ```
 
-LeetCode 63 Unique Paths II
+**LeetCode 63 Unique Paths II**
 
 在62的基础上，增加障碍物。判断有多少路
 
@@ -127,6 +131,125 @@ There are two ways to reach the bottom-right corner:
         return dp[m-1][n-1];
     }
 ```
+
+## Tree
+
+**LeetCode 96 Unique Binary Search Trees**
+
+输入n，输出1-n可以组成二叉查找树的个数
+
+```
+Input: 3
+Output: 5
+Explanation:
+Given n = 3, there are a total of 5 unique BST's:
+   1         3     3      2      1
+    \       /     /      / \      \
+     3     2     1      1   3      2
+    /     /       \                 \
+   2     1         2                 3
+```
+
+`G(n)`: 长度为 n的BST数量.
+
+`F(i, n), 1 <= i <= n`: 个数为n，根节点为i，左子树[1,i-1],右子树[i+1，n]。然后对左右子树递归求解，最初始状态是
+
+G[0] = G[1] = 1
+
+DP函数：
+
+```
+G(n) = F(1, n) + F(2, n) + ... + F(n, n).     
+G(0)=1, G(1)=1. 
+```
+
+推导：
+
+```
+F(i, n) = G(i-1) * G(n-i)
+G(n) = G(0) * G(n-1) + G(1) * G(n-2) + … + G(n-1) * G(0)
+```
+
+```
+public int numTrees(int n) {
+    int [] G = new int[n+1];
+    G[0] = G[1] = 1;
+    
+    for(int i=2; i<=n; ++i) {
+    	for(int j=1; j<=i; ++j) {
+    		G[i] += G[j-1] * G[i-j];
+    	}
+    }
+
+    return G[n];
+}
+```
+
+**LeetCode 95 Unique Binary Search Trees II**
+
+输入n，输出1-n可以组成二叉查找树的所有情况
+
+```
+Input: 3
+Output:
+[
+  [1,null,3,2],
+  [3,2,null,1],
+  [3,1,null,null,2],
+  [2,1,3],
+  [1,null,2,null,3]
+]
+Explanation:
+The above output corresponds to the 5 unique BST's shown below:
+
+   1         3     3      2      1
+    \       /     /      / \      \
+     3     2     1      1   3      2
+    /     /       \                 \
+   2     1         2                 3
+```
+
+思路按照LeetCode 96。按照题目要求，需要记录每一种二叉查找树，所以采用分治法
+
+```
+public List<TreeNode> generateTrees(int n) {
+        List<TreeNode> res = new ArrayList<>();
+        if (n == 0){
+            return res;
+        }
+        
+        return generateSubTrees(1,n);
+    }
+
+    private List<TreeNode> generateSubTrees(int start, int end) {
+        List<TreeNode> res = new ArrayList<>();
+
+        if (start > end){
+            res.add(null);
+            return res;
+        }
+
+        for (int i = start; i <= end ; i++) {
+            List<TreeNode> leftSubTrees = generateSubTrees(start,i-1);
+            List<TreeNode> rightSubTrees = generateSubTrees(i+1,end);
+
+            for (TreeNode left : leftSubTrees) {
+                for (TreeNode right : rightSubTrees){
+                    TreeNode root = new TreeNode(i);
+                    root.left = left;
+                    root.right = right;
+                    res.add(root);
+                }
+            }
+        }
+
+        return res;
+    }
+```
+
+
+
+
 
 
 

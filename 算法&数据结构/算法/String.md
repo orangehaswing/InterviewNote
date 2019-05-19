@@ -95,39 +95,7 @@ private void extendPalindrome(String s, int j, int k) {
     }
 ```
 
-LeetCode 151 Reverse Words in a String
-
-输入字符串，按照每个单词翻转，多个空格要去掉
-
-```
-Input: "the sky is blue"
-Output: "blue is sky the"
-Input: "  hello world!  "
-Output: "world! hello"
-Explanation: Your reversed string should not contain leading or trailing spaces.
-Input: "a good   example"
-Output: "example good a"
-Explanation: You need to reduce multiple spaces between two words to a single space in the reversed string.
-```
-
-使用String.trim()方法去掉首尾的空格，split按照空格切分，"\s+"表示一个或多个空格
-
-```
-	public String reverseWords(String s) {
-        String[] res = s.trim().split("\\s+");
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = res.length-1; i >= 0; i--) {
-            sb.append(res[i]);
-            sb.append(" ");
-        }
-        sb.deleteCharAt(sb.length()-1);
-
-        return sb.toString();
-    }
-```
-
-LeetCode 415 Add Strings
+**LeetCode 415 Add Strings**
 
 两个代表正数的字符串，求sum
 
@@ -151,7 +119,7 @@ public String addStrings(String num1, String num2) {
     }
 ```
 
-LeetCode 165 Compare Version Numbers
+**LeetCode 165 Compare Version Numbers**
 
 两个版本version1，version2，如果version1>version2,返回1；version1>version2,返回-1；其他返回0
 
@@ -185,6 +153,77 @@ public static int compareVersion(String version1, String version2) {
         }
 
         return 0;
+    }
+```
+
+## 文章和段落
+
+给一段英文，和禁止词数组。求：除了禁止词外，出现频率最高的词，不区分大小写。
+
+```
+Input: 
+paragraph = "Bob hit a ball, the hit BALL flew far after it was hit."
+banned = ["hit"]
+Output: "ball"
+Explanation: 
+"hit" occurs 3 times, but it is a banned word.
+"ball" occurs twice (and no other word does), so it is the most frequent non-banned word in the paragraph. 
+Note that words in the paragraph are not case sensitive,
+that punctuation is ignored (even if adjacent to words, such as "ball,"), 
+and that "hit" isn't the answer even though it occurs more because it is banned.
+```
+
+首先需要把段落按照词切分，用正则表达式：
+
+```
+String[] word = paragraph.toLowerCase().split("[ !?',;.]+");
+```
+
+hashmap记录 word - count，去掉禁止词。遍历找到最大频率的词
+
+```
+public String mostCommonWord(String paragraph, String[] banned) {
+        String[] words = paragraph.toLowerCase().split("[ !?',;.]+");
+        HashMap<String, Integer> map = new HashMap<>();
+        for(String word : words) map.put(word, map.getOrDefault(word, 0) + 1);
+        for(String word : banned) if(map.containsKey(word)) map.remove(word);
+        String res = null;
+        for(String word : map.keySet())
+            if(res == null || map.get(word) > map.get(res))
+                res = word;
+        return res;
+    }
+```
+
+**LeetCode 151 Reverse Words in a String**
+
+输入字符串，按照每个单词翻转，多个空格要去掉
+
+```
+Input: "the sky is blue"
+Output: "blue is sky the"
+Input: "  hello world!  "
+Output: "world! hello"
+Explanation: Your reversed string should not contain leading or trailing spaces.
+Input: "a good   example"
+Output: "example good a"
+Explanation: You need to reduce multiple spaces between two words to a single space in the reversed string.
+```
+
+使用String.trim()方法去掉首尾的空格，split按照空格切分，"\s+"表示一个或多个空格
+
+```
+	public String reverseWords(String s) {
+        String[] res = s.trim().split("\\s+");
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = res.length-1; i >= 0; i--) {
+            sb.append(res[i]);
+            sb.append(" ");
+        }
+        sb.deleteCharAt(sb.length()-1);
+
+        return sb.toString();
     }
 ```
 
