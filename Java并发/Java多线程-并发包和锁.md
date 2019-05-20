@@ -22,7 +22,7 @@ new Thread() 的缺点
 
 ### 线程池工作原理
 
-[![ThrealpoolExecutor_framework](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/ThrealpoolExecutor_framework.jpg)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/ThrealpoolExecutor_framework.jpg)
+![ThrealpoolExecutor_framework](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/ThrealpoolExecutor_framework.jpg?raw=true)
 
 #### 并发队列
 
@@ -175,7 +175,7 @@ keepAliveTime的单位；
 
 #### 线程池内部状态
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-5a620e0f56cbb008.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/684/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-5a620e0f56cbb008.png?raw=true?)
 
 其中AtomicInteger变量ctl的功能非常强大：利用低29位表示线程池中线程数，通过高3位表示线程池的运行状态：
 1、RUNNING：`-1 << COUNT_BITS`，即高3位为111，该状态的线程池会接收新任务，并处理阻塞队列中的任务；
@@ -190,13 +190,13 @@ keepAliveTime的单位；
 
 **Executor.execute()**
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-834971c24d085d31.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/735/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-834971c24d085d31.png?raw=true?)
 
 通过Executor.execute()方法提交的任务，必须实现Runnable接口，该方式提交的任务不能获取返回值，因此无法判断任务是否执行成功。
 
 **ExecutorService.submit()**
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-ea9fe289ca3de89f.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/702/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-ea9fe289ca3de89f.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/702/format/webp)
 
 通过ExecutorService.submit()方法提交的任务，可以获取任务执行完的返回值。
 
@@ -206,7 +206,7 @@ keepAliveTime的单位；
 
 ##### execute实现
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-7b6f0840be17799d.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/650/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-7b6f0840be17799d.png?raw=true)
 
 具体的执行流程如下：
 
@@ -216,14 +216,14 @@ keepAliveTime的单位；
 
 从方法execute的实现可以看出：addWorker主要负责创建新的线程并执行任务，代码实现如下：
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-93ee534ab66761cc.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/690/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-93ee534ab66761cc.png?raw=true)
 
 这只是addWoker方法实现的前半部分：
 
 1. 判断线程池的状态，如果线程池的状态值大于或等SHUTDOWN，则不处理提交的任务，直接返回；
 2. 通过参数core判断当前需要创建的线程是否为核心线程，如果core为true，且当前线程数小于corePoolSize，则跳出循环，开始创建新的线程，具体实现如下：
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-b36984b791e99464.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/746/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-b36984b791e99464.png?raw=true)
 
 线程池的工作线程通过Woker类实现，在ReentrantLock锁的保证下，把Woker实例插入到HashSet后，并启动Woker中的线程，其中Worker类设计如下：
 
@@ -231,13 +231,13 @@ keepAliveTime的单位；
 2. 实现了Runnable接口，可以将自身作为一个任务在工作线程中执行；
 3. 当前提交的任务firstTask作为参数传入Worker的构造方法；
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-61b08d34ae1aaf49.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/679/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-61b08d34ae1aaf49.png?raw=true)
 
 从Woker类的构造方法实现可以发现：线程工厂在创建线程thread时，将Woker实例本身this作为参数传入，当执行start方法启动线程thread时，本质是执行了Worker的runWorker方法。
 
 ##### runWorker实现
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-1e8ed00138c189ea.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/715/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-1e8ed00138c189ea.png?raw=true)
 
 runWorker方法是线程池的核心：
 
@@ -248,7 +248,7 @@ runWorker方法是线程池的核心：
 
 ##### getTask实现
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-a63a6646c456f715.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/738/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-a63a6646c456f715.png?raw=true)
 
 整个getTask操作在自旋下完成：
 
@@ -297,7 +297,7 @@ java.util.concurrent（J.U.C）大大提高了并发性能，AQS 被认为是 J.
 
 维护了一个计数器 cnt，每次调用 countDown() 方法会让计数器的值减 1，减到 0 的时候，那些因为调用 await() 方法而在等待的线程就会被唤醒。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/CountdownLatch.png?raw=true?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/CountdownLatch.png?raw=true?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/CountdownLatch.png?raw=true?raw=true)
 
  ![11](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/11.png?raw=true)
 
@@ -348,7 +348,7 @@ public CyclicBarrier(int parties) {
 }
 ```
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/CyclicBarrier.png?raw=true?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/CyclicBarrier.png?raw=true?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/CyclicBarrier.png?raw=true?raw=true)
 
 ![22](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/22.png?raw=true)
 
@@ -383,7 +383,7 @@ before..before..before..before..before..before..before..before..before..before..
 
 Semaphore 类似于操作系统中的信号量，可以控制对互斥资源的访问线程数。信号量可以指定多个线程同时访问某个资源。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/Semaphore.png?raw=true?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/Semaphore.png?raw=true?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/Semaphore.png?raw=true?raw=true)
 
 以下代码模拟了对某个服务的并发请求，每次只能有 3 个客户端同时访问，请求总数为 10。
 
@@ -609,7 +609,7 @@ public class ForkJoinPool extends AbstractExecutorService
 
 ForkJoinPool 实现了工作窃取算法来提高 CPU 的利用率。每个线程都维护了一个双端队列，用来存储需要执行的任务。工作窃取算法允许空闲的线程从其它线程的双端队列中窃取一个任务来执行。窃取的任务必须是最晚的任务，避免和队列所属线程发生竞争。例如下图中，Thread2 从 Thread1 的队列中拿出最晚的 Task1 任务，Thread1 会拿出 Task2 来执行，这样就避免发生竞争。但是如果队列中只有一个任务时还是会发生竞争。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/15b45dc6-27aa-4519-9194-f4acfa2b077f.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/15b45dc6-27aa-4519-9194-f4acfa2b077f.jpg?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/15b45dc6-27aa-4519-9194-f4acfa2b077f.jpg?raw=true)
 
  ![55](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/55.png?raw=true)
 
@@ -645,15 +645,13 @@ mark word 被设计为非固定的数据结构，以便在及小的空间内存�
 
 比如：在32位的hotspot虚拟机中：如果对象处于未被锁定的情况下。mark  word 的32bit空间中有25bit存储对象的哈希码、4bit存储对象的分代年龄、2bit存储锁的标记位、1bit固定为0。而在其他的状态下（轻量级锁、重量级锁、GC标记、可偏向）下对象的存储结构为
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-96c64ed6c9f3316e.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/879/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-96c64ed6c9f3316e.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/879/format/webp)
 
 **monitor**
 
 monitor，把它理解为一个同步工具，也可以描述为一种同步机制，它通常被描述为一个对象。
 
-
-
-![img](https://upload-images.jianshu.io/upload_images/2184951-c1fc7a8eee6d5d64.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/347/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-c1fc7a8eee6d5d64.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/347/format/webp)
 
 - Owner：初始时为NULL表示当前没有任何线程拥有该monitor，当线程成功拥有该锁后保存线程唯一标识，当锁被释放时又设置为NULL；
 - EntryQ：关联一个系统互斥锁（semaphore），阻塞所有试图锁住monitor失败的线程。
@@ -1062,7 +1060,7 @@ CAS 指的是现代 CPU 广泛支持的一种对内存中的共享数据进行�
 
 整个AQS同步组件、Atomic原子类操作等等都是以CAS实现的，甚至ConcurrentHashMap在1.8的版本中也调整为了CAS+Synchronized。可以说CAS是整个JUC的基石。
 
-![img](https://upload-images.jianshu.io/upload_images/2251324-6aa6051b693594c1.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/623/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2251324-6aa6051b693594c1.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/623/format/webp)
 
 CAS 指令需要有 3 个操作数，分别是内存地址 V、旧的预期值 A 和新值 B。当执行操作时，只有当 V 的值等于 A，才将 V 的值更新为 B。
 
@@ -1161,7 +1159,7 @@ CAS需要检查操作值有没有发生改变，如果没有发生改变则更�
 
 AQS 是 AbstractQueuedSynchronizer 的简称，java.util.concurrent（J.U.C）大大提高了并发性能。它提供了一个基于 FIFO 队列，这个队列可以用来构建锁或者其他相关的同步装置的基础框架。下图是 AQS 底层的数据结构：
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/616953-20160403170136176-573839888.png?raw=true)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/616953-20160403170136176-573839888.png?raw=true)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/616953-20160403170136176-573839888.png?raw=true)
 
 它底层使用的是双向列表，是队列的一种实现 , 因此也可以将它当成一种队列。
 
@@ -1372,7 +1370,7 @@ ThreadLocalMap getMap(Thread t) {
 
 在ThreadLoalMap中，也是初始化一个大小16的Entry数组，Entry对象用来保存每一个key-value键值对，只不过这里的key永远都是ThreadLocal对象。通过ThreadLocal对象的set方法，结果把ThreadLocal对象自己当做key，放进了ThreadLoalMap中。
 
-![img](https://upload-images.jianshu.io/upload_images/2184951-9611b7b31c9b2e20.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000/format/webp)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/2184951-9611b7b31c9b2e20.png?raw=true?raw=true?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000/format/webp)
 
 这里需要注意的是，ThreadLoalMap的Entry是继承WeakReference，和HashMap很大的区别是，Entry中没有next字段，所以就不存在链表的情况了。![77](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/77.png?raw=true)
 
@@ -1512,7 +1510,7 @@ public class ThreadLocalExample1 {
 
 它所对应的底层结构图为：
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/3646544a-cb57-451d-9e03-d3c4f5e4434a.png?raw=true?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/3646544a-cb57-451d-9e03-d3c4f5e4434a.png?raw=true?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/3646544a-cb57-451d-9e03-d3c4f5e4434a.png?raw=true?raw=true)
 
 每个 Thread 都有一个 ThreadLocal.ThreadLocalMap 对象。
 
@@ -1585,19 +1583,19 @@ JDK提供的容器大部分在J. U. C包中。
 
 下面给出一个完整的跳表的图示：
 
-![img](https://images.cnblogs.com/cnblogs_com/xuqiang/algorithm/skiplist_linklist_complete.png?raw=true) 
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/skiplist_linklist_complete.png?raw=true) 
 
 ### 插入操作
 
 由于跳表数据结构整体上是有序的，所以在插入时，需要首先查找到合适的位置，然后就是修改指针（和链表中操作类似），然后更新跳表的level变量。
 
-![img](https://images.cnblogs.com/cnblogs_com/xuqiang/algorithm/skiplist_insert.png?raw=true)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/skiplist_insert.png?raw=true)
 
 ### 删除某个节点
 
 和插入是相同的，首先查找需要删除的节点，如果找到了该节点的话，那么只需要更新指针域，如果跳表的level需要更新的话，进行更新。
 
-![img](https://images.cnblogs.com/cnblogs_com/xuqiang/algorithm/skiplist_delete.png?raw=true)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/skiplist_delete.png?raw=true)
 
 
 
@@ -1724,17 +1722,17 @@ JDK 1.6 引入了偏向锁和轻量级锁，从而让锁拥有了四个状态：
 
 以下是 HotSpot 虚拟机对象头的内存布局，这些数据被称为 Mark Word。其中 tag bits 对应了五个状态，这些状态在右侧的 state 表格中给出。除了 marked for gc 状态，其它四个状态已经在前面介绍过了。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/bb6a49be-00f2-4f27-a0ce-4ed764bc605c.png?raw=true?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/bb6a49be-00f2-4f27-a0ce-4ed764bc605c.png?raw=true?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/bb6a49be-00f2-4f27-a0ce-4ed764bc605c.png?raw=true?raw=true)
 
 下图左侧是一个线程的虚拟机栈，其中有一部分称为 Lock Record 的区域，这是在轻量级锁运行过程创建的，用于存放锁对象的 Mark Word。而右侧就是一个锁对象，包含了 Mark Word 和其它信息。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/051e436c-0e46-4c59-8f67-52d89d656182.png?raw=true?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/051e436c-0e46-4c59-8f67-52d89d656182.png?raw=true?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/051e436c-0e46-4c59-8f67-52d89d656182.png?raw=true?raw=true)
 
 轻量级锁是相对于传统的重量级锁而言，它使用 CAS 操作来避免重量级锁使用互斥量的开销。对于绝大部分的锁，在整个同步周期内都是不存在竞争的，因此也就不需要都使用互斥量进行同步，可以先采用 CAS 操作进行同步，如果 CAS 失败了再改用互斥量进行同步。
 
 当尝试获取一个锁对象时，如果锁对象标记为 0 01，说明锁对象的锁未锁定（unlocked）状态。此时虚拟机在当前线程的虚拟机栈中创建 Lock Record，然后使用 CAS 操作将对象的 Mark Word 更新为 Lock Record 指针。如果 CAS 操作成功了，那么线程就获取了该对象上的锁，并且对象的 Mark Word 的锁标记变为 00，表示该对象处于轻量级锁状态。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/baaa681f-7c52-4198-a5ae-303b9386cf47.png?raw=true?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/baaa681f-7c52-4198-a5ae-303b9386cf47.png?raw=true?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/baaa681f-7c52-4198-a5ae-303b9386cf47.png?raw=true?raw=true)
 
 如果 CAS 操作失败了，虚拟机首先会检查对象的 Mark Word 是否指向当前线程的虚拟机栈，如果是的话说明当前线程已经拥有了这个锁对象，那就可以直接进入同步块继续执行，否则说明这个锁对象已经被其他线程线程抢占了。如果有两条以上的线程争用同一个锁，那轻量级锁就不再有效，要膨胀为重量级锁。
 
@@ -1746,6 +1744,6 @@ JDK 1.6 引入了偏向锁和轻量级锁，从而让锁拥有了四个状态：
 
 当有另外一个线程去尝试获取这个锁对象时，偏向状态就宣告结束，此时撤销偏向（Revoke Bias）后恢复到未锁定状态或者轻量级锁状态。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/390c913b-5f31-444f-bbdb-2b88b688e7ce.jpg?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/390c913b-5f31-444f-bbdb-2b88b688e7ce.jpg?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/390c913b-5f31-444f-bbdb-2b88b688e7ce.jpg?raw=true)
 
 

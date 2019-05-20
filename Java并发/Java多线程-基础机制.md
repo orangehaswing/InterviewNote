@@ -514,19 +514,19 @@ Java 内存模型试图屏蔽各种硬件和操作系统的内存访问差异，
 
 加入高速缓存带来了一个新的问题：缓存一致性。如果多个缓存共享同一块主内存区域，那么多个缓存的数据可能会不一致，需要一些协议来解决这个问题。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/68778c1b-15ab-4826-99c0-3b4fd38cb9e9.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/68778c1b-15ab-4826-99c0-3b4fd38cb9e9.png?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/68778c1b-15ab-4826-99c0-3b4fd38cb9e9.png?raw=true)
 
 所有的变量都存储在主内存中，每个线程还有自己的工作内存，工作内存存储在高速缓存或者寄存器中，保存了该线程使用的变量的主内存副本拷贝。
 
 线程只能直接操作工作内存中的变量，不同线程之间的变量值传递需要通过主内存来完成。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/47358f87-bc4c-496f-9a90-8d696de94cee.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/47358f87-bc4c-496f-9a90-8d696de94cee.png?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/47358f87-bc4c-496f-9a90-8d696de94cee.png?raw=true)
 
 ## 内存间交互操作
 
 Java 内存模型定义了 8 个操作来完成主内存和工作内存的交互操作。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/536c6dfd-305a-4b95-b12c-28ca5e8aa043.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/536c6dfd-305a-4b95-b12c-28ca5e8aa043.png?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/536c6dfd-305a-4b95-b12c-28ca5e8aa043.png?raw=true)
 
 - read：把一个变量的值从主内存传输到工作内存中
 - load：在 read 之后执行，把 read 得到的值放入工作内存的变量副本中
@@ -549,11 +549,11 @@ Java 内存模型保证了 read、load、use、assign、store、write、lock 和
 
 下图演示了两个线程同时对 cnt 进行操作，load、assign、store 这一系列操作整体上看不具备原子性，那么在 T1 修改 cnt 并且还没有将修改后的值写入主内存，T2 依然可以读入旧值。可以看出，这两个线程虽然执行了两次自增运算，但是主内存中 cnt 的值最后为 1 而不是 2。因此对 int 类型读写操作满足原子性只是说明 load、assign、store 这些单个操作具备原子性。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/ef8eab00-1d5e-4d99-a7c2-d6d68ea7fe92.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/ef8eab00-1d5e-4d99-a7c2-d6d68ea7fe92.png?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/ef8eab00-1d5e-4d99-a7c2-d6d68ea7fe92.png?raw=true)
 
 AtomicInteger 能保证多个线程修改的原子性。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/952afa9a-458b-44ce-bba9-463e60162945.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/952afa9a-458b-44ce-bba9-463e60162945.png?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/952afa9a-458b-44ce-bba9-463e60162945.png?raw=true)
 
 使用 AtomicInteger 重写之前线程不安全的代码之后得到以下线程安全实现：
 
@@ -661,7 +661,7 @@ volatile 关键字通过添加内存屏障的方式来禁止指令重排，即�
 
 在一个线程内，在程序前面的操作先行发生于后面的操作。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/single-thread-rule.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/single-thread-rule.png?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/single-thread-rule.png?raw=true)
 
 ### 2. 管程锁定规则
 
@@ -669,7 +669,7 @@ volatile 关键字通过添加内存屏障的方式来禁止指令重排，即�
 
 一个 unlock 操作先行发生于后面对同一个锁的 lock 操作。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/monitor-lock-rule.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/monitor-lock-rule.png?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/monitor-lock-rule.png?raw=true)
 
 ### 3. volatile 变量规则
 
@@ -677,7 +677,7 @@ volatile 关键字通过添加内存屏障的方式来禁止指令重排，即�
 
 对一个 volatile 变量的写操作先行发生于后面对这个变量的读操作。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/volatile-variable-rule.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/volatile-variable-rule.png?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/volatile-variable-rule.png?raw=true)
 
 ### 4. 线程启动规则
 
@@ -685,7 +685,7 @@ volatile 关键字通过添加内存屏障的方式来禁止指令重排，即�
 
 Thread 对象的 start() 方法调用先行发生于此线程的每一个动作。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/thread-start-rule.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/thread-start-rule.png?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/thread-start-rule.png?raw=true)
 
 ### 5. 线程加入规则
 
@@ -693,7 +693,7 @@ Thread 对象的 start() 方法调用先行发生于此线程的每一个动作�
 
 Thread 对象的结束先行发生于 join() 方法返回。
 
-[![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/thread-join-rule.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/pics/thread-join-rule.png?raw=true)
+![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/thread-join-rule.png?raw=true)
 
 ### 6. 线程中断规则
 

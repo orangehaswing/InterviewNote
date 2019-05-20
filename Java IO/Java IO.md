@@ -52,7 +52,7 @@ public static void copyFile(String src, String dist) throws IOException
 }
 ```
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/DP-Decorator-java.io.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/DP-Decorator-java.io.png)
+![stream](https://github.com/orangehaswing/InterviewNote/blob/master/Java%20IO/resources/DP-Decorator-java.io.png?raw=true)
 
 Java I/O 使用了**装饰者模式**来实现。以 InputStream 为例，InputStream 是抽象组件，FileInputStream 是 InputStream 的子类，属于具体组件，提供了字节流的输入操作。FilterInputStream 属于抽象装饰者，装饰者用于装饰组件，为组件提供额外的功能，例如 BufferedInputStream 为 FileInputStream 提供缓存的功能。
 
@@ -302,7 +302,7 @@ private transient Object[] elementData;
   - **阻塞 ：** ATM排队取款，你只能等待（使用阻塞IO时，Java调用会一直阻塞到读写完成才返回）。
   - **非阻塞 ：** 柜台取款，取个号，然后坐在椅子上做其它事，等号广播会通知你办理，没到号你就不能去，你可以不断问大堂经理排到了没有，大堂经理如果说还没到你就不能去（使用非阻塞IO时，如果不能读写Java调用会马上返回，当IO事件分发器会通知可读写时再继续进行读写，不断循环直到读写完成）。
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/java-io.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/java-io.png)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%20IO/resources/java-io.png?raw=true)
 
 ### BIO
 
@@ -318,11 +318,11 @@ private transient Object[] elementData;
 
 BIO模型中通过 **Socket** 和 **ServerSocket** 完成套接字通道的实现。阻塞，同步，建立连接耗时。
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/java-bio2.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/java-bio2.png)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%20IO/resources/java-bio2.png?raw=true)
 
 为了改进这种一连接一线程的模型，我们可以使用线程池来管理这些线程，实现1个或多个线程处理N个客户端的模型（但是底层还是使用的同步阻塞I/O），通常被称为“ **伪异步I/O模型** “。
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/java-bio-threadpool.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/java-bio-threadpool.png)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%20IO/resources/java-bio-threadpool.png?raw=true)
 
 实现很简单，我们只需要将新建线程的地方，交给线程池管理即可。
 
@@ -352,7 +352,7 @@ NIO相对于BIO来说一大进步。客户端和服务器之间通过Channel通�
 
 小结：**NIO模型中通过SocketChannel和ServerSocketChannel完成套接字通道的实现。非阻塞/阻塞，同步，避免TCP建立连接使用三次握手带来的开销。**
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/java-nio.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/java-nio.png)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%20IO/resources/java-nio.png?raw=true)
 
 ### AIO (异步非阻塞IO)
 
@@ -369,7 +369,7 @@ AIO 并没有采用NIO的多路复用器，而是使用异步通道的概念。�
 2. NIO模型中通过**SocketChannel**和**ServerSocketChannel**完成套接字通道实现。非阻塞/阻塞，同步，避免TCP建立连接使用三次握手带来的开销。
 3. AIO模型中通过**AsynchronousSocketChannel**和**AsynchronousServerSocketChannel**完成套接字通道实现。非阻塞，异步。
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/java-io-compare.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/java-io-compare.png)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%20IO/resources/java-io-compare.png?raw=true)
 
 **另外，** I/O属于底层操作，需要操作系统支持，并发也需要操作系统的支持，所以性能方面不同操作系统差异会比较明显。
 
@@ -454,7 +454,7 @@ public static void main(String[] args) throws IOException
 - Socket：客户端类
 - 服务器和客户端通过 InputStream 和 OutputStream 进行输入输出。
 
-[![img](https://raw.githubusercontent.com/CyC2018/Interview-Notebook/033676724523021872edb86176e92a87b87acd46/pics/ClienteServidorSockets1521731145260.jpg)](https://raw.githubusercontent.com/CyC2018/Interview-Notebook/033676724523021872edb86176e92a87b87acd46/pics/ClienteServidorSockets1521731145260.jpg)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%20IO/resources/ClienteServidorSockets1521731145260.jpg?raw=true)
 
 ### Datagram
 
@@ -485,7 +485,7 @@ socket是网络编程的基础，本文用打电话来类比socket通信中建�
 
 下面是一个实际的socket通信过程：
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/tcpsocket.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/tcpsocket.png)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/Java%20IO/resources/tcpsocket.png?raw=true)
 
 **Socket的特点**
 

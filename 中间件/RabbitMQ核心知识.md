@@ -24,17 +24,17 @@ AMQP协议：
 - **Binding：** 绑定，把exchange和queue按照规定绑定起来。
 - **Virtual host：** 虚拟主机，Broker的虚拟划分，将消费者，生产者和它们的依赖的AMQP结构隔离。
 
-![img](https://pic1.zhimg.com/v2-0b0ff0ad543efd323f5cdd1cd7d95774_b.jpg)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-0b0ff0ad543efd323f5cdd1cd7d95774_b.jpg?raw=true)
 
 ## 运作原理
 
 RabbitMQ消息传递（单个队列）：
 
-![img](https://pic3.zhimg.com/v2-1acb424be583a66df1e129fb398af8c6_b.jpg)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-1acb424be583a66df1e129fb398af8c6_b.jpg?raw=true)
 
 RabbitMQ消息传递（多个队列）：
 
-![img](https://pic4.zhimg.com/v2-a9afe2ede619405e23264a0476e29363_b.gif)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-a9afe2ede619405e23264a0476e29363_b.gif?raw=true)
 
 多个Queue的场景中，**消息会被Exchange按一定的路由规则分发到指定的Queue中去**：
 
@@ -42,17 +42,17 @@ RabbitMQ消息传递（多个队列）：
 - Queue会通过binding key绑定到指定的Exchange
 - Exchange根据对比Message的routing key和Queue的binding key，然后按一定的分发路由规则，决定Message发送到哪个Queue
 
-![img](https://pic4.zhimg.com/v2-ae6c7ecdad7e67ee1c9a9e4ee89426fb_b.gif)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-ae6c7ecdad7e67ee1c9a9e4ee89426fb_b.gif?raw=true)
 
 **每一类Exchange都有自己的分发路由规则：**
 
 **Fanout Exchange**：忽略key对比，发送Message到Exchange下游绑定的所有Queue
 
-![img](https://pic4.zhimg.com/v2-06d6cbd07d275d348b0249765f26bd6f_b.gif)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-06d6cbd07d275d348b0249765f26bd6f_b.gif?raw=true)
 
 **Direct Exchange**：比较Message的routing key和Queue的binding key，完全匹配时，Message才会发送到该Queue
 
-![img](https://pic3.zhimg.com/v2-560566719b80909614fb4d97da634786_b.gif)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-560566719b80909614fb4d97da634786_b.gif?raw=true)
 
 **Topic Exchange**：比较Message的routing key和Queue的binding key，按规则匹配成功时，Message才会发送到该Queue
 
@@ -64,11 +64,11 @@ RabbitMQ消息传递（多个队列）：
   - \#：匹配0~多个字母或数字
   - 比如：*.stock.#与usd.stock、eur.stock.db匹配；但与stock.nasdaq不匹配
 
-![img](https://pic3.zhimg.com/v2-558ca492c195870ed3fff19799b27b6a_b.gif)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-558ca492c195870ed3fff19799b27b6a_b.gif?raw=true)
 
 **默认Exchange**：比较Message的routing key和Queue的名字，完全匹配时，Message才会发送到该Queue
 
-![img](https://pic1.zhimg.com/v2-ccc82d0bae2677f95a13e00871a44780_b.gif)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-ccc82d0bae2677f95a13e00871a44780_b.gif?raw=true)
 
 **Headers Exchange**
 
@@ -95,7 +95,7 @@ RabbitMQ控制台可以：
 - 从Queue接收消息
 - 其他运维监控功能
 
-![img](https://pic4.zhimg.com/v2-de6d821388d33124d2e61b4ac21ef19f_b.gif)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-de6d821388d33124d2e61b4ac21ef19f_b.gif?raw=true)
 
 # 客户端开发导向
 
@@ -108,7 +108,7 @@ RabbitMQ控制台可以：
 
 AMQP协议规定，AMQP消息必须有三部分，交换机，队列和绑定。生产者把消息发送到交换机，交换机与队列的绑定关系决定了消息如何路由到特定的队列，最终被消费者接收。
 
-![img](https://pic1.zhimg.com/v2-7e4c2b538b4f2bcdd626938a5ad46adc_b.jpg)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-7e4c2b538b4f2bcdd626938a5ad46adc_b.jpg?raw=true)
 
 Note： 消息是不能直接到达队列(Queue)的
 
@@ -131,7 +131,7 @@ Note： 消息是不能直接到达队列(Queue)的
 
 可以理解，direct为1v1, fanout为1v所有，topic比较灵活，可以1v任意。
 
-![img](https://pic1.zhimg.com/v2-c1976e9a3eb21e18fe4a504c671bb268_b.jpg)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-c1976e9a3eb21e18fe4a504c671bb268_b.jpg?raw=true)
 
 ## 虚拟主机
 
@@ -150,7 +150,7 @@ rabbitmqctl delete vhost [vhost_name]
 rabbitmqctl list_vhosts
 ```
 
-![img](https://pic3.zhimg.com/v2-f3bf1f8652dd507a5430f175796f93ae_b.jpg)
+![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/resources/v2-f3bf1f8652dd507a5430f175796f93ae_b.jpg?raw=true)
 
 ## 消息确认
 
