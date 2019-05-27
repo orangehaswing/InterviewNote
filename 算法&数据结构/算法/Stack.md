@@ -228,6 +228,42 @@ s = "2[abc]3[cd]ef", return "abcabccdcdcdef".
     }
 ```
 
+## 括号
+
+LeetCode 20 Valid Parentheses
+
+给定字符串，只包含'()','[]','{}',求是否成对出现
+
+```
+Input: "()"
+Output: true
+Input: "()[]{}"
+Output: true
+Input: "(]"
+Output: false
+```
+
+用stack实现，出现'(','[','{'时，将相对应的反括号压入栈
+
+```
+ 	public boolean isValid(String s) {
+        Stack<Character> stack = new Stack<>();
+        char[] c = s.toCharArray();
+        for (char a:c){
+            if (a == '('){
+                stack.push(')');
+            }else if (a == '{'){
+                stack.push('}');
+            }else if (a == '['){
+                stack.push(']');
+            } else if (stack.isEmpty() || stack.pop() != a){
+                return false;
+            }
+        }
+        return stack.isEmpty();
+    }
+```
+
 
 
 

@@ -275,6 +275,51 @@ DFS+ArrayList保存左叶子节点值
     }
 ```
 
+LeetCode 938 Range Sum of BST
+
+给定一颗二叉查找树，左子树位置和右子树位置。求前序遍历后，左子树到右子树的和
+
+```
+Input: root = [10,5,15,3,7,null,18], L = 7, R = 15
+Output: 32
+Input: root = [10,5,15,3,7,13,18,1,null,6], L = 6, R = 10
+Output: 23
+```
+
+DFS先序遍历
+
+```
+ public int rangeSumBST(TreeNode root, int L, int R) {
+         if (root == null){
+            return 0;
+        }
+
+        ArrayList<Integer> arr = new ArrayList<>();
+        inorder(root,arr);
+
+        Collections.sort(arr);
+
+        int sum = 0;
+        for(Integer i:arr){
+            if (i>= L && i<= R){
+                sum += i;
+            }
+        }
+
+        return sum;
+    }
+
+    private void inorder(TreeNode root, ArrayList<Integer> arr){
+        if (root == null){
+            return;
+        }
+
+        inorder(root.left,arr);
+        arr.add(root.val);
+        inorder(root.right,arr);
+    }
+```
+
 LeetCode 337 House Robber III
 
 抢劫位置只能隔一层抢劫一层
