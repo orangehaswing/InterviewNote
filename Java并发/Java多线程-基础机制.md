@@ -657,15 +657,11 @@ volatile 关键字通过添加内存屏障的方式来禁止指令重排，即�
 
 ### 1. 单一线程原则
 
-> Single Thread rule
-
 在一个线程内，在程序前面的操作先行发生于后面的操作。
 
 ![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/single-thread-rule.png?raw=true)
 
 ### 2. 管程锁定规则
-
-> Monitor Lock Rule
 
 一个 unlock 操作先行发生于后面对同一个锁的 lock 操作。
 
@@ -673,15 +669,11 @@ volatile 关键字通过添加内存屏障的方式来禁止指令重排，即�
 
 ### 3. volatile 变量规则
 
-> Volatile Variable Rule
-
 对一个 volatile 变量的写操作先行发生于后面对这个变量的读操作。
 
 ![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/volatile-variable-rule.png?raw=true)
 
 ### 4. 线程启动规则
-
-> Thread Start Rule
 
 Thread 对象的 start() 方法调用先行发生于此线程的每一个动作。
 
@@ -689,26 +681,18 @@ Thread 对象的 start() 方法调用先行发生于此线程的每一个动作�
 
 ### 5. 线程加入规则
 
-> Thread Join Rule
-
 Thread 对象的结束先行发生于 join() 方法返回。
 
 ![img](https://github.com/orangehaswing/OrdinaryNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/thread-join-rule.png?raw=true)
 
 ### 6. 线程中断规则
 
-> Thread Interruption Rule
-
 对线程 interrupt() 方法的调用先行发生于被中断线程的代码检测到中断事件的发生，可以通过 interrupted() 方法检测到是否有中断发生。
 
 ### 7. 对象终结规则
 
-> Finalizer Rule
-
 一个对象的初始化完成（构造函数执行结束）先行发生于它的 finalize() 方法的开始。
 
 ### 8. 传递性
-
-> Transitivity
 
 如果操作 A 先行发生于操作 B，操作 B 先行发生于操作 C，那么操作 A 先行发生于操作 C。
