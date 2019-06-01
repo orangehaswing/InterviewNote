@@ -4,11 +4,11 @@
 
 两台计算机通过TCP/IP协议通讯的过程如下所示
 
-[![image](https://github.com/orangehaswing/InterviewNote/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/resource/201204251235454745.png?raw=true)](http://images.cnblogs.com/cnblogs_com/rollenholt/201204/201204251235456872.png?raw=true)
+![image](https://github.com/orangehaswing/InterviewNote/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/resource/201204251235454745.png?raw=true)
 
 传输层及其以下的机制由内核提供，应用层由用户进程提供,应用程序对通讯数据的含义进行解释，而传输层及其以下处理通讯的细节，将数据从一台计算机通过一定的路径发送到另一台计算机。应用层数据通过协议栈发到网络上时，每层协议都要加上一个数据首部（header），称为封装（Encapsulation），如下图所示:
 
-[![image](https://github.com/orangehaswing/InterviewNote/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/resource/201204251235468989.png?raw=true)](http://images.cnblogs.com/cnblogs_com/rollenholt/201204/201204251235469479.png?raw=true)
+![image](https://github.com/orangehaswing/InterviewNote/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/resource/201204251235468989.png?raw=true)
 
  
 
@@ -16,7 +16,7 @@
 
 上图对应两台计算机在同一网段中的情况，如果两台计算机在不同的网段中，那么数据从一台计算机到另一台计算机传输过程中要经过一个或多个路由器，如下图所示:
 
-[![image](https://github.com/orangehaswing/InterviewNote/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/resource/201204251235479088.png?raw=true)](http://images.cnblogs.com/cnblogs_com/rollenholt/201204/201204251235474039.png?raw=true)
+![image](https://github.com/orangehaswing/InterviewNote/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/resource/201204251235479088.png?raw=true)
 
  
 
