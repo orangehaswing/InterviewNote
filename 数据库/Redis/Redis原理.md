@@ -47,7 +47,7 @@ Redis 支持很多特性，例如将内存中的数据持久化到硬盘中，�
 
 ### STRING
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/redis-string.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/redis-string.png)
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/redis-string.png?raw=true)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/redis-string.png?raw=true)
 
 **设置语法**
 
@@ -112,7 +112,7 @@ n次get/set时间 = n次网络时间 + n次命令时间
 
 ### LIST
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026733016.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026733016.png)
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026733016.png?raw=true)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026733016.png?raw=true)
 
 ```
 > rpush list-key item
@@ -136,7 +136,7 @@ n次get/set时间 = n次网络时间 + n次命令时间
 
 ### SET
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026799672.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026799672.png)
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026799672.png?raw=true)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026799672.png?raw=true)
 
 ```
 > sadd set-key item
@@ -166,7 +166,7 @@ n次get/set时间 = n次网络时间 + n次命令时间
 
 ### HASH
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026823413.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026823413.png)
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026823413.png?raw=true)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026823413.png?raw=true)
 
 **创建哈希类型的键值**
 
@@ -284,7 +284,7 @@ OK
 
 ### ZSET
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026839475.png)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026839475.png)
+[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/assets/1536026839475.png?raw=true)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/assets/1536026839475.png?raw=true)
 
 ```
 > zadd zset-key 728 member1
@@ -309,10 +309,6 @@ OK
 1) "member0"
 2) "982"
 ```
-
-参考资料：
-
-- [Chapter 1: Getting to know Redis | Redis Labs](https://redislabs.com/ebook/part-1-getting-started/chapter-1-getting-to-know-redis/)
 
 # 数据结构
 
@@ -370,11 +366,11 @@ rehash 操作不是一次性完成，而是采用渐进方式，这是为了避�
 
 跳跃表是基于多指针有序链表实现的，可以看成多个有序链表。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/beba612e-dc5b-4fc2-869d-0b23408ac90a.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/beba612e-dc5b-4fc2-869d-0b23408ac90a.png)
+[![img](https://github.com/orangehaswing/InterviewNote/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/beba612e-dc5b-4fc2-869d-0b23408ac90a.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/beba612e-dc5b-4fc2-869d-0b23408ac90a.png?raw=true)
 
 在查找时，从上层指针开始查找，找到对应的区间之后再到下一层去查找。下图演示了查找 22 的过程。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/0ea37ee2-c224-4c79-b895-e131c6805c40.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/0ea37ee2-c224-4c79-b895-e131c6805c40.png)
+[![img](https://github.com/orangehaswing/InterviewNote/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/0ea37ee2-c224-4c79-b895-e131c6805c40.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/0ea37ee2-c224-4c79-b895-e131c6805c40.png?raw=true)
 
 与红黑树等平衡树相比，跳跃表具有以下优点：
 
@@ -512,7 +508,7 @@ Redis 最简单的事务实现方式是使用 MULTI 和 EXEC 命令将事务操�
 
 Redis 基于 Reactor 模式开发了自己的网络事件处理器，使用 I/O 多路复用程序来同时监听多个套接字，并将到达的事件传送给文件事件分派器，分派器会根据套接字产生的事件类型调用相应的事件处理器。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/9ea86eb5-000a-4281-b948-7b567bd6f1d8.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/9ea86eb5-000a-4281-b948-7b567bd6f1d8.png)
+[![img](https://github.com/orangehaswing/InterviewNote/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/9ea86eb5-000a-4281-b948-7b567bd6f1d8.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/9ea86eb5-000a-4281-b948-7b567bd6f1d8.png?raw=true)
 
 ## 时间事件
 
@@ -565,7 +561,7 @@ def main():
 
 从事件处理的角度来看，服务器运行流程如下：
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png)
+[![img](https://github.com/orangehaswing/InterviewNote/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png?raw=true)
 
 Redis事务相关的命令: MULTI、EXEC、DISCARD、WATCH
 
@@ -585,7 +581,7 @@ Redis事务相关的命令: MULTI、EXEC、DISCARD、WATCH
 
 随着负载不断上升，主服务器可能无法很快地更新所有从服务器，或者重新连接和重新同步从服务器将导致系统超载。为了解决这个问题，可以创建一个中间层来分担主服务器的复制工作。中间层的服务器是最上层服务器的从服务器，又是最下层服务器的主服务器。
 
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/395a9e83-b1a1-4a1d-b170-d081e7bb5bab.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/395a9e83-b1a1-4a1d-b170-d081e7bb5bab.png)
+[![img](https://github.com/orangehaswing/InterviewNote/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/395a9e83-b1a1-4a1d-b170-d081e7bb5bab.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/395a9e83-b1a1-4a1d-b170-d081e7bb5bab.png?raw=true)
 
 ## 复制实现
 
@@ -973,58 +969,3 @@ Sentinel会统计发出的所有`Sentinel is-master-down-by-addr`命令的回复
 - 插入或更新：插入并且有唯一索引的情况，比如要关联商品品类，其中商品的ID和品类的ID可以构成唯一索引，并且在数据表中也增加了唯一索引。
 - 多版本控制：适合在更新的场景中，比如我们要更新商品的名字，这时我们就可以在更新的接口中增加一个版本号，来做幂等
 - 状态机控制：有状态机流转的情况下，比如就会订单的创建和付款，订单的付款肯定是在之前，这时我们可以通过在设计状态字段时，使用int类型，并且通过值类型的大小来做幂等，比如订单的创建为0，付款成功为100。付款失败为99。
-
-# 一个简单的论坛系统分析
-
-该论坛系统功能如下：
-
-- 可以发布文章；
-- 可以对文章进行点赞；
-- 在首页可以按文章的发布时间或者文章的点赞数进行排序显示。
-
-## 文章信息
-
-文章包括标题、作者、赞数等信息，在关系型数据库中很容易构建一张表来存储这些信息，在 Redis 中可以使用 HASH 来存储每种信息以及其对应的值的映射。
-
-Redis 没有关系型数据库中的表这一概念来将同种类型的数据存放在一起，而是使用命名空间的方式来实现这一功能。键名的前面部分存储命名空间，后面部分的内容存储 ID，通常使用 : 来进行分隔。例如下面的 HASH 的键名为 article:92617，其中 article 为命名空间，ID 为 92617。
-
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/7c54de21-e2ff-402e-bc42-4037de1c1592.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/7c54de21-e2ff-402e-bc42-4037de1c1592.png)
-
-## 点赞功能
-
-当有用户为一篇文章点赞时，除了要对该文章的 votes 字段进行加 1 操作，还必须记录该用户已经对该文章进行了点赞，防止用户点赞次数超过 1。可以建立文章的已投票用户集合来进行记录。
-
-为了节约内存，规定一篇文章发布满一周之后，就不能再对它进行投票，而文章的已投票集合也会被删除，可以为文章的已投票集合设置一个一周的过期时间就能实现这个规定。
-
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/485fdf34-ccf8-4185-97c6-17374ee719a0.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/485fdf34-ccf8-4185-97c6-17374ee719a0.png)
-
-## 对文章进行排序
-
-为了按发布时间和点赞数进行排序，可以建立一个文章发布时间的有序集合和一个文章点赞数的有序集合。（下图中的 score 就是这里所说的点赞数；下面所示的有序集合分值并不直接是时间和点赞数，而是根据时间和点赞数间接计算出来的）
-
-[![img](https://github.com/CyC2018/CS-Notes/raw/master/docs/notes/pics/f7d170a3-e446-4a64-ac2d-cb95028f81a8.png)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/f7d170a3-e446-4a64-ac2d-cb95028f81a8.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
