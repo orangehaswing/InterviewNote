@@ -366,11 +366,11 @@ rehash 操作不是一次性完成，而是采用渐进方式，这是为了避�
 
 跳跃表是基于多指针有序链表实现的，可以看成多个有序链表。
 
-[![img](https://github.com/orangehaswing/InterviewNote/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/beba612e-dc5b-4fc2-869d-0b23408ac90a.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/beba612e-dc5b-4fc2-869d-0b23408ac90a.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/beba612e-dc5b-4fc2-869d-0b23408ac90a.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/beba612e-dc5b-4fc2-869d-0b23408ac90a.png?raw=true)
 
 在查找时，从上层指针开始查找，找到对应的区间之后再到下一层去查找。下图演示了查找 22 的过程。
 
-[![img](https://github.com/orangehaswing/InterviewNote/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/0ea37ee2-c224-4c79-b895-e131c6805c40.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/0ea37ee2-c224-4c79-b895-e131c6805c40.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/0ea37ee2-c224-4c79-b895-e131c6805c40.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/0ea37ee2-c224-4c79-b895-e131c6805c40.png?raw=true)
 
 与红黑树等平衡树相比，跳跃表具有以下优点：
 
@@ -508,7 +508,7 @@ Redis 最简单的事务实现方式是使用 MULTI 和 EXEC 命令将事务操�
 
 Redis 基于 Reactor 模式开发了自己的网络事件处理器，使用 I/O 多路复用程序来同时监听多个套接字，并将到达的事件传送给文件事件分派器，分派器会根据套接字产生的事件类型调用相应的事件处理器。
 
-[![img](https://github.com/orangehaswing/InterviewNote/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/9ea86eb5-000a-4281-b948-7b567bd6f1d8.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/9ea86eb5-000a-4281-b948-7b567bd6f1d8.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/9ea86eb5-000a-4281-b948-7b567bd6f1d8.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/9ea86eb5-000a-4281-b948-7b567bd6f1d8.png?raw=true)
 
 ## 时间事件
 
@@ -561,7 +561,7 @@ def main():
 
 从事件处理的角度来看，服务器运行流程如下：
 
-[![img](https://github.com/orangehaswing/InterviewNote/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/c0a9fa91-da2e-4892-8c9f-80206a6f7047.png?raw=true)
 
 Redis事务相关的命令: MULTI、EXEC、DISCARD、WATCH
 
@@ -581,7 +581,7 @@ Redis事务相关的命令: MULTI、EXEC、DISCARD、WATCH
 
 随着负载不断上升，主服务器可能无法很快地更新所有从服务器，或者重新连接和重新同步从服务器将导致系统超载。为了解决这个问题，可以创建一个中间层来分担主服务器的复制工作。中间层的服务器是最上层服务器的从服务器，又是最下层服务器的主服务器。
 
-[![img](https://github.com/orangehaswing/InterviewNote/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/395a9e83-b1a1-4a1d-b170-d081e7bb5bab.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/395a9e83-b1a1-4a1d-b170-d081e7bb5bab.png?raw=true)
+[![img](https://github.com/orangehaswing/InterviewNote/blob/master/%E6%95%B0%E6%8D%AE%E5%BA%93/resource/395a9e83-b1a1-4a1d-b170-d081e7bb5bab.png?raw=true)](https://github.com/CyC2018/CS-Notes/blob/master/docs/notes/pics/395a9e83-b1a1-4a1d-b170-d081e7bb5bab.png?raw=true)
 
 ## 复制实现
 

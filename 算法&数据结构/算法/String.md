@@ -227,6 +227,83 @@ Explanation: You need to reduce multiple spaces between two words to a single sp
     }
 ```
 
+LeetCode 58 Length of Last Word
+
+给定一个由字母和空格组成的字符串，找出最后一个单词的长度。如果最后一个单词不存在，返回0；
+
+```
+Example:
+Input: "Hello World"
+Output: 5
+```
+
+用StringBuilder把字符串翻转，然后从第一个开始遍历找到第一个出现空格的位置可能出现的情况如下
+
+"A B";"A ";" A"; "   ";需要先把头尾的空格去掉
+
+```
+public int lengthOfLastWord(String s) {
+        StringBuilder sb  = new StringBuilder(s);
+        sb.reverse();
+
+       String res = sb.toString().trim();
+        
+        for (int i = 0; i < res.length(); i++) {
+            if (res.charAt(i) == ' '){
+                return i;
+            }
+        }
+
+        return res.length();
+    }
+```
+
+LeetCode 67 Add Binary
+
+给定两个二进制字符串，返回二进制和
+
+```
+Example 1:
+Input: a = "11", b = "1"
+Output: "100"
+
+Example 2:
+Input: a = "1010", b = "1011"
+Output: "10101"
+```
+
+从字符串的最后一个开始加，carry表示进位，StringBuilder保存和
+
+```
+public String addBinary(String a, String b) {
+        StringBuilder sb = new StringBuilder();
+
+        int i = a.length()-1;
+        int j = b.length()-1;
+        int carry = 0;
+        while (i >= 0 || j >= 0) {
+            int sum = carry;
+            if (i >= 0){
+                sum += a.charAt(i--)-'0';
+            }
+            if (j >= 0){
+                sum += b.charAt(j--)-'0';
+            }
+
+            sb.append(sum%2);
+            carry = sum/2;
+        }
+
+        if (carry > 0){
+            sb.append(carry);
+        }
+
+        return sb.reverse().toString();
+    }
+```
+
+
+
 
 
 

@@ -36,6 +36,43 @@ class Solution {
 }
 ```
 
+LeetCode 55 Jump Game
+
+给定一个数组，初始在index=0位置。每个元素代表可以最大跳数。判断能否跳到最后一个位置。
+
+```
+Example 1:
+Input: [2,3,1,1,4]
+Output: true
+Explanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.
+
+Example 2:
+Input: [3,2,1,0,4]
+Output: false
+Explanation: You will always arrive at index 3 no matter what. Its maximum
+             jump length is 0, which makes it impossible to reach the last index.
+```
+
+记录每个点往后跳的值，比较得出最大值，当位置i>max，就不能跳到，否则可以继续从i点跳。
+
+```
+public boolean canJump(int[] nums) {
+        if (nums == null || nums.length == 0){
+            return false;
+        }
+
+        int max = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (i > max){
+                return false;
+            }
+            max = Math.max(nums[i] + i, max);
+        }
+
+        return true;
+    }
+```
+
 ## Matrix
 
 **LeetCode 62 Unique Paths**
@@ -244,6 +281,49 @@ public List<TreeNode> generateTrees(int n) {
         }
 
         return res;
+    }
+```
+
+## String
+
+LeetCode 91 Decode Ways
+
+从A-Z代表1-26，现在给定数字字符串，输出由A-Z组成的方式
+
+```
+Example 1:
+Input: "12"
+Output: 2
+Explanation: It could be decoded as "AB" (1 2) or "L" (12).
+
+Example 2:
+Input: "226"
+Output: 3
+Explanation: It could be decoded as "BZ" (2 26), "VF" (22 6), or "BBF" (2 2 6).
+```
+
+可以用动态规划，从字符串的末尾往前（从前往后遇到 "100","01","10"等数字0出现问题没解决，qaq）
+
+```
+public static int numDecodings_1(String s) {
+        //DP
+        int n = s.length();
+        if (n == 0) {
+            return 0;
+        }
+
+        int[] dp = new int[n + 1];
+        dp[n] = 1;
+        dp[n-1] = s.charAt(n-1) == '0'?0:1;
+        for (int i = n-2; i >= 0; i--) {
+            if (s.charAt(i) == '0'){
+                continue;
+            }else {
+                dp[i] = (Integer.parseInt(s.substring(i,i+2)) <= 26)?dp[i+1]+dp[i+2]:dp[i+1];
+            }
+        }
+
+        return dp[0];
     }
 ```
 
