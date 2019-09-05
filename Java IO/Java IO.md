@@ -9,13 +9,13 @@ Java 的 I/O 大概可以分成以下几类：
 - 网络操作：Socket
 - 新的输入/输出：NIO
 
-## 1、磁盘操作（File）
+## 磁盘操作（File）
 
 File 类可以用于表示文件和目录的信息，但是它不表示文件的内容。
 
 递归地输出一个目录下所有文件：
 
-```
+```java
 public static void listAllFiles(File dir)
 {
     if (dir == null || !dir.exists()) {
@@ -31,11 +31,11 @@ public static void listAllFiles(File dir)
 }
 ```
 
-## 2、字节操作（Stream）
+## 字节操作（Stream）
 
 使用字节流操作进行文件复制：
 
-```
+```java
 public static void copyFile(String src, String dist) throws IOException
 {
     FileInputStream in = new FileInputStream(src);
@@ -58,14 +58,14 @@ Java I/O 使用了**装饰者模式**来实现。以 InputStream 为例，InputS
 
 实例化一个具有缓存功能的字节流对象时，只需要在 FileInputStream 对象上再套一层 BufferedInputStream 对象即可。
 
-```
+```java
 FileInputStream fileInputStream = new FileInputStream(filePath);
 BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
 ```
 
 DataInputStream 装饰者提供了对更多数据类型进行输入的操作，比如 int、double 等基本类型。
 
-## 3、字符操作（Reader | Writer）
+## 字符操作（Reader | Writer）
 
 不管是磁盘还是网络传输，最小的存储单元都是字节，而不是字符。**但是在程序中操作的通常是字符形式的数据，因此需要提供对字符进行操作的方法。**
 
@@ -74,7 +74,7 @@ DataInputStream 装饰者提供了对更多数据类型进行输入的操作，�
 
 逐行输出文本文件的内容：
 
-```
+```java
 public static void readFileContent(String filePath) throws IOException
 {
     FileReader fileReader = new FileReader(filePath);
@@ -104,7 +104,7 @@ Java 使用双字节编码 UTF-16be，这不是指 Java 只支持这一种编码
 
 String 可以看成一个字符序列，可以指定一个编码方式将它转换为字节序列，也可以指定一个编码方式将一个字节序列转换为 String。
 
-```
+```java
 String str1 = "中文";
 byte[] bytes = str1.getBytes("UTF-8");
 String str2 = new String(bytes, "UTF-8");
@@ -113,11 +113,11 @@ System.out.println(str2);
 
 在调用无参数 getBytes() 方法时，默认的编码方式不是 UTF-16be。双字节编码的好处是可以使用一个 char 存储中文和英文，而将 String 转为 bytes[] 字节数组就不再需要这个好处，因此也就不再需要双字节编码。getBytes() 的默认编码方式与平台有关，一般为 UTF-8。
 
-```
+```java
 byte[] bytes = str1.getBytes();
 ```
 
-## 4、Java序列化
+## Java序列化
 
 **如何实现序列化和反序列化，常见的序列化协议有哪些？**
 
@@ -161,13 +161,13 @@ byte[] bytes = str1.getBytes();
 
 步骤一：创建一个对象输出流，它可以包装一个其它类型的目标输出流，如文件输出流：
 
-```
+```java
 ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("D:\\object.out"));
 ```
 
 步骤二：通过对象输出流的writeObject()方法写对象：
 
-```
+```java
 oos.writeObject(new User("xuliugen", "123456", "male"));
 ```
 
@@ -175,13 +175,13 @@ oos.writeObject(new User("xuliugen", "123456", "male"));
 
 步骤一：创建一个对象输入流，它可以包装一个其它类型输入流，如文件输入流：
 
-```
+```java
 ObjectInputStream ois= new ObjectInputStream(new FileInputStream("object.out"));
 ```
 
 步骤二：通过对象输出流的readObject()方法读取对象：
 
-```
+```java
 User user = (User) ois.readObject();
 ```
 
@@ -191,7 +191,7 @@ User user = (User) ois.readObject();
 
 为了更好地理解Java序列化与反序列化，举一个简单的示例如下：
 
-```
+```java
 public class SerialDemo {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -238,7 +238,7 @@ public class User implements Serializable {
 
 **ArrayList 序列化和反序列化的实现** ：ArrayList 中存储数据的数组是用 transient 修饰的，因为这个数组是动态扩展的，并不是所有的空间都被使用，因此就不需要所有的内容都被序列化。通过重写序列化和反序列化方法，使得可以只序列化数组中有内容的那部分数据。
 
-```
+```java
 private transient Object[] elementData;
 ```
 
@@ -268,7 +268,7 @@ private transient Object[] elementData;
   - Thrift与Protobuf相比在时空开销方面都有一定的劣势；
   - Protobuf和Avro在两方面表现都非常优越。
 
-## 5、同步和异步
+## 同步和异步
 
 所谓同步，就是在发出一个调用时，在没有得到结果之前，该调用就不返回。但是一旦调用返回，就得到返回值了。换句话说，就是由调用者主动等待这个调用的结果。
 
@@ -291,7 +291,7 @@ private transient Object[] elementData;
 - 阻塞调用是指调用结果返回之前，当前线程会被挂起。调用线程只有在得到结果之后才会返回。
 - 非阻塞调用指在不能立刻得到结果之前，该调用不会阻塞当前线程。
 
-## 6、NIO，BIO，AIO
+## NIO，BIO，AIO
 
 - **同步阻塞IO（BIO）**：用户进程发起一个IO操作以后，必须等待IO操作的真正完成后，才能继续运行；
 - **同步非阻塞IO（NIO）**：用户进程发起一个IO操作以后，可做其它事情，但用户进程需要经常询问IO操作是否完成，这样造成不必要的CPU资源浪费；
@@ -368,7 +368,7 @@ AIO 并没有采用NIO的多路复用器，而是使用异步通道的概念。�
 
 **另外，** I/O属于底层操作，需要操作系统支持，并发也需要操作系统的支持，所以性能方面不同操作系统差异会比较明显。
 
-## 7、BIO，NIO，AIO区别
+## BIO，NIO，AIO区别
 
 - **BIO（同步阻塞）**：客户端和服务器连接需要三次握手，使用简单，但吞吐量小
 - **NIO（同步非阻塞）**：客户端与服务器通过Channel连接，采用多路复用器轮询注册的Channel。提高吞吐量和可靠性。
@@ -394,7 +394,7 @@ AIO 并没有采用NIO的多路复用器，而是使用异步通道的概念。�
 
 **epoll函数：** epoll是之前的select和poll的增强版本。epoll 现在是线程安全的，不仅告诉你sock组里面数据，还会告诉你具体哪个sock有数据。epoll只支持linux，BSD上面对应的实现是kqueue。
 
-## 8、Stock通信的伪代码实现流程
+## Stock通信的伪代码实现流程
 
 1. 服务器绑定端口：server = new ServerSocket(PORT)
 2. 服务器阻塞监听：socket = server.accept()
@@ -403,7 +403,7 @@ AIO 并没有采用NIO的多路复用器，而是使用异步通道的概念。�
 5. 客户端绑定IP和PORT：new Socket(IP_ADDRESS, PORT)
 6. 客户端传输接收数据：BufferedReader PrintWriter
 
-## 9、网络操作
+## 网络操作
 
 Java 中的网络支持：
 
@@ -416,7 +416,7 @@ Java 中的网络支持：
 
 没有公有构造函数，只能通过静态方法来创建实例。
 
-```
+```java
 InetAddress.getByName(String host);
 InetAddress.getByAddress(byte[] address);
 ```
@@ -425,7 +425,7 @@ InetAddress.getByAddress(byte[] address);
 
 可以直接从 URL 中读取字节流数据。
 
-```
+```java
 public static void main(String[] args) throws IOException
 {
     URL url = new URL("http://www.baidu.com");
