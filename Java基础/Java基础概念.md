@@ -4,11 +4,11 @@
 
 - **浅拷贝**：被复制对象的所有变量都含有与原来的对象相同的值，而所有的对其他对象的引用仍然指向原来的对象。换言之，浅拷贝仅仅复制所拷贝的对象，而不复制它所引用的对象。
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/shadow_copy2.jpg)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/shadow_copy2.jpg)
+![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/shadow_copy2.jpg)
 
 - **深拷贝**：对基本数据类型进行值传递，对引用数据类型，创建一个新的对象，并复制其内容，此为深拷贝。
 
-[![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/deep_copy2.jpg)](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/assets/deep_copy2.jpg)
+![img](https://github.com/orangehaswing/fullstack-tutorial/raw/master/notes/JavaArchitecture/assets/deep_copy2.jpg)
 
 ## Lamda表达式
 
@@ -22,7 +22,7 @@ Lambda 允许把函数作为一个方法的参数（函数作为参数传递进�
 
 lambda 表达式的语法格式如下：
 
-```
+```java
 (parameters) -> expression
 或
 (parameters) -> { statements; }
@@ -39,7 +39,7 @@ lambda 表达式的语法格式如下：
 
 Lambda 表达式的简单例子:
 
-```
+```java
 // 1. 不需要参数,返回值为 5  
 () -> 5  
   
@@ -58,7 +58,7 @@ x -> 2 * x
 
 在 Java8Tester.java 文件输入以下代码：
 
-```
+```java
 public class Java8Tester {
    public static void main(String args[]){
       Java8Tester tester = new Java8Tester();
@@ -108,7 +108,7 @@ public class Java8Tester {
 
 执行以上脚本，输出结果为：
 
-```
+```java
 $ javac Java8Tester.java 
 $ java Java8Tester
 10 + 5 = 15
@@ -130,7 +130,7 @@ lambda 表达式只能引用标记了 final 的外层局部变量，这就是说
 
 在 Java8Tester.java 文件输入以下代码：
 
-```
+```java
 public class Java8Tester {
  
    final static String salutation = "Hello! ";
@@ -149,7 +149,7 @@ public class Java8Tester {
 
 执行以上脚本，输出结果为：
 
-```
+```java
 $ javac Java8Tester.java 
 $ java Java8Tester
 Hello! Runoob
@@ -290,7 +290,7 @@ Java 还将一些其它基本类型的值放在缓冲池中，包含以下这些
 
 [reference](https://github.com/orangehaswing/fullstack-tutorial/blob/master/notes/JavaArchitecture/01-Java%E5%9F%BA%E7%A1%80.md)
 
-## Java 语言有哪些特点
+## Java 语言特点
 
 1. 简单易学；
 2. 面向对象（封装，继承，多态）；
@@ -301,11 +301,7 @@ Java 还将一些其它基本类型的值放在缓冲池中，包含以下这些
 7. 支持网络编程并且很方便（ Java 语言诞生本身就是为简化网络编程设计的，因此 Java 语言不仅支持网络编程而且很方便）；
 8. 编译与解释并存
 
-##  Java 程序的主类 应用程序和小程序的主类有何不同
-
-一个程序中可以有多个类，但只能有一个类是主类。在 Java 应用程序中，这个主类是指包含 main（）方法的类。而在 Java 小程序中，这个主类是一个继承自系统类 JApplet 或 Applet 的子类。应用程序的主类不一定要求是 public 类，但小程序的主类要求必须是 public 类。主类是 Java 程序执行的入口点。
-
-## 字符型常量和字符串常量的区别
+## 字符型常量
 
 1. 形式上: 字符常量是单引号引起的一个字符 字符串常量是双引号引起的若干个字符
 2. 含义上: 字符常量相当于一个整形值( ASCII 值),可以参加表达式运算 字符串常量代表一个地址值(该字符串在内存中存放位置)
@@ -317,7 +313,7 @@ Java 还将一些其它基本类型的值放在缓冲池中，包含以下这些
 
 在讲继承的时候我们就知道父类的私有属性和构造方法并不能被继承，所以 Constructor 也就不能被 override（重写）,但是可以 overload（重载）,所以你可以看到一个类中有多个构造函数的情况。
 
-## Java 面向对象编程三大特性:封装、继承、多态
+## 面向对象编程三大特性
 
 ### 封装
 
@@ -353,13 +349,7 @@ Java 还将一些其它基本类型的值放在缓冲池中，包含以下这些
 
 　Java 程序在执行子类的构造方法之前，如果没有用 super() 来调用父类特定的构造方法，则会调用父类中“没有参数的构造方法”。因此，如果父类中只定义了有参数的构造方法，而在子类的构造方法中又没有用 super() 来调用父类中特定的构造方法，则编译时将发生错误，因为 Java 程序在父类中找不到没有参数的构造方法可供执行。解决办法是在父类里加上一个不做事且没有参数的构造方法。 　
 
-## import java和javax有什么区别
-
-刚开始的时候 JavaAPI 所必需的包是 java 开头的包，javax 当时只是扩展 API 包来说使用。然而随着时间的推移，javax 逐渐的扩展成为 Java API 的组成部分。但是，将扩展从 javax 包移动到 java 包将是太麻烦了，最终会破坏一堆现有的代码。因此，最终决定 javax 包将成为标准API的一部分。
-
-所以，实际上java和javax没有区别。这都是一个名字。
-
-## 成员变量与局部变量的区别有那些
+## 成员变量与局部变量区别
 
 1. 从语法形式上，看成员变量是属于类的，而局部变量是在方法中定义的变量或是方法的参数；成员变量可以被 public,private,static 等修饰符所修饰，而局部变量不能被访问控制修饰符及 static 所修饰；但是，成员变量和局部变量都能被 final 所修饰；
 2. 从变量在内存中的存储方式来看，成员变量是对象的一部分，而对象存在于堆内存，局部变量存在于栈内存
@@ -408,7 +398,7 @@ new运算符，new创建对象实例（对象实例在堆内存中），对象�
 
 **举个例子：**
 
-```
+```java
 public class test1 {
     public static void main(String[] args) {
         String a = new String("ab"); // a 为一个引用
@@ -447,7 +437,7 @@ hashCode() 的作用是获取哈希码，也称为散列码；它实际上是返
 
 **我们以“HashSet 如何检查重复”为例子来说明为什么要有 hashCode：**
 
-当你把对象加入 HashSet 时，HashSet 会先计算对象的 hashcode 值来判断对象加入的位置，同时也会与其他已经加入的对象的 hashcode 值作比较，如果没有相符的hashcode，HashSet会假设对象没有重复出现。但是如果发现有相同 hashcode 值的对象，这时会调用 equals（）方法来检查 hashcode 相等的对象是否真的相同。如果两者相同，HashSet 就不会让其加入操作成功。如果不同的话，就会重新散列到其他位置。（摘自我的Java启蒙书《Head fist java》第二版）。这样我们就大大减少了 equals 的次数，相应就大大提高了执行速度。
+当你把对象加入 HashSet 时，HashSet 会先计算对象的 hashcode 值来判断对象加入的位置，同时也会与其他已经加入的对象的 hashcode 值作比较，如果没有相符的hashcode，HashSet会假设对象没有重复出现。但是如果发现有相同 hashcode 值的对象，这时会调用 equals（）方法来检查 hashcode 相等的对象是否真的相同。如果两者相同，HashSet 就不会让其加入操作成功。如果不同的话，就会重新散列到其他位置。这样我们就大大减少了 equals 的次数，相应就大大提高了执行速度。
 
 ### hashCode（）与equals（）的相关规定
 
@@ -487,7 +477,7 @@ transient关键字的作用是：阻止实例中那些用此关键字修饰的�
 
 this关键字用于引用类的当前实例。 例如：
 
-```
+```java
 class Manager {
     Employees[] employees;
      
@@ -512,7 +502,7 @@ class Manager {
 
 super关键字用于从子类访问父类的变量和方法。 例如：
 
-```
+```java
 public class Super {
     protected int number;
      
@@ -568,7 +558,7 @@ HotSpot 虚拟机中方法区也常被称为 “永久代”，本质上两者�
 
 测试方法：
 
-```
+```java
 public class StaticBean {
 
     String name;
@@ -591,7 +581,7 @@ public class StaticBean {
 }
 ```
 
-```
+```java
 public class StaticDemo {
 
     public static void main(String[] args) {
@@ -614,7 +604,7 @@ public class StaticDemo {
 
 静态代码块的格式是
 
-```
+```java
 static {    
 语句体;   
 }
@@ -635,7 +625,7 @@ static {
 
 Example（静态内部类实现单例模式）
 
-```
+```java
 public class Singleton {
     
     声明为 private 避免调用默认构造方法创建对象
@@ -663,7 +653,7 @@ public class Singleton {
 
 这两个关键字连用可以指定导入某个类中的指定静态资源，并且不需要使用类名调用类中静态成员，可以直接使用类中静态成员变量和成员方法
 
-```
+```java
   Math. --- 将Math中的所有静态资源导入，这时候可以直接使用里面的静态方法，而不用通过类名进行调用
   如果只想导入单一某个静态方法，只需要将换成对应的方法名即可
  
@@ -688,7 +678,7 @@ public class Demo {
 
 Example
 
-```
+```java
 class Foo {
     int i;
     public Foo(int i) { 
@@ -724,7 +714,7 @@ class Foo {
 
 Example
 
-```
+```java
 public class Test {
     public Test() {
         System.out.print(默认构造方法！--);
@@ -805,7 +795,7 @@ Java语言通过字节码的方式，在一定程度上解决了传统解释型�
 
 **example 1**
 
-```
+```java
 public static void main(String[] args) {
     int num1 = 10;
     int num2 = 20;
@@ -828,7 +818,7 @@ public static void swap(int a, int b) {
 
 **结果：**
 
-```
+```java
 a = 20
 b = 10
 num1 = 10
@@ -845,7 +835,7 @@ num2 = 20
 
 **example 2**
 
-```
+```java
 	public static void main(String[] args) {
 		int[] arr = { 1, 2, 3, 4, 5 };
 		System.out.println(arr[0]);
@@ -861,7 +851,7 @@ num2 = 20
 
 **结果：**
 
-```
+```java
 1
 0
 ```
@@ -878,7 +868,7 @@ array 被初始化 arr 的拷贝也就是一个对象的引用，也就是说 ar
 
 **example 3**
 
-```
+```java
 public class Test {
 
 	public static void main(String[] args) {
@@ -902,7 +892,7 @@ public class Test {
 
 **结果：**
 
-```
+```java
 x:小李
 y:小张
 s1:小张

@@ -390,7 +390,7 @@ AIO 并没有采用NIO的多路复用器，而是使用异步通道的概念。�
 
 **select函数** ：select 会修改传入的参数数组；如果任何一个sock(I/O stream)出现了数据，select 仅仅会返回，但是并不会告诉你是那个sock上有数据；只能监视1024个链接；不是线程安全的
 
-**poll函数 **  poll的机制与select类似，管理多个描述符也是进行轮询，去掉了1024个链接的限制；但是poll仍然不是线程安全的
+**poll函数** ：poll的机制与select类似，管理多个描述符也是进行轮询，去掉了1024个链接的限制；但是poll仍然不是线程安全的
 
 **epoll函数：** epoll是之前的select和poll的增强版本。epoll 现在是线程安全的，不仅告诉你sock组里面数据，还会告诉你具体哪个sock有数据。epoll只支持linux，BSD上面对应的实现是kqueue。
 

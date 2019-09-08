@@ -68,7 +68,7 @@
 
 通过 Thread 调用 start() 方法来启动线程。
 
-```
+```java
 public class MyRunnable implements Runnable {
     public void run() {
         // ...
@@ -76,7 +76,7 @@ public class MyRunnable implements Runnable {
 }
 ```
 
-```
+```java
 public static void main(String[] args) {
     MyRunnable instance = new MyRunnable();
     Thread thread = new Thread(instance);
@@ -88,7 +88,7 @@ public static void main(String[] args) {
 
 与 Runnable 相比，Callable 可以有返回值，返回值通过 FutureTask 进行封装。
 
-```
+```java
 public class MyCallable implements Callable<Integer> {
     public Integer call() {
         return 123;
@@ -96,7 +96,7 @@ public class MyCallable implements Callable<Integer> {
 }
 ```
 
-```
+```java
 public static void main(String[] args) throws ExecutionException, InterruptedException {
     MyCallable mc = new MyCallable();
     FutureTask<Integer> ft = new FutureTask<>(mc);
@@ -112,7 +112,7 @@ public static void main(String[] args) throws ExecutionException, InterruptedExc
 
 当调用 start() 方法启动一个线程时，虚拟机会将该线程放入就绪队列中等待被调度，当一个线程被调度时会执行该线程的 run() 方法。
 
-```
+```java
 public class MyThread extends Thread {
     public void run() {
         // ...
@@ -120,7 +120,7 @@ public class MyThread extends Thread {
 }
 ```
 
-```
+```java
 public static void main(String[] args) {
     MyThread mt = new MyThread();
     mt.start();
@@ -152,7 +152,7 @@ main() 属于非守护线程。
 
 使用 setDaemon() 方法将一个线程设置为守护线程。
 
-```
+```java
 public static void main(String[] args) {
     Thread thread = new Thread(new MyRunnable());
     thread.setDaemon(true);
@@ -171,7 +171,7 @@ Thread.sleep(millisec) 方法会休眠当前正在执行的线程，millisec 单
 
 sleep() 可能会抛出 InterruptedException，因为异常不能跨线程传播回 main() 中，因此必须在本地进行处理。线程中抛出的其它异常也同样需要在本地进行处理。
 
-```
+```java
 public void run() {
     try {
         Thread.sleep(3000);
@@ -185,7 +185,7 @@ public void run() {
 
 对静态方法 Thread.yield() 的调用声明了当前线程已经完成了生命周期中最重要的部分，可以切换给其它线程来执行。该方法只是对线程调度器的一个建议，而且也只是建议具有相同优先级的其它线程可以运行。
 
-```
+```java
 public void run() {
     Thread.yield();
 }
@@ -195,7 +195,7 @@ public void run() {
 
 在Java中，使用1-10表示线程的优先级。一般可以使用内置的三个静态标量表示：
 
-```
+```java
 public final static int MIN_PRIORITY = 1;
 public final static int NOR_PRIORITY = 5;
 public final static int MAX_PRIORITY = 10;
@@ -213,7 +213,7 @@ public final static int MAX_PRIORITY = 10;
 
 对于以下代码，虽然 b 线程先启动，但是因为在 b 线程中调用了 a 线程的 join() 方法，b 线程会等待 a 线程结束才继续执行，因此最后能够保证 a 线程的输出先于 b 线程的输出。
 
-```
+```java
 public class JoinExample {
 
     private class A extends Thread {
@@ -251,17 +251,16 @@ public class JoinExample {
 }
 ```
 
-```
+```java
 public static void main(String[] args) {
     JoinExample example = new JoinExample();
     example.test();
 }
 ```
 
-```
+```java
 A
 B
-
 ```
 
 ## wait() notify() notifyAll()
@@ -274,7 +273,7 @@ B
 
 使用 wait() 挂起期间，线程会释放锁。这是因为，如果没有释放锁，那么其它线程就无法进入对象的同步方法或者同步控制块中，那么就无法执行 notify() 或者 notifyAll() 来唤醒挂起的线程，造成死锁。
 
-```
+```java
 public class WaitNotifyExample {
 
     public synchronized void before() {
@@ -293,7 +292,7 @@ public class WaitNotifyExample {
 }
 ```
 
-```
+```java
 public static void main(String[] args) {
     ExecutorService executorService = Executors.newCachedThreadPool();
     WaitNotifyExample example = new WaitNotifyExample();
@@ -302,7 +301,7 @@ public static void main(String[] args) {
 }
 ```
 
-```
+```java
 before
 after
 ```
@@ -320,7 +319,7 @@ java.util.concurrent 类库中提供了 Condition 类来实现线程之间的协
 
 使用 Lock 来获取一个 Condition 对象。
 
-```
+```java
 public class AwaitSignalExample {
 
     private Lock lock = new ReentrantLock();
@@ -368,7 +367,7 @@ after
 
 对于以下代码，在 main() 中启动一个线程之后再中断它，由于线程中调用了 Thread.sleep() 方法，因此会抛出一个 InterruptedException，从而提前结束线程，不执行之后的语句。
 
-```
+```java
 public class InterruptExample {
 
     private static class MyThread1 extends Thread {
@@ -385,7 +384,7 @@ public class InterruptExample {
 }
 ```
 
-```
+```java
 public static void main(String[] args) throws InterruptedException {
     Thread thread1 = new MyThread1();
     thread1.start();
@@ -394,7 +393,7 @@ public static void main(String[] args) throws InterruptedException {
 }
 ```
 
-```
+```java
 Main run
 java.lang.InterruptedException: sleep interrupted
     at java.lang.Thread.sleep(Native Method)
@@ -409,7 +408,7 @@ java.lang.InterruptedException: sleep interrupted
 
 但是调用 interrupt() 方法会设置线程的中断标记，此时调用 interrupted() 方法会返回 true。因此可以在循环体中使用 interrupted() 方法来判断线程是否处于中断状态，从而提前结束线程。
 
-```
+```java
 public class InterruptExample {
 
     private static class MyThread2 extends Thread {
@@ -424,7 +423,7 @@ public class InterruptExample {
 }
 ```
 
-```
+```java
 public static void main(String[] args) throws InterruptedException {
     Thread thread2 = new MyThread2();
     thread2.start();
@@ -432,7 +431,7 @@ public static void main(String[] args) throws InterruptedException {
 }
 ```
 
-```
+```java
 Thread end
 ```
 
@@ -442,7 +441,7 @@ Thread end
 
 以下使用 Lambda 创建线程，相当于创建了一个匿名内部线程。
 
-```
+```java
 public static void main(String[] args) {
     ExecutorService executorService = Executors.newCachedThreadPool();
     executorService.execute(() -> {
@@ -458,7 +457,7 @@ public static void main(String[] args) {
 }
 ```
 
-```
+```java
 Main run
 java.lang.InterruptedException: sleep interrupted
     at java.lang.Thread.sleep(Native Method)
@@ -471,7 +470,7 @@ java.lang.InterruptedException: sleep interrupted
 
 如果只想中断 Executor 中的一个线程，可以通过使用 submit() 方法来提交一个线程，它会返回一个 Future<?> 对象，通过调用该对象的 cancel(true) 方法就可以中断线程。
 
-```
+```java
 Future<?> future = executorService.submit(() -> {
     // ..
 });
@@ -557,7 +556,7 @@ AtomicInteger 能保证多个线程修改的原子性。
 
 使用 AtomicInteger 重写之前线程不安全的代码之后得到以下线程安全实现：
 
-```
+```java
 public class AtomicExample {
     private AtomicInteger cnt = new AtomicInteger();
 
@@ -571,7 +570,7 @@ public class AtomicExample {
 }
 ```
 
-```
+```java
 public static void main(String[] args) throws InterruptedException {
     final int threadSize = 1000;
     AtomicExample example = new AtomicExample(); // 只修改这条语句
@@ -589,13 +588,13 @@ public static void main(String[] args) throws InterruptedException {
 }
 ```
 
-```
+```java
 1000
 ```
 
 除了使用原子类之外，也可以使用 synchronized 互斥锁来保证操作的原子性。它对应的内存间交互操作为：lock 和 unlock，在虚拟机实现上对应的字节码指令为 monitorenter 和 monitorexit。
 
-```
+```java
 public class AtomicSynchronizedExample {
     private int cnt = 0;
 
@@ -609,7 +608,7 @@ public class AtomicSynchronizedExample {
 }
 ```
 
-```
+```java
 public static void main(String[] args) throws InterruptedException {
     final int threadSize = 1000;
     AtomicSynchronizedExample example = new AtomicSynchronizedExample();
@@ -627,7 +626,7 @@ public static void main(String[] args) throws InterruptedException {
 }
 ```
 
-```
+```java
 1000
 ```
 

@@ -46,7 +46,7 @@ new Thread() 的缺点
 
 #### newCachedThreadPool：
 
-```
+```java
 public static ExecutorService newCachedThreadPool(){
   return new ThreadPoolExecutor(0, Integer.MAX_VAUE,
   								60L, TimeUnit.SECONDS,
@@ -61,7 +61,7 @@ public static ExecutorService newCachedThreadPool(){
 
 #### newFixedThreadPool: 
 
-```
+```java
 public static ExecutorService newFixedThreadPool(int nThreads){
   return new ThreadPoolExecutor(nThreads, nThreads,
   								0L, TimeUnit.SECONDS,
@@ -73,7 +73,7 @@ public static ExecutorService newFixedThreadPool(int nThreads){
 
 #### newSingleThreadExecutor:
 
-```
+```java
 public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory){
   return new FinalizableDelegatedExecutorService(
   		 new ThreadPoolExecutor(1, 1,
@@ -88,7 +88,7 @@ public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactor
 
 #### newWorkStealingPool(JDK8新增)
 
-```
+```java
 public static ExecutorService newWorkStealingPool(int parallelism) {
     return new ForkJoinPool
         (parallelism,
@@ -103,7 +103,7 @@ public static ExecutorService newWorkStealingPool(int parallelism) {
 
 #### newScheduledThreadPool:
 
-```
+```java
 public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize){
   		return new ScheduledThreadPoolExecutor(corePoolSize);
 }
@@ -111,7 +111,7 @@ public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize){
 
 初始化的线程池可以在指定的时间内周期性的执行所提交的任务，在实际的业务场景中可以使用该线程池定期的同步数据。
 
-```
+```java
 public static void main(String[] args) {
     ExecutorService executorService = Executors.newCachedThreadPool();
     for (int i = 0; i < 5; i++) {
@@ -274,13 +274,13 @@ runWorker方法是线程池的核心：
 
 CPU密集型任务应配置尽可能小的线程，如配置CPU个数+1的线程数，IO密集型任务应配置尽可能多的线程，因为IO操作不占用CPU，不要让CPU闲下来，应加大线程数量，如配置两倍CPU个数+1，而对于混合型的任务，如果可以拆分，拆分成IO密集型和CPU密集型分别处理，前提是两者运行的时间是差不多的，如果处理时间相差很大，则没必要拆分了。
 
-```
+```java
 最佳线程数目 = （（线程等待时间+线程CPU时间）/线程CPU时间 ）* CPU数目
 ```
 
 比如平均每个线程CPU运行时间为0.5s，而线程等待时间（非CPU运行时间，比如IO）为1.5s，CPU核心数为8，那么根据上面这个公式估算得到：((0.5+1.5)/0.5)*8=32。这个公式进一步转化为：
 
-```
+```java
 最佳线程数目 = （线程等待时间与线程CPU时间之比 + 1）* CPU数目
 ```
 
@@ -301,7 +301,7 @@ java.util.concurrent（J.U.C）大大提高了并发性能，AQS 被认为是 J.
 
  ![11](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/11.png?raw=true)
 
-```
+```java
 public class CountdownLatchExample {
 
     public static void main(String[] args) throws InterruptedException {
@@ -321,7 +321,7 @@ public class CountdownLatchExample {
 }
 ```
 
-```
+```java
 run..run..run..run..run..run..run..run..run..run..end
 ```
 
@@ -335,7 +335,7 @@ CyclicBarrier 和 CountdownLatch 的一个区别是，CyclicBarrier 的计数器
 
 CyclicBarrier 有两个构造函数，其中 parties 指示计数器的初始值，barrierAction 在所有线程都到达屏障的时候，系统会执行一次。
 
-```
+```java
 public CyclicBarrier(int parties, Runnable barrierAction) {
     if (parties <= 0) throw new IllegalArgumentException();
     this.parties = parties;
@@ -352,7 +352,7 @@ public CyclicBarrier(int parties) {
 
 ![22](https://github.com/orangehaswing/InterviewNote/blob/master/Java%E5%B9%B6%E5%8F%91/resource/22.png?raw=true)
 
-```
+```java
 public class CyclicBarrierExample {
 
     public static void main(String[] args) {
@@ -375,7 +375,7 @@ public class CyclicBarrierExample {
 }
 ```
 
-```
+```java
 before..before..before..before..before..before..before..before..before..before..after..after..after..after..after..after..after..after..after..after..
 ```
 
@@ -387,7 +387,7 @@ Semaphore 类似于操作系统中的信号量，可以控制对互斥资源的�
 
 以下代码模拟了对某个服务的并发请求，每次只能有 3 个客户端同时访问，请求总数为 10。
 
-```
+```java
 public class SemaphoreExample {
 
     public static void main(String[] args) {
@@ -412,7 +412,7 @@ public class SemaphoreExample {
 }
 ```
 
-```
+```java
 2 1 2 2 2 2 2 1 2 2
 ```
 
@@ -422,17 +422,17 @@ public class SemaphoreExample {
 
 在介绍 Callable 时我们知道它可以有返回值，返回值通过 Future 进行封装。FutureTask 实现了 RunnableFuture 接口，该接口继承自 Runnable 和 Future 接口，这使得 FutureTask 既可以当做一个任务执行，也可以有返回值。
 
-```
+```java
 public class FutureTask<V> implements RunnableFuture<V>
 ```
 
-```
+```java
 public interface RunnableFuture<V> extends Runnable, Future<V>
 ```
 
 FutureTask 可用于异步获取执行结果或取消执行任务的场景。当一个计算任务需要执行很长时间，那么就可以用 FutureTask 来封装这个任务，主线程在完成自己的任务之后再去获取结果。
 
-```
+```java
 public class FutureTaskExample {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
@@ -465,7 +465,7 @@ public class FutureTaskExample {
 }
 ```
 
-```
+```java
 other task is running...
 4950
 ```
@@ -501,7 +501,7 @@ JDK8 提供了 7 个阻塞队列：
 
 **使用 BlockingQueue 实现生产者消费者问题**
 
-```
+```java
 public class ProducerConsumer {
 
     private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(5);
@@ -533,7 +533,7 @@ public class ProducerConsumer {
 }
 ```
 
-```
+```java
 public static void main(String[] args) {
     for (int i = 0; i < 2; i++) {
         Producer producer = new Producer();
@@ -550,7 +550,7 @@ public static void main(String[] args) {
 }
 ```
 
-```
+```java
 produce..produce..consume..consume..produce..consume..produce..consume..produce..consume..
 ```
 
@@ -558,7 +558,7 @@ produce..produce..consume..consume..produce..consume..produce..consume..produce.
 
 主要用于并行计算中，和 MapReduce 原理类似，都是把大的计算任务拆分成多个小任务并行计算。
 
-```
+```java
 public class ForkJoinExample extends RecursiveTask<Integer> {
 
     private final int threshold = 5;
@@ -592,7 +592,7 @@ public class ForkJoinExample extends RecursiveTask<Integer> {
 }
 ```
 
-```
+```java
 public static void main(String[] args) throws ExecutionException, InterruptedException {
     ForkJoinExample example = new ForkJoinExample(1, 10000);
     ForkJoinPool forkJoinPool = new ForkJoinPool();
@@ -603,7 +603,7 @@ public static void main(String[] args) throws ExecutionException, InterruptedExc
 
 ForkJoin 使用 ForkJoinPool 来启动，它是一个特殊的线程池，线程数量取决于 CPU 核数。
 
-```
+```java
 public class ForkJoinPool extends AbstractExecutorService
 ```
 
@@ -671,7 +671,7 @@ monitor，把它理解为一个同步工具，也可以描述为一种同步机�
 
 **1. 同步一个代码块**
 
-```
+```java
 public void func() {
     synchronized (this) {
         // ...
@@ -683,7 +683,7 @@ public void func() {
 
 对于以下代码，使用 ExecutorService 执行了两个线程，由于调用的是同一个对象的同步代码块，因此这两个线程会进行同步，当一个线程进入同步语句块时，另一个线程就必须等待。
 
-```
+```java
 public class SynchronizedExample {
 
     public void func1() {
@@ -696,7 +696,7 @@ public class SynchronizedExample {
 }
 ```
 
-```
+```java
 public static void main(String[] args) {
     SynchronizedExample e1 = new SynchronizedExample();
     ExecutorService executorService = Executors.newCachedThreadPool();
@@ -705,13 +705,13 @@ public static void main(String[] args) {
 }
 ```
 
-```
+```java
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9
 ```
 
 对于以下代码，两个线程调用了不同对象的同步代码块，因此这两个线程就不需要同步。从输出结果可以看出，两个线程交叉执行。
 
-```
+```java
 public static void main(String[] args) {
     SynchronizedExample e1 = new SynchronizedExample();
     SynchronizedExample e2 = new SynchronizedExample();
@@ -721,13 +721,13 @@ public static void main(String[] args) {
 }
 ```
 
-```
+```java
 0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9
 ```
 
 **2. 同步一个方法**
 
-```
+```java
 public synchronized void func () {
     // ...
 }
@@ -737,7 +737,7 @@ public synchronized void func () {
 
 **3. 同步一个类**
 
-```
+```java
 public void func() {
     synchronized (SynchronizedExample.class) {
         // ...
@@ -747,7 +747,7 @@ public void func() {
 
 作用于整个类，也就是说两个线程调用同一个类的不同对象上的这种同步语句，也会进行同步。
 
-```
+```java
 public class SynchronizedExample {
 
     public void func2() {
@@ -760,7 +760,7 @@ public class SynchronizedExample {
 }
 ```
 
-```
+```java
 public static void main(String[] args) {
     SynchronizedExample e1 = new SynchronizedExample();
     SynchronizedExample e2 = new SynchronizedExample();
@@ -770,13 +770,13 @@ public static void main(String[] args) {
 }
 ```
 
-```
+```java
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9
 ```
 
 **4. 同步一个静态方法**
 
-```
+```java
 public synchronized static void fun() {
     // ...
 }
@@ -786,7 +786,7 @@ public synchronized static void fun() {
 
 **实现原理**：
 
-```
+```java
 public class SynchronizedTest {
     private static Object object = new Object();
     public static void main(String[] args) throws Exception{
@@ -800,7 +800,7 @@ public class SynchronizedTest {
 
 上述代码中，使用了同步代码块和同步方法，通过使用javap工具查看生成的class文件信息来分析synchronized关键字的实现细节。
 
-```
+```java
 public static void main(java.lang.String[]) throws java.lang.Exception;
     descriptor: ([Ljava/lang/String;)V
     flags: ACC_PUBLIC, ACC_STATIC
@@ -842,7 +842,7 @@ public static void main(java.lang.String[]) throws java.lang.Exception;
 
 ReentrantLock 是 java.util.concurrent（J.U.C）包中的锁。
 
-```
+```java
 public class LockExample {
 
     private Lock lock = new ReentrantLock();
@@ -860,7 +860,7 @@ public class LockExample {
 }
 ```
 
-```
+```java
 public static void main(String[] args) {
     LockExample lockExample = new LockExample();
     ExecutorService executorService = Executors.newCachedThreadPool();
@@ -869,7 +869,7 @@ public static void main(String[] args) {
 }
 ```
 
-```
+```java
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9
 ```
 
@@ -881,7 +881,7 @@ public static void main(String[] args) {
 - 读 - 写互斥：读阻塞写，写也会阻塞读
 - 写 - 写互斥：写写阻塞
 
-```
+```java
 public interface ReadWriteLock {  
     Lock readLock();       //获取读锁  
     Lock writeLock();      //获取写锁  
@@ -910,7 +910,7 @@ StampedLock是java 8 中引入的一种新的锁机制。可以认为他是读�
 
 ReetrantReadWriteLock同样支持公平性选择，支持重进入，锁降级。
 
-```
+```java
 public class RWLock {
     static Map<String, Object> map = new HashMap<String, Object>();
     static ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock();
@@ -969,7 +969,7 @@ synchronized 中的锁是非公平的，ReentrantLock 默认情况下也是非�
 
 一个 ReentrantLock 可以同时绑定多个 Condition 对象。Condition 是和重入锁相关，它和wait()，notify()方法的作用大致相同。但是wait()，notify()方法是和synchronized关键字合作。
 
-```
+```java
 public static ReetrantLock lock = new ReetrantLock();
 public static Condition condition = lock.newCondition;
 ```
@@ -1006,7 +1006,7 @@ public static Condition condition = lock.newCondition;
 
 对于集合类型，可以使用 Collections.unmodifiableXXX() 方法来获取一个不可变的集合。
 
-```
+```java
 public class ImmutableExample {
     public static void main(String[] args) {
         Map<String, Integer> map = new HashMap<>();
@@ -1016,7 +1016,7 @@ public class ImmutableExample {
 }
 ```
 
-```
+```java
 Exception in thread "main" java.lang.UnsupportedOperationException
     at java.util.Collections$UnmodifiableMap.put(Collections.java:1457)
     at ImmutableExample.main(ImmutableExample.java:9)
@@ -1024,7 +1024,7 @@ Exception in thread "main" java.lang.UnsupportedOperationException
 
 Collections.unmodifiableXXX() 先对原始的集合进行拷贝，需要对集合进行修改的方法都直接抛出异常。
 
-```
+```java
 public V put(K key, V value) {
     throw new UnsupportedOperationException();
 }
@@ -1068,7 +1068,7 @@ CAS 指令需要有 3 个操作数，分别是内存地址 V、旧的预期值 A
 
 J.U.C下的atomic类都是通过CAS来实现的，下面我么就以AtomicInteger为例来阐述CAS的实现。如下：
 
-```
+```java
     private static final Unsafe unsafe = Unsafe.getUnsafe();
     private static final long valueOffset;
 
@@ -1087,7 +1087,7 @@ valueOffset为变量值在内存中的偏移地址，unsafe就是通过偏移地
 
 我们就以AtomicInteger的addAndGet()方法来做说明，先看源代码：
 
-```
+```java
     public final int addAndGet(int delta) {
         return unsafe.getAndAddInt(this, valueOffset, delta) + delta;
     }
@@ -1104,7 +1104,7 @@ valueOffset为变量值在内存中的偏移地址，unsafe就是通过偏移地
 
 内部调用unsafe的getAndAddInt方法，在getAndAddInt方法中主要是看compareAndSwapInt方法：
 
-```
+```java
     public final native boolean compareAndSwapInt(Object var1, long var2, int var4, int var5);
 ```
 
@@ -1112,7 +1112,7 @@ valueOffset为变量值在内存中的偏移地址，unsafe就是通过偏移地
 
 获得Unsafe实例的方法是调用其工厂方法getUnsafe()。但是，它的实现却是这样的
 
-```
+```java
 public static Unsafe getUnsafe(){
 	Class cc = Reflection.getCallerClass();
 	if(cc.getClassLoader() != null){
@@ -1186,7 +1186,7 @@ J.U.C 包里面的整数原子类 AtomicInteger 的方法调用了 Unsafe 类的
 
 以下代码使用了 AtomicInteger 执行了自增的操作。
 
-```
+```java
 private AtomicInteger cnt = new AtomicInteger();
 
 public void add() {
@@ -1196,7 +1196,7 @@ public void add() {
 
 以下代码是 incrementAndGet() 的源码，它调用了 Unsafe 的 getAndAddInt() 。
 
-```
+```java
 public final int incrementAndGet() {
     return unsafe.getAndAddInt(this, valueOffset, 1) + 1;
 }
@@ -1206,7 +1206,7 @@ public final int incrementAndGet() {
 
 可以看到 getAndAddInt() 在一个循环中进行，发生冲突的做法是不断的进行重试。
 
-```
+```java
 public final int getAndAddInt(Object var1, long var2, int var4) {
     int var5;
     do {
@@ -1233,7 +1233,7 @@ CAS的ABA隐患问题，解决方案则是版本号，Java提供了AtomicStamped
 
 AtomicStampedReference的compareAndSet()方法定义如下：
 
-```
+```java
     public boolean compareAndSet(V   expectedReference,
                                  V   newReference,
                                  int expectedStamp,
@@ -1247,12 +1247,11 @@ AtomicStampedReference的compareAndSet()方法定义如下：
              casPair(current, Pair.of(newReference, newStamp)));
     }
 
-
 ```
 
 compareAndSet有四个参数，分别表示：预期引用、更新后的引用、预期标志、更新后的标志。源码部门很好理解预期的引用 == 当前引用，预期的标识 == 当前标识，如果更新后的引用和标志和当前的引用和标志相等则直接返回true，否则通过Pair生成一个新的pair对象与当前pair CAS替换。Pair为AtomicStampedReference的内部类，主要用于记录引用和版本戳信息（标识），定义如下：
 
-```
+```java
     private static class Pair<T> {
         final T reference;
         final int stamp;
@@ -1266,12 +1265,11 @@ compareAndSet有四个参数，分别表示：预期引用、更新后的引用�
     }
 
     private volatile Pair<V> pair;
-
 ```
 
 Pair记录着对象的引用和版本戳，版本戳为int型，保持自增。同时Pair是一个不可变对象，其所有属性全部定义为final，对外提供一个of方法，该方法返回一个新建的Pari对象。pair对象定义为volatile，保证多线程环境下的可见性。在AtomicStampedReference中，大多方法都是通过调用Pair的of方法来产生一个新的Pair对象，然后赋值给变量pair。如set方法：
 
-```
+```java
     public void set(V newReference, int newStamp) {
         Pair<V> current = pair;
         if (newReference != current.reference || newStamp != current.stamp)
@@ -1287,7 +1285,7 @@ Pair记录着对象的引用和版本戳，版本戳为int型，保持自增。�
 
 多个线程访问同一个方法的局部变量时，不会出现线程安全问题，因为局部变量存储在虚拟机栈中，属于线程私有的。
 
-```
+```java
 public class StackClosedExample {
     public void add100() {
         int cnt = 0;
@@ -1299,7 +1297,7 @@ public class StackClosedExample {
 }
 ```
 
-```
+```java
 public static void main(String[] args) {
     StackClosedExample example = new StackClosedExample();
     ExecutorService executorService = Executors.newCachedThreadPool();
@@ -1309,7 +1307,7 @@ public static void main(String[] args) {
 }
 ```
 
-```
+```java
 100
 100
 ```
@@ -1328,7 +1326,7 @@ ThreadLocal为变量在每个线程中都创建了一个副本，所以每个线
 
 set(T value) 和 get()方法的源码：
 
-```
+```java
  public void set(T value) {
     Thread t = Thread.currentThread();
     ThreadLocalMap map = getMap(t);
@@ -1355,7 +1353,6 @@ public T get() {
 ThreadLocalMap getMap(Thread t) {
     return t.threadLocals;
 }
-
 ```
 
 可以发现，每个线程中都有一个`ThreadLocalMap`数据结构，当执行set方法时，其值是保存在当前线程的`threadLocals`变量中，当执行get方法中，是从当前线程的`threadLocals`变量获取。
@@ -1378,7 +1375,7 @@ ThreadLocalMap getMap(Thread t) {
 
 没有链表结构，那发生hash冲突了怎么办？先看看ThreadLoalMap中插入一个key-value的实现
 
-```
+```java
 private void set(ThreadLocal<?> key, Object value) {
     Entry[] tab = table;
     int len = tab.length;
@@ -1405,7 +1402,6 @@ private void set(ThreadLocal<?> key, Object value) {
     if (!cleanSomeSlots(i, sz) && sz >= threshold)
         rehash();
 }
-
 ```
 
 每个ThreadLocal对象都有一个hash值`threadLocalHashCode`，每初始化一个ThreadLocal对象，hash值就增加一个固定的大小`0x61c88647`。
@@ -1424,7 +1420,7 @@ private void set(ThreadLocal<?> key, Object value) {
 
 ThreadLocal可能导致内存泄漏，为什么？先看看Entry的实现：
 
-```
+```java
 static class Entry extends WeakReference<ThreadLocal<?>> {
     /** The value associated with this ThreadLocal. */
     Object value;
@@ -1434,7 +1430,6 @@ static class Entry extends WeakReference<ThreadLocal<?>> {
         value = v;
     }
 }
-
 ```
 
 通过之前的分析已经知道，当使用ThreadLocal保存一个value时，会在ThreadLocalMap中的数组插入一个Entry对象，按理说key-value都应该以强引用保存在Entry对象中，但在ThreadLocalMap的实现中，key被保存到了WeakReference对象中。
@@ -1447,7 +1442,7 @@ static class Entry extends WeakReference<ThreadLocal<?>> {
 
 如果使用ThreadLocal的set方法之后，没有显示的调用remove方法，就有可能发生内存泄露，所以养成良好的编程习惯十分重要，使用完ThreadLocal之后，记得调用remove方法。
 
-```
+```java
 ThreadLocal<String> localName = new ThreadLocal();
 try {
     localName.set("占小狼");
@@ -1459,7 +1454,7 @@ try {
 
 对于以下代码，thread1 中设置 threadLocal 为 1，而 thread2 设置 threadLocal 为 2。过了一段时间之后，thread1 读取 threadLocal 依然是 1，不受 thread2 的影响。
 
-```
+```java
 public class ThreadLocalExample {
     public static void main(String[] args) {
         ThreadLocal threadLocal = new ThreadLocal();
@@ -1483,13 +1478,13 @@ public class ThreadLocalExample {
 }
 ```
 
-```
+```java
 1
 ```
 
 为了理解 ThreadLocal，先看以下代码：
 
-```
+```java
 public class ThreadLocalExample1 {
     public static void main(String[] args) {
         ThreadLocal threadLocal1 = new ThreadLocal();
@@ -1514,7 +1509,7 @@ public class ThreadLocalExample1 {
 
 每个 Thread 都有一个 ThreadLocal.ThreadLocalMap 对象。
 
-```
+```java
 /* ThreadLocal values pertaining to this thread. This map is maintained
  * by the ThreadLocal class. */
 ThreadLocal.ThreadLocalMap threadLocals = null;
@@ -1522,7 +1517,7 @@ ThreadLocal.ThreadLocalMap threadLocals = null;
 
 当调用一个 ThreadLocal 的 set(T value) 方法时，先得到当前线程的 ThreadLocalMap 对象，然后将 ThreadLocal->value 键值对插入到该 Map 中。
 
-```
+```java
 public void set(T value) {
     Thread t = Thread.currentThread();
     ThreadLocalMap map = getMap(t);
@@ -1535,7 +1530,7 @@ public void set(T value) {
 
 get() 方法类似。
 
-```
+```java
 public T get() {
     Thread t = Thread.currentThread();
     ThreadLocalMap map = getMap(t);
@@ -1603,7 +1598,7 @@ JDK提供的容器大部分在J. U. C包中。
 
 ConcurrentSkipListMap主要用到了Node和Index两种节点的存储方式，Node表示一个节点，里面含有K,V两个元素，还有next元素指向下一个节点。对node的所有操作都是CAS方法。Index作为索引，进行全网组织。
 
-```
+```java
 static final class Node<K,V> {
     final K key;
     volatile Object value;//value值
@@ -1631,7 +1626,7 @@ static class Index<K,V> {
 
 锁是可以反复进入：
 
-```
+```java
 lock.lock();
 lock.lock();
 try{
@@ -1690,7 +1685,7 @@ Lock接口中的lockInterruptibly()方法就体现了Lock的可中断性。
 
 对于一些看起来没有加锁的代码，其实隐式的加了很多锁。例如下面的字符串拼接代码就隐式加了锁：
 
-```
+```java
 public static String concatString(String s1, String s2, String s3) {
     return s1 + s2 + s3;
 }
@@ -1698,7 +1693,7 @@ public static String concatString(String s1, String s2, String s3) {
 
 String 是一个不可变的类，编译器会对 String 的拼接自动优化。在 JDK 1.5 之前，会转化为 StringBuffer 对象的连续 append() 操作：
 
-```
+```java
 public static String concatString(String s1, String s2, String s3) {
     StringBuffer sb = new StringBuffer();
     sb.append(s1);

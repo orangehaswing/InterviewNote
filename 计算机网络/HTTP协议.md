@@ -58,11 +58,12 @@ URI 包含 URL 和 URN，目前 WEB 只有 URL 比较流行，所以见到的基
 
 上传文件：由于自身不带验证机制，任何人都可以上传文件，因此存在安全性问题，一般不使用该方法。
 
-```
+```http
 PUT /new.html HTTP/1.1
 Host: example.com
 Content-type: text/html
 Content-length: 16
+
 
 <p>New File</p>
 ```
@@ -71,7 +72,7 @@ Content-length: 16
 
 对资源进行部分修改：PUT 也可以用于修改资源，但是只能完全替代原始资源，PATCH 允许部分修改。
 
-```
+```http
 PATCH /file.txt HTTP/1.1
 Host: www.example.com
 Content-Type: application/example
@@ -85,7 +86,7 @@ Content-Length: 100
 
 删除文件：与 PUT 功能相反，并且同样不带验证机制。
 
-```
+```http
 DELETE /file.html HTTP/1.1
 ```
 
@@ -99,7 +100,7 @@ DELETE /file.html HTTP/1.1
 
 使用 SSL（Secure Sockets Layer，安全套接层）和 TLS（Transport Layer Security，传输层安全）协议把通信内容加密后经网络隧道传输。
 
-```
+```http
 CONNECT www.example.com:443 HTTP/1.1
 ```
 
@@ -282,7 +283,7 @@ Cookie 曾一度用于客户端数据的存储，因为当时并没有其它合�
 
 服务器发送的响应报文包含 Set-Cookie 首部字段，客户端得到响应报文后把 Cookie 内容保存到浏览器中。
 
-```
+```http
 HTTP/1.0 200 OK
 Content-type: text/html
 Set-Cookie: yummy_cookie=choco
@@ -293,7 +294,7 @@ Set-Cookie: tasty_cookie=strawberry
 
 客户端之后对同一个服务器发送请求时，会从浏览器中取出 Cookie 信息并通过 Cookie 请求首部字段发送给服务器。
 
-```
+```http
 GET /sample_page.html HTTP/1.1
 Host: www.example.org
 Cookie: yummy_cookie=choco; tasty_cookie=strawberry
@@ -304,7 +305,7 @@ Cookie: yummy_cookie=choco; tasty_cookie=strawberry
 - 会话期 Cookie：浏览器关闭之后它会被自动删除，也就是说它仅在会话期内有效。
 - 持久性 Cookie：指定一个特定的过期时间（Expires）或有效期（max-age）之后就成为了持久性的 Cookie。
 
-```
+```http
 Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2015 07:28:00 GMT;
 ```
 
@@ -322,7 +323,7 @@ Path 标识指定了主机下的哪些路径可以接受 Cookie（该 URL 路径
 
 通过 `document.cookie` 属性可创建新的 Cookie，也可通过该属性访问非 HttpOnly 标记的 Cookie。
 
-```
+```http
 document.cookie = "yummy_cookie=choco";
 document.cookie = "tasty_cookie=strawberry";
 console.log(document.cookie);
@@ -332,7 +333,7 @@ console.log(document.cookie);
 
 标记为 HttpOnly 的 Cookie 不能被 JavaScript 脚本调用。跨站脚本攻击 (XSS) 常常使用 JavaScript 的 `document.cookie` API 窃取用户的 Cookie 信息，因此使用 HttpOnly 标记可以在一定程度上避免 XSS 攻击。
 
-```
+```http
 Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly
 ```
 
@@ -385,7 +386,7 @@ HTTP/1.1 通过 Cache-Control 首部字段来控制缓存。
 
 no-store 指令规定不能对请求或响应的任何一部分进行缓存。
 
-```
+```http
 Cache-Control: no-store
 ```
 
@@ -393,7 +394,7 @@ Cache-Control: no-store
 
 no-cache 指令规定缓存服务器需要先向源服务器验证缓存资源的有效性，只有当缓存资源有效才将能使用该缓存对客户端的请求进行响应。
 
-```
+```http
 Cache-Control: no-cache
 ```
 
@@ -401,13 +402,13 @@ Cache-Control: no-cache
 
 private 指令规定了将资源作为私有缓存，只能被单独用户所使用，一般存储在用户浏览器中。
 
-```
+```http
 Cache-Control: private
 ```
 
 public 指令规定了将资源作为公共缓存，可以被多个用户所使用，一般存储在代理服务器中。
 
-```
+```http
 Cache-Control: public
 ```
 
@@ -417,13 +418,13 @@ max-age 指令出现在请求报文中，并且缓存资源的缓存时间小于
 
 max-age 指令出现在响应报文中，表示缓存资源在缓存服务器中保存的时间。
 
-```
+```http
 Cache-Control: max-age=31536000
 ```
 
 Expires 首部字段也可以用于告知缓存服务器该资源什么时候会过期。
 
-```
+```http
 Expires: Wed, 04 Jul 2012 08:26:05 GMT
 ```
 
@@ -434,23 +435,23 @@ Expires: Wed, 04 Jul 2012 08:26:05 GMT
 
 需要先了解 ETag 首部字段的含义，它是资源的唯一标识。URL 不能唯一表示资源，例如 `http://www.google.com/` 有中文和英文两个资源，只有 ETag 才能对这两个资源进行唯一标识。
 
-```
+```http
 ETag: "82e22293907ce725faf67773957acd12"
 ```
 
 可以将缓存资源的 ETag 值放入 If-None-Match 首部，服务器收到该请求后，判断缓存资源的 ETag 值和资源的最新 ETag 值是否一致，如果一致则表示缓存资源有效，返回 304 Not Modified。
 
-```
+```http
 If-None-Match: "82e22293907ce725faf67773957acd12"
 ```
 
 Last-Modified 首部字段也可以用于缓存验证，它包含在源服务器发送的响应报文中，指示源服务器对资源的最后修改时间。但是它是一种弱校验器，因为只能精确到一秒，所以它通常作为 ETag 的备用方案。如果响应首部字段里含有这个信息，客户端可以在后续的请求中带上 If-Modified-Since 来验证缓存。服务器只在所请求的资源在给定的日期时间之后对内容进行过修改的情况下才会将资源返回，状态码为 200 OK。如果请求的资源从那时起未经修改，那么返回一个不带有消息主体的 304 Not Modified 响应。
 
-```
+```http
 Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
 ```
 
-```
+```http
 If-Modified-Since: Wed, 21 Oct 2015 07:28:00 GMT
 ```
 
@@ -476,7 +477,7 @@ If-Modified-Since: Wed, 21 Oct 2015 07:28:00 GMT
 
 ### 2. Vary
 
-```
+```http
 Vary: Accept-Language
 ```
 
@@ -500,7 +501,7 @@ Vary: Accept-Language
 
 在请求报文中添加 Range 首部字段指定请求的范围。
 
-```
+```http
 GET /z4d4kWk.jpg?raw=true HTTP/1.1
 Host: i.imgur.com
 Range: bytes=0-1023
@@ -508,7 +509,7 @@ Range: bytes=0-1023
 
 请求成功的话服务器返回的响应包含 206 Partial Content 状态码。
 
-```
+```http
 HTTP/1.1 206 Partial Content
 Content-Range: bytes 0-1023/146515
 Content-Length: 1024
@@ -520,7 +521,7 @@ Content-Length: 1024
 
 响应首部字段 Accept-Ranges 用于告知客户端是否能处理范围请求，可以处理使用 bytes，否则使用 none。
 
-```
+```http
 Accept-Ranges: bytes
 ```
 
@@ -540,7 +541,7 @@ Chunked Transfer Coding，可以把数据分割成多块，让浏览器逐步显
 
 例如，上传多个表单时可以使用如下方式：
 
-```
+```http
 Content-Type: multipart/form-data; boundary=AaB03x
 
 --AaB03x
@@ -739,16 +740,14 @@ GET 和 POST 的请求都能使用额外的参数，但是 GET 的参数是以�
 
 因为 URL 只支持 ASCII 码，因此 GET 的参数中如果存在中文等字符就需要先进行编码。例如 `中文` 会转换为 `%E4%B8%AD%E6%96%87`，而空格会转换为 `%20`。POST 参考支持标准字符集。
 
-```
+```http
 GET /test/demo_form.asp?name1=value1&name2=value2 HTTP/1.1
-
 ```
 
-```
+```http
 POST /test/demo_form.asp HTTP/1.1
 Host: w3schools.com
 name1=value1&name2=value2
-
 ```
 
 ## 安全
@@ -771,30 +770,27 @@ GET 方法是安全的，而 POST 却不是，因为 POST 的目的是传送实�
 
 GET /pageX HTTP/1.1 是幂等的，连续调用多次，客户端接收到的结果都是一样的：
 
-```
+```http
 GET /pageX HTTP/1.1
 GET /pageX HTTP/1.1
 GET /pageX HTTP/1.1
 GET /pageX HTTP/1.1
-
 ```
 
 POST /add_row HTTP/1.1 不是幂等的，如果调用多次，就会增加多行记录：
 
-```
+```http
 POST /add_row HTTP/1.1   -> Adds a 1nd row
 POST /add_row HTTP/1.1   -> Adds a 2nd row
 POST /add_row HTTP/1.1   -> Adds a 3rd row
-
 ```
 
 DELETE /idX/delete HTTP/1.1 是幂等的，即便不同的请求接收到的状态码不一样：
 
-```
+```http
 DELETE /idX/delete HTTP/1.1   -> Returns 200 if idX exists
 DELETE /idX/delete HTTP/1.1   -> Returns 404 as it just got deleted
 DELETE /idX/delete HTTP/1.1   -> Returns 404
-
 ```
 
 ## 可缓存
@@ -813,10 +809,4 @@ DELETE /idX/delete HTTP/1.1   -> Returns 404
 
 - 在使用 XMLHttpRequest 的 POST 方法时，浏览器会先发送 Header 再发送 Data。但并不是所有浏览器会这么做，例如火狐就不会。
 - 而 GET 方法 Header 和 Data 会一起发送。
-
-
-
-
-
-
 
